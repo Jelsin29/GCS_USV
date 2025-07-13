@@ -1,0 +1,8 @@
+v4l2-ctl --list-devices     # Do cameras see orin nano?
+sudo lsof -i : [port]       # For IP in use error
+sudo kill -9 [PID]          # For IP in use error
+
+# To open Minihawk Simulation:
+gz sim -v4 -r alti_runway.sdf
+sim_vehicle.py -v ArduPlane --model JSON --add-param-file=$HOME/ardupilot_gazebo/models/alti_transition_quad/alti_transition_quad.param
+

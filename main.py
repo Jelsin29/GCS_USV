@@ -1,8 +1,8 @@
 import sys
 from PySide6.QtWidgets import QApplication
 
-from Database.Cloud import FirebaseThread
 from MainWindow import MainWindow
+from Database.Cloud import FirebaseThread
 from Database.users_db import FirebaseUser
 
 if __name__ == '__main__':

@@ -14,18 +14,26 @@ from PIL import Image
 
 
 def image_to_base64(image_path, size=(100, 100)):
-    with Image.open(image_path) as img:
-        img = img.resize(size)
-        if img.mode == 'RGBA':
-            img = img.convert('RGB')
-        buffered = io.BytesIO()
-        img.save(buffered, format="JPEG")
-        return base64.b64encode(buffered.getvalue()).decode()
+    try:
+        with Image.open(image_path) as img:
+            img = img.resize(size)
+            if img.mode == 'RGBA':
+                img = img.convert('RGB')
+            buffered = io.BytesIO()
+            img.save(buffered, format="JPEG")
+            return base64.b64encode(buffered.getvalue()).decode()
+    except Exception as e:
+        print(f"Error converting image to base64: {e}")
+        return ""
 
 
 def icon_to_base64(image_path):
-    with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode()
+    try:
+        with open(image_path, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode()
+    except Exception as e:
+        print(f"Error loading icon {image_path}: {e}")
+        return ""
 
 
 uav_icon_base64 = icon_to_base64('uifolder/assets/icons/uav.png')

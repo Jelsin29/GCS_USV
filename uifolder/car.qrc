@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/meters">
+        <file>assets/ship.png</file>
+        <file>assets/battery.png</file>
+        <file>assets/compas.png</file>
+        <file>assets/nail_compas.png</file>
+    </qresource>
+</RCC>

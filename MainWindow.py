@@ -3,15 +3,15 @@ import threading
 
 from PySide6 import QtGui
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QApplication, QMainWindow, QSizePolicy, QSizeGrip, QVBoxLayout, QWidget, QInputDialog
 from PySide6.QtCore import Qt, QEvent, QSize, QPropertyAnimation, QEasingCurve
+from PySide6.QtWidgets import QApplication, QMainWindow, QSizePolicy, QSizeGrip, QVBoxLayout, QWidget, QInputDialog
 
-from AntennaTracker import AntennaTracker, antenna_tracker
-from TargetsPage import TargetsPage
-from Vehicle.ArdupilotConnection import ArdupilotConnectionThread
 from HomePage import HomePage
-from IndicatorsPage import IndicatorsPage
 from uifolder import Ui_MainWindow
+from TargetsPage import TargetsPage
+from IndicatorsPage import IndicatorsPage
+from AntennaTracker import AntennaTracker, antenna_tracker
+from Vehicle.ArdupilotConnection import ArdupilotConnectionThread
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -21,7 +21,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.firebase = firebase
 
-        # Frameless Windowimport os
+        # Frameless Window
         self.setWindowFlag(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
 
@@ -80,19 +80,36 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setButton(self.btn_targets_page, 'uifolder/assets/icons/24x24/cil-user.png')
         self.btn_connect.setIcon(QtGui.QIcon('uifolder/assets/icons/24x24/cil-link-broken.png'))
 
-        # Buttons to give orders to vehicle
+        # **UPDATED: Main Connection Button**
         self.btn_connect.clicked.connect(self.connectToVehicle)
-        self.homepage.btn_set_roi.clicked.connect(self.connectionThread.set_roi)
-        self.homepage.btn_cancel_roi.clicked.connect(self.connectionThread.cancel_roi_mode)
-        self.homepage.btn_move.clicked.connect(self.connectionThread.goto_markers_pos)
-        self.homepage.btn_takeoff.clicked.connect(self.takeoff)
-        self.homepage.btn_land.clicked.connect(self.connectionThread.land)
-        self.homepage.btn_rtl.clicked.connect(lambda: self.connectionThread.connection.set_mode_apm("QRTL"))
-        self.homepage.btn_rtl_2.clicked.connect(self.connectionThread.rtl)
-        self.homepage.btn_abort.clicked.connect(self.abort)
-        self.homepage.btn_startMission.clicked.connect(self.connectionThread.start_mission)
-        self.homepage.btn_track_all.clicked.connect(self.track_all)
-        self.homepage.btn_antenna.clicked.connect(self.run_antenna_tracker)
+
+        # **UPDATED: HomePage Guidance Buttons (only if they exist)**
+        # These are the buttons that might still be on HomePage for guided control
+        if hasattr(self.homepage, 'btn_set_roi'):
+            self.homepage.btn_set_roi.clicked.connect(self.connectionThread.set_roi)
+        if hasattr(self.homepage, 'btn_cancel_roi'):
+            self.homepage.btn_cancel_roi.clicked.connect(self.connectionThread.cancel_roi_mode)
+        if hasattr(self.homepage, 'btn_move'):
+            self.homepage.btn_move.clicked.connect(self.connectionThread.goto_markers_pos)
+        if hasattr(self.homepage, 'btn_takeoff'):
+            self.homepage.btn_takeoff.clicked.connect(self.takeoff)
+        if hasattr(self.homepage, 'btn_land'):
+            self.homepage.btn_land.clicked.connect(self.connectionThread.land)
+        if hasattr(self.homepage, 'btn_rtl'):
+            self.homepage.btn_rtl.clicked.connect(lambda: self.connectionThread.connection.set_mode_apm("QRTL"))
+        if hasattr(self.homepage, 'btn_rtl_2'):
+            self.homepage.btn_rtl_2.clicked.connect(self.connectionThread.rtl)
+        if hasattr(self.homepage, 'btn_track_all'):
+            self.homepage.btn_track_all.clicked.connect(self.track_all)
+
+        # **REMOVED: Mission control buttons - now handled in TargetsPage**
+        # These buttons have been moved to TargetsPage (Mission Control)
+        # if hasattr(self.homepage, 'btn_abort'):
+        #     self.homepage.btn_abort.clicked.connect(self.abort)
+        # if hasattr(self.homepage, 'btn_startMission'):
+        #     self.homepage.btn_startMission.clicked.connect(self.connectionThread.start_mission)
+        # if hasattr(self.homepage, 'btn_antenna'):
+        #     self.homepage.btn_antenna.clicked.connect(self.run_antenna_tracker)
 
         # Button to Allocate Windows
         self.indicatorspage.btn_AllocateWidget.clicked.connect(
@@ -191,15 +208,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.stackedWidget.setCurrentWidget(self.homepage)
             self.label_top_info_2.setText("| HOME")
 
-        # PAGE NEW USER
+        # PAGE INDICATORS
         if button.objectName() == "btn_indicators_page":
             self.stackedWidget.setCurrentWidget(self.indicatorswidget)
             self.label_top_info_2.setText("| Indicators")
 
-        # PAGE WIDGETS
+        # PAGE MISSION CONTROL (formerly Targets)
         if button.objectName() == "btn_targets_page":
             self.stackedWidget.setCurrentWidget(self.targetspage)
-            self.label_top_info_2.setText("| Targets")
+            self.label_top_info_2.setText("| Mission Control")  # **UPDATED: Changed label**
 
     def connectToVehicle(self):
         self.connectionThread.setBaudRate(int(self.combobox_baudrate.currentText()))
@@ -211,6 +228,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if okPressed:
             self.connectionThread.takeoff(int(altitude))
 
+    # **MOVED: These methods are now available but might be called from TargetsPage**
     def run_antenna_tracker(self):
         antenna = AntennaTracker(-35.3635, 149.1652)
         lat, lon = antenna.get_location()
@@ -223,13 +241,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                        )
 
         threading.Thread(target=antenna_tracker, args=(antenna, self.connectionThread)).start()
-        self.homepage.btn_antenna.setDisabled(True)
+        # **UPDATED: Now disable the button on TargetsPage instead of HomePage**
+        if hasattr(self.targetspage, 'btn_antenna'):
+            self.targetspage.btn_antenna.setDisabled(True)
 
     def abort(self):
-        self.homepage.cameraWidget.videothread.sendMessage("abort")
+        if hasattr(self.homepage, 'cameraWidget') and hasattr(self.homepage.cameraWidget, 'videothread'):
+            self.homepage.cameraWidget.videothread.sendMessage("abort")
 
     def track_all(self):
-        self.homepage.cameraWidget.videothread.sendMessage("track -1")
+        if hasattr(self.homepage, 'cameraWidget') and hasattr(self.homepage.cameraWidget, 'videothread'):
+            self.homepage.cameraWidget.videothread.sendMessage("track -1")
 
     def AllocateWidget(self, parent, child):
         if child.isAttached:

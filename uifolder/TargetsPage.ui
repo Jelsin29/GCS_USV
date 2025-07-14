@@ -6,84 +6,417 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>806</width>
-    <height>597</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Mission Control</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="4,0">
+  <property name="styleSheet">
+   <string notr="true">
+/* MODERN MISSION CONTROL STYLING */
+QWidget {
+    background-color: #ffffff;
+    color: #495057;
+}
+
+QFrame {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+}
+
+QPushButton {
+    background: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 12px 16px;
+    color: #495057;
+    font-weight: 500;
+    min-height: 24px;
+}
+
+QPushButton:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+QPushButton:pressed {
+    background: #dee2e6;
+}
+
+QComboBox {
+    background: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 8px 12px;
+    color: #495057;
+}
+
+QComboBox:hover {
+    border-color: #0d6efd;
+}
+
+QLabel {
+    color: #495057;
+    font-weight: 600;
+    font-size: 14px;
+}
+   </string>
+  </property>
+  
+  <layout class="QVBoxLayout" name="mainVerticalLayout">
    <property name="spacing">
-    <number>50</number>
+    <number>20</number>
    </property>
    <property name="leftMargin">
+    <number>30</number>
+   </property>
+   <property name="topMargin">
     <number>30</number>
    </property>
    <property name="rightMargin">
     <number>30</number>
    </property>
+   <property name="bottomMargin">
+    <number>30</number>
+   </property>
+   
+   <!-- MISSION PLANNING SECTION -->
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
-     <property name="spacing">
-      <number>5</number>
+    <widget class="QFrame" name="missionPlanningFrame">
+     <property name="styleSheet">
+      <string notr="true">QFrame{
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+}</string>
      </property>
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Detected Targets</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QScrollArea" name="targets_scrollarea">
-       <property name="widgetResizable">
-        <bool>true</bool>
-       </property>
-       <widget class="QWidget" name="scrollAreaWidgetContents_3">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>498</width>
-          <height>553</height>
-         </rect>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <layout class="QVBoxLayout" name="missionPlanningLayout">
+      <property name="spacing">
+       <number>15</number>
+      </property>
+      <property name="leftMargin">
+       <number>20</number>
+      </property>
+      <property name="topMargin">
+       <number>20</number>
+      </property>
+      <property name="rightMargin">
+       <number>20</number>
+      </property>
+      <property name="bottomMargin">
+       <number>20</number>
+      </property>
+      
+      <item>
+       <widget class="QLabel" name="missionPlanningLabel">
+        <property name="text">
+         <string>Mission Planning</string>
+        </property>
+        <property name="styleSheet">
+         <string>QLabel { font-size: 16px; font-weight: bold; color: #495057; }</string>
         </property>
        </widget>
-      </widget>
-     </item>
-    </layout>
+      </item>
+      
+      <item>
+       <widget class="QWidget" name="modeSelectionWidget" native="true">
+        <layout class="QHBoxLayout" name="modeSelectionLayout" stretch="3,1">
+         <property name="spacing">
+          <number>12</number>
+         </property>
+         <item>
+          <widget class="QComboBox" name="modes_comboBox">
+           <property name="minimumHeight">
+            <number>40</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>Select Map Mode</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Marker Mode</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Area Selection Mode</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Waypoint Mode</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btn_chooseMode">
+           <property name="text">
+            <string>Select Mode</string>
+           </property>
+           <property name="minimumHeight">
+            <number>40</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      
+      <item>
+       <layout class="QHBoxLayout" name="missionButtonsLayout">
+        <property name="spacing">
+         <number>12</number>
+        </property>
+        <item>
+         <widget class="QPushButton" name="btn_setMission">
+          <property name="text">
+           <string>Define Mission</string>
+          </property>
+          <property name="minimumHeight">
+           <number>40</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_undo">
+          <property name="text">
+           <string>Undo</string>
+          </property>
+          <property name="minimumHeight">
+           <number>40</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_clearAll">
+          <property name="text">
+           <string>Clear All</string>
+          </property>
+          <property name="minimumHeight">
+           <number>40</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
    </item>
+   
+   <!-- ANTENNA TRACKING SECTION -->
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,4">
-     <property name="spacing">
-      <number>5</number>
+    <widget class="QFrame" name="antennaFrame">
+     <property name="styleSheet">
+      <string notr="true">QFrame{
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+}</string>
      </property>
-     <item>
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Mobile App Connections</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QScrollArea" name="users_scrollarea">
-       <property name="widgetResizable">
-        <bool>true</bool>
-       </property>
-       <widget class="QWidget" name="scrollAreaWidgetContents_4">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>190</width>
-          <height>553</height>
-         </rect>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <layout class="QVBoxLayout" name="antennaLayout">
+      <property name="spacing">
+       <number>15</number>
+      </property>
+      <property name="leftMargin">
+       <number>20</number>
+      </property>
+      <property name="topMargin">
+       <number>20</number>
+      </property>
+      <property name="rightMargin">
+       <number>20</number>
+      </property>
+      <property name="bottomMargin">
+       <number>20</number>
+      </property>
+      
+      <item>
+       <widget class="QLabel" name="antennaLabel">
+        <property name="text">
+         <string>Antenna Control</string>
+        </property>
+        <property name="styleSheet">
+         <string>QLabel { font-size: 16px; font-weight: bold; color: #495057; }</string>
         </property>
        </widget>
-      </widget>
-     </item>
-    </layout>
+      </item>
+      
+      <item>
+       <widget class="QPushButton" name="btn_antenna">
+        <property name="styleSheet">
+         <string notr="true">QPushButton{
+    border-radius: 4px;
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                                      stop:0 #dc3545, stop:1 #c82333);
+    border: 1px solid #bd2130;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 12px 16px;
+    min-height: 24px;
+}
+QPushButton:hover{ 
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                                      stop:0 #c82333, stop:1 #bd2130);
+}
+QPushButton:pressed{
+    background-color: #bd2130;
+}
+QPushButton:disabled{ 
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: #ffffff;
+}</string>
+        </property>
+        <property name="text">
+         <string>Antenna Tracking</string>
+        </property>
+        <property name="minimumHeight">
+         <number>50</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   
+   <!-- MISSION EXECUTION SECTION -->
+   <item>
+    <widget class="QFrame" name="missionExecutionFrame">
+     <property name="styleSheet">
+      <string notr="true">QFrame{
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+}</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <layout class="QVBoxLayout" name="missionExecutionLayout">
+      <property name="spacing">
+       <number>15</number>
+      </property>
+      <property name="leftMargin">
+       <number>20</number>
+      </property>
+      <property name="topMargin">
+       <number>20</number>
+      </property>
+      <property name="rightMargin">
+       <number>20</number>
+      </property>
+      <property name="bottomMargin">
+       <number>20</number>
+      </property>
+      
+      <item>
+       <widget class="QLabel" name="missionExecutionLabel">
+        <property name="text">
+         <string>Mission Execution</string>
+        </property>
+        <property name="styleSheet">
+         <string>QLabel { font-size: 16px; font-weight: bold; color: #495057; }</string>
+        </property>
+       </widget>
+      </item>
+      
+      <item>
+       <layout class="QHBoxLayout" name="executionButtonsLayout">
+        <property name="spacing">
+         <number>12</number>
+        </property>
+        <item>
+         <widget class="QPushButton" name="btn_startMission">
+          <property name="text">
+           <string>Start Mission</string>
+          </property>
+          <property name="styleSheet">
+           <string>QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                                stop:0 #28a745, stop:1 #20c997);
+    border: 1px solid #1e7e34;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 12px 16px;
+    min-height: 24px;
+}
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                                stop:0 #20c997, stop:1 #1e7e34);
+}</string>
+          </property>
+          <property name="minimumHeight">
+           <number>50</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_abort">
+          <property name="text">
+           <string>Stop Tracking</string>
+          </property>
+          <property name="styleSheet">
+           <string>QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                                stop:0 #ffc107, stop:1 #e0a800);
+    border: 1px solid #d39e00;
+    color: #212529;
+    font-weight: 600;
+    padding: 12px 16px;
+    min-height: 24px;
+}
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                                stop:0 #e0a800, stop:1 #d39e00);
+}</string>
+          </property>
+          <property name="minimumHeight">
+           <number>50</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      
+      <item>
+       <widget class="QPushButton" name="btn_rtl">
+        <property name="text">
+         <string>Return Home</string>
+        </property>
+        <property name="minimumHeight">
+         <number>40</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   
+   <!-- SPACER -->
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>

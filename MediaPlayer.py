@@ -1,10 +1,10 @@
-import time
 import sys
+import time
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QApplication, QSlider, QPushButton, QFileDialog, \
     QHBoxLayout, QFrame, QLabel, QStyle, QToolTip, QSpacerItem, QSizePolicy
-from PySide6.QtGui import QAction, QPalette, QColor, QPixmap, QIcon
-from PySide6.QtCore import Qt, QTimer
 import vlc
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QAction, QPalette, QColor, QPixmap, QIcon
 
 
 class SliderTypes:

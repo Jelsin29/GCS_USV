@@ -44,7 +44,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Sizegrip (To Resize Window)
         self.sizegrip = QSizeGrip(self.frame_size_grip)
         self.sizegrip.setStyleSheet("background-image: url(uifolder/assets/icons/16x16/cil-size-grip.png);"
-                                    "width: 20px; height: 20px; margin 0px; padding: 0px;")
+                                    "width: 20px; height: 20px; margin 0px; padding 0px;")
 
         # Set Initial Baud Rate to Combobox
         self.combobox_baudrate.setCurrentText('115200')
@@ -168,37 +168,45 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Toggle Button
         if button.objectName() == "btn_toggle_menu":
             width = self.frame_left_menu.width()
-            maxWidth = 220
+            maxWidth = 240
             standard = 70
+            
             # SET MAX WIDTH
             if width == standard:
                 widthExtended = maxWidth
+                # Show text labels when expanded
                 self.btn_home_page.setText("    Home")
-                self.btn_indicators_page.setText("   Indicators")
-                self.btn_targets_page.setText("     Targets")
+                self.btn_indicators_page.setText("   Indicators") 
+                self.btn_targets_page.setText("   Mission Control")
+                # Change icon to indicate menu can be collapsed
+                self.btn_toggle_menu.setIcon(QtGui.QIcon('uifolder/assets/icons/24x24/cil-x.png'))
             else:
                 widthExtended = standard
+                # Hide text labels when collapsed
                 self.btn_home_page.setText("")
                 self.btn_indicators_page.setText("")
                 self.btn_targets_page.setText("")
+                # Change icon back to menu
+                self.btn_toggle_menu.setIcon(QtGui.QIcon('uifolder/assets/icons/24x24/cil-menu.png'))
 
-            # ANIMATION
+            # ANIMATION for smooth width transition
             self.animation = QPropertyAnimation(self.frame_left_menu, b"minimumWidth")
-            self.animation.setDuration(200)
+            self.animation.setDuration(300)  # Slightly longer for smoother feel
             self.animation.setStartValue(width)
             self.animation.setEndValue(widthExtended)
             self.animation.setEasingCurve(QEasingCurve.InOutQuart)
             self.animation.start()
 
-            animation = QPropertyAnimation(button, b"geometry")
-            animation.setDuration(2000)
-            animation.setStartValue(button.geometry())
-            animation.setEndValue(button.geometry())
-            animation.setEasingCurve(QEasingCurve.InOutQuad)
+            # Also animate maximum width for better control
+            self.animation2 = QPropertyAnimation(self.frame_left_menu, b"maximumWidth")
+            self.animation2.setDuration(300)
+            self.animation2.setStartValue(width)
+            self.animation2.setEndValue(widthExtended)
+            self.animation2.setEasingCurve(QEasingCurve.InOutQuart)
+            self.animation2.start()
 
-            # Start the animation
-            animation.start()
         else:
+            # Handle page navigation buttons
             self.disabledbutton.setDisabled(False)
             self.disabledbutton = button
             self.disabledbutton.setDisabled(True)
@@ -206,17 +214,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # PAGE HOME
         if button.objectName() == "btn_home_page":
             self.stackedWidget.setCurrentWidget(self.homepage)
-            self.label_top_info_2.setText("| HOME")
 
-        # PAGE INDICATORS
+        # PAGE INDICATORS  
         if button.objectName() == "btn_indicators_page":
             self.stackedWidget.setCurrentWidget(self.indicatorswidget)
-            self.label_top_info_2.setText("| Indicators")
 
         # PAGE MISSION CONTROL (formerly Targets)
         if button.objectName() == "btn_targets_page":
             self.stackedWidget.setCurrentWidget(self.targetspage)
-            self.label_top_info_2.setText("| Mission Control")  # **UPDATED: Changed label**
 
     def connectToVehicle(self):
         self.connectionThread.setBaudRate(int(self.combobox_baudrate.currentText()))

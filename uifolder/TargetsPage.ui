@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>828</width>
+    <height>1060</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -184,7 +184,6 @@ QLabel#consoleLabel {
 }
    </string>
   </property>
-  
   <layout class="QHBoxLayout" name="mainHorizontalLayout">
    <property name="spacing">
     <number>16</number>
@@ -201,8 +200,6 @@ QLabel#consoleLabel {
    <property name="bottomMargin">
     <number>16</number>
    </property>
-   
-   <!-- LEFT COLUMN: MISSION + GUIDED -->
    <item>
     <widget class="QWidget" name="leftColumn" native="true">
      <property name="minimumSize">
@@ -230,8 +227,6 @@ QLabel#consoleLabel {
       <property name="bottomMargin">
        <number>0</number>
       </property>
-      
-      <!-- MISSION SECTION -->
       <item>
        <widget class="QFrame" name="missionFrame">
         <layout class="QVBoxLayout" name="missionLayout">
@@ -250,7 +245,6 @@ QLabel#consoleLabel {
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         
          <item>
           <widget class="QLabel" name="missionLabel">
            <property name="text">
@@ -258,7 +252,6 @@ QLabel#consoleLabel {
            </property>
           </widget>
          </item>
-         
          <item>
           <widget class="QWidget" name="modeSelectionWidget" native="true">
            <property name="styleSheet">
@@ -270,9 +263,6 @@ QLabel#consoleLabel {
             </property>
             <item>
              <widget class="QComboBox" name="modes_comboBox">
-              <property name="minimumHeight">
-               <number>48</number>
-              </property>
               <item>
                <property name="text">
                 <string>Select Map Mode</string>
@@ -297,18 +287,41 @@ QLabel#consoleLabel {
             </item>
             <item>
              <widget class="QPushButton" name="btn_chooseMode">
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f8f9fa, stop:1 #e9ecef);
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 16px 24px;
+    color: #495057;
+    font-weight: 600;
+    font-size: 15px;
+    min-height: 24px;
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f1f3f4, stop:1 #e8eaed);
+    border-color: #ced4da;
+    color: #343a40;
+    transform: translateY(-1px);
+}
+
+QPushButton:pressed {
+    background: #dee2e6;
+    border-color: #ced4da;
+    transform: translateY(0px);
+}</string>
+              </property>
               <property name="text">
                <string>SELECT</string>
-              </property>
-              <property name="minimumHeight">
-               <number>48</number>
               </property>
              </widget>
             </item>
            </layout>
           </widget>
          </item>
-         
          <item>
           <layout class="QGridLayout" name="missionButtonsGrid">
            <property name="spacing">
@@ -316,48 +329,170 @@ QLabel#consoleLabel {
            </property>
            <item row="0" column="0">
             <widget class="QPushButton" name="btn_setMission">
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f8f9fa, stop:1 #e9ecef);
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 16px 24px;
+    color: #495057;
+    font-weight: 600;
+    font-size: 15px;
+    min-height: 24px;
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f1f3f4, stop:1 #e8eaed);
+    border-color: #ced4da;
+    color: #343a40;
+    transform: translateY(-1px);
+}
+
+QPushButton:pressed {
+    background: #dee2e6;
+    border-color: #ced4da;
+    transform: translateY(0px);
+}</string>
+             </property>
              <property name="text">
               <string>DEFINE MISSION</string>
-             </property>
-             <property name="minimumHeight">
-              <number>48</number>
              </property>
             </widget>
            </item>
            <item row="0" column="1">
             <widget class="QPushButton" name="btn_undo">
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f8f9fa, stop:1 #e9ecef);
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 16px 24px;
+    color: #495057;
+    font-weight: 600;
+    font-size: 15px;
+    min-height: 24px;
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f1f3f4, stop:1 #e8eaed);
+    border-color: #ced4da;
+    color: #343a40;
+    transform: translateY(-1px);
+}
+
+QPushButton:pressed {
+    background: #dee2e6;
+    border-color: #ced4da;
+    transform: translateY(0px);
+}</string>
+             </property>
              <property name="text">
               <string>UNDO</string>
-             </property>
-             <property name="minimumHeight">
-              <number>48</number>
              </property>
             </widget>
            </item>
            <item row="1" column="0" colspan="2">
             <widget class="QPushButton" name="btn_clearAll">
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f8f9fa, stop:1 #e9ecef);
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 16px 24px;
+    color: #495057;
+    font-weight: 600;
+    font-size: 15px;
+    min-height: 24px;
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f1f3f4, stop:1 #e8eaed);
+    border-color: #ced4da;
+    color: #343a40;
+    transform: translateY(-1px);
+}
+
+QPushButton:pressed {
+    background: #dee2e6;
+    border-color: #ced4da;
+    transform: translateY(0px);
+}</string>
+             </property>
              <property name="text">
               <string>CLEAR ALL</string>
-             </property>
-             <property name="minimumHeight">
-              <number>48</number>
              </property>
             </widget>
            </item>
           </layout>
          </item>
-         
          <item>
           <widget class="QPushButton" name="btn_antenna">
+           <property name="styleSheet">
+            <string notr="true">
+/* ANTENNA BUTTON - RED STATE (DEFAULT) */
+QPushButton#btn_antenna {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #dc3545, stop:1 #c82333);
+    border: 2px solid #bd2130;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 15px;
+    border-radius: 12px;
+    padding: 16px 24px;
+    min-height: 24px;
+}
+
+/* ANTENNA BUTTON - DARKER RED ON HOVER (WHEN NOT ACTIVE) */
+QPushButton#btn_antenna:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #c82333, stop:1 #a71e2a);
+    border-color: #a71e2a;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+/* ANTENNA BUTTON - PRESSED STATE (MOMENTARY) */
+QPushButton#btn_antenna:pressed {
+    background: #a71e2a;
+    border-color: #921924;
+    transform: translateY(0px);
+}
+
+/* ANTENNA BUTTON - ACTIVE/TRACKING STATE (GREEN) */
+QPushButton#btn_antenna[tracking=&quot;true&quot;] {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #28a745, stop:1 #1e7e34);
+    border: 2px solid #155724;
+    color: #ffffff;
+}
+
+/* ANTENNA BUTTON - GREEN STATE HOVER (DARKER GREEN) */
+QPushButton#btn_antenna[tracking=&quot;true&quot;]:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #1e7e34, stop:1 #155724);
+    border-color: #0f5132;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+/* ANTENNA BUTTON - GREEN STATE PRESSED */
+QPushButton#btn_antenna[tracking=&quot;true&quot;]:pressed {
+    background: #155724;
+    border-color: #0f5132;
+    transform: translateY(0px);
+}</string>
+           </property>
            <property name="text">
             <string>ANTENNA TRACKING</string>
            </property>
-           <property name="minimumHeight">
-            <number>56</number>
-           </property>
           </widget>
          </item>
-         
          <item>
           <layout class="QHBoxLayout" name="executionButtonsLayout">
            <property name="spacing">
@@ -365,42 +500,111 @@ QLabel#consoleLabel {
            </property>
            <item>
             <widget class="QPushButton" name="btn_startMission">
+             <property name="styleSheet">
+              <string notr="true">QPushButton#btn_startMission {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #28a745, stop:1 #20c997);
+    border: 2px solid #1e7e34;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 15px;
+    border-radius: 12px;
+    padding: 16px 24px;
+    min-height: 24px;
+}
+
+QPushButton#btn_startMission:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #1e7e34, stop:1 #155724);
+    border-color: #0f5132;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+QPushButton#btn_startMission:pressed {
+    background: #155724;
+    border-color: #0f5132;
+    transform: translateY(0px);
+}</string>
+             </property>
              <property name="text">
               <string>START MISSION</string>
-             </property>
-             <property name="minimumHeight">
-              <number>56</number>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QPushButton" name="btn_abort">
+             <property name="styleSheet">
+              <string notr="true">QPushButton#btn_abort {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #dc3545, stop:1 #c82333);
+    border: 2px solid #bd2130;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 15px;
+    border-radius: 12px;
+    padding: 16px 24px;
+    min-height: 24px;
+}
+
+QPushButton#btn_abort:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #c82333, stop:1 #a71e2a);
+    border-color: #a71e2a;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+QPushButton#btn_abort:pressed {
+    background: #a71e2a;
+    border-color: #921924;
+    transform: translateY(0px);
+}</string>
+             </property>
              <property name="text">
               <string>STOP</string>
-             </property>
-             <property name="minimumHeight">
-              <number>56</number>
              </property>
             </widget>
            </item>
           </layout>
          </item>
-         
          <item>
           <widget class="QPushButton" name="btn_rtl">
+           <property name="styleSheet">
+            <string notr="true">QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f8f9fa, stop:1 #e9ecef);
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 16px 24px;
+    color: #495057;
+    font-weight: 600;
+    font-size: 15px;
+    min-height: 24px;
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f1f3f4, stop:1 #e8eaed);
+    border-color: #ced4da;
+    color: #343a40;
+    transform: translateY(-1px);
+}
+
+QPushButton:pressed {
+    background: #dee2e6;
+    border-color: #ced4da;
+    transform: translateY(0px);
+}</string>
+           </property>
            <property name="text">
             <string>RETURN HOME</string>
-           </property>
-           <property name="minimumHeight">
-            <number>48</number>
            </property>
           </widget>
          </item>
         </layout>
        </widget>
       </item>
-      
-      <!-- GUIDED SECTION -->
       <item>
        <widget class="QFrame" name="guidedFrame">
         <layout class="QVBoxLayout" name="guidedLayout">
@@ -419,7 +623,6 @@ QLabel#consoleLabel {
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         
          <item>
           <widget class="QLabel" name="guidedLabel">
            <property name="text">
@@ -427,7 +630,6 @@ QLabel#consoleLabel {
            </property>
           </widget>
          </item>
-         
          <item>
           <layout class="QGridLayout" name="guidedButtonsGrid">
            <property name="spacing">
@@ -435,71 +637,239 @@ QLabel#consoleLabel {
            </property>
            <item row="0" column="0">
             <widget class="QPushButton" name="btn_takeoff">
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f8f9fa, stop:1 #e9ecef);
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 16px 24px;
+    color: #495057;
+    font-weight: 600;
+    font-size: 15px;
+    min-height: 24px;
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f1f3f4, stop:1 #e8eaed);
+    border-color: #ced4da;
+    color: #343a40;
+    transform: translateY(-1px);
+}
+
+QPushButton:pressed {
+    background: #dee2e6;
+    border-color: #ced4da;
+    transform: translateY(0px);
+}</string>
+             </property>
              <property name="text">
               <string>TAKEOFF</string>
-             </property>
-             <property name="minimumHeight">
-              <number>48</number>
              </property>
             </widget>
            </item>
            <item row="0" column="1">
             <widget class="QPushButton" name="btn_move">
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f8f9fa, stop:1 #e9ecef);
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 16px 24px;
+    color: #495057;
+    font-weight: 600;
+    font-size: 15px;
+    min-height: 24px;
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f1f3f4, stop:1 #e8eaed);
+    border-color: #ced4da;
+    color: #343a40;
+    transform: translateY(-1px);
+}
+
+QPushButton:pressed {
+    background: #dee2e6;
+    border-color: #ced4da;
+    transform: translateY(0px);
+}</string>
+             </property>
              <property name="text">
               <string>GO TO POINT</string>
-             </property>
-             <property name="minimumHeight">
-              <number>48</number>
              </property>
             </widget>
            </item>
            <item row="1" column="0">
             <widget class="QPushButton" name="btn_track_all">
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f8f9fa, stop:1 #e9ecef);
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 16px 24px;
+    color: #495057;
+    font-weight: 600;
+    font-size: 15px;
+    min-height: 24px;
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f1f3f4, stop:1 #e8eaed);
+    border-color: #ced4da;
+    color: #343a40;
+    transform: translateY(-1px);
+}
+
+QPushButton:pressed {
+    background: #dee2e6;
+    border-color: #ced4da;
+    transform: translateY(0px);
+}</string>
+             </property>
              <property name="text">
               <string>TRACK ALL</string>
-             </property>
-             <property name="minimumHeight">
-              <number>48</number>
              </property>
             </widget>
            </item>
            <item row="1" column="1">
             <widget class="QPushButton" name="btn_land">
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f8f9fa, stop:1 #e9ecef);
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 16px 24px;
+    color: #495057;
+    font-weight: 600;
+    font-size: 15px;
+    min-height: 24px;
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f1f3f4, stop:1 #e8eaed);
+    border-color: #ced4da;
+    color: #343a40;
+    transform: translateY(-1px);
+}
+
+QPushButton:pressed {
+    background: #dee2e6;
+    border-color: #ced4da;
+    transform: translateY(0px);
+}</string>
+             </property>
              <property name="text">
               <string>LAND</string>
-             </property>
-             <property name="minimumHeight">
-              <number>48</number>
              </property>
             </widget>
            </item>
            <item row="2" column="0" colspan="2">
             <widget class="QPushButton" name="btn_rtl_2">
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f8f9fa, stop:1 #e9ecef);
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 16px 24px;
+    color: #495057;
+    font-weight: 600;
+    font-size: 15px;
+    min-height: 24px;
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f1f3f4, stop:1 #e8eaed);
+    border-color: #ced4da;
+    color: #343a40;
+    transform: translateY(-1px);
+}
+
+QPushButton:pressed {
+    background: #dee2e6;
+    border-color: #ced4da;
+    transform: translateY(0px);
+}</string>
+             </property>
              <property name="text">
               <string>RETURN HOME</string>
-             </property>
-             <property name="minimumHeight">
-              <number>48</number>
              </property>
             </widget>
            </item>
            <item row="3" column="0">
             <widget class="QPushButton" name="btn_set_roi">
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f8f9fa, stop:1 #e9ecef);
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 16px 24px;
+    color: #495057;
+    font-weight: 600;
+    font-size: 15px;
+    min-height: 24px;
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f1f3f4, stop:1 #e8eaed);
+    border-color: #ced4da;
+    color: #343a40;
+    transform: translateY(-1px);
+}
+
+QPushButton:pressed {
+    background: #dee2e6;
+    border-color: #ced4da;
+    transform: translateY(0px);
+}</string>
+             </property>
              <property name="text">
               <string>SET ROI</string>
-             </property>
-             <property name="minimumHeight">
-              <number>48</number>
              </property>
             </widget>
            </item>
            <item row="3" column="1">
             <widget class="QPushButton" name="btn_cancel_roi">
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f8f9fa, stop:1 #e9ecef);
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    padding: 16px 24px;
+    color: #495057;
+    font-weight: 600;
+    font-size: 15px;
+    min-height: 24px;
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f1f3f4, stop:1 #e8eaed);
+    border-color: #ced4da;
+    color: #343a40;
+    transform: translateY(-1px);
+}
+
+QPushButton:pressed {
+    background: #dee2e6;
+    border-color: #ced4da;
+    transform: translateY(0px);
+}</string>
+             </property>
              <property name="text">
               <string>CANCEL ROI</string>
-             </property>
-             <property name="minimumHeight">
-              <number>48</number>
              </property>
             </widget>
            </item>
@@ -511,8 +881,6 @@ QLabel#consoleLabel {
      </layout>
     </widget>
    </item>
-   
-   <!-- RIGHT COLUMN: CONSOLE -->
    <item>
     <widget class="QFrame" name="consoleFrame">
      <property name="minimumSize">
@@ -537,7 +905,6 @@ QLabel#consoleLabel {
       <property name="bottomMargin">
        <number>0</number>
       </property>
-      
       <item>
        <widget class="QLabel" name="consoleLabel">
         <property name="text">
@@ -545,7 +912,6 @@ QLabel#consoleLabel {
         </property>
        </widget>
       </item>
-      
       <item>
        <widget class="QTextBrowser" name="textBrowser">
         <property name="minimumSize">

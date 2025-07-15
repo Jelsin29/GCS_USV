@@ -27,7 +27,6 @@ QFrame {
     border: none;
     border-radius: 16px;
     margin: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* CAMERA FRAME - CLEAN MODERN */
@@ -36,7 +35,6 @@ QWidget#cameraFrame {
     border: none;
     border-radius: 16px;
     margin: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* MAP FRAME - TESLA STYLE */
@@ -45,7 +43,6 @@ QWidget#mapFrame {
     border: none;
     border-radius: 16px;
     margin: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* TELEMETRY FRAME - MODERN CARD */
@@ -55,13 +52,6 @@ QFrame#futureContentFrame {
     border-radius: 16px;
     margin: 8px;
     padding: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-}
-
-/* HOVER EFFECTS FOR INTERACTIVE ELEMENTS */
-QWidget#cameraFrame:hover, QWidget#mapFrame:hover, QFrame#futureContentFrame:hover {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
 }
    </string>
   </property>

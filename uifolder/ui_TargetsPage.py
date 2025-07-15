@@ -23,7 +23,7 @@ class Ui_TargetsPage(object):
     def setupUi(self, TargetsPage):
         if not TargetsPage.objectName():
             TargetsPage.setObjectName(u"TargetsPage")
-        TargetsPage.resize(800, 600)
+        TargetsPage.resize(828, 1060)
         TargetsPage.setStyleSheet(u"/* MODERN MISSION CONTROL - LIGHT THEME TESLA STYLE */\n"
 "QWidget {\n"
 "    background-color: #f5f5f5;\n"
@@ -230,13 +230,36 @@ class Ui_TargetsPage(object):
         self.modes_comboBox.addItem("")
         self.modes_comboBox.addItem("")
         self.modes_comboBox.setObjectName(u"modes_comboBox")
-        self.modes_comboBox.setMinimumHeight(48)
 
         self.modeSelectionLayout.addWidget(self.modes_comboBox)
 
         self.btn_chooseMode = QPushButton(self.modeSelectionWidget)
         self.btn_chooseMode.setObjectName(u"btn_chooseMode")
-        self.btn_chooseMode.setMinimumHeight(48)
+        self.btn_chooseMode.setStyleSheet(u"QPushButton {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f8f9fa, stop:1 #e9ecef);\n"
+"    border: 2px solid #dee2e6;\n"
+"    border-radius: 12px;\n"
+"    padding: 16px 24px;\n"
+"    color: #495057;\n"
+"    font-weight: 600;\n"
+"    font-size: 15px;\n"
+"    min-height: 24px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f1f3f4, stop:1 #e8eaed);\n"
+"    border-color: #ced4da;\n"
+"    color: #343a40;\n"
+"    transform: translateY(-1px);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background: #dee2e6;\n"
+"    border-color: #ced4da;\n"
+"    transform: translateY(0px);\n"
+"}")
 
         self.modeSelectionLayout.addWidget(self.btn_chooseMode)
 
@@ -248,19 +271,91 @@ class Ui_TargetsPage(object):
         self.missionButtonsGrid.setObjectName(u"missionButtonsGrid")
         self.btn_setMission = QPushButton(self.missionFrame)
         self.btn_setMission.setObjectName(u"btn_setMission")
-        self.btn_setMission.setMinimumHeight(48)
+        self.btn_setMission.setStyleSheet(u"QPushButton {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f8f9fa, stop:1 #e9ecef);\n"
+"    border: 2px solid #dee2e6;\n"
+"    border-radius: 12px;\n"
+"    padding: 16px 24px;\n"
+"    color: #495057;\n"
+"    font-weight: 600;\n"
+"    font-size: 15px;\n"
+"    min-height: 24px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f1f3f4, stop:1 #e8eaed);\n"
+"    border-color: #ced4da;\n"
+"    color: #343a40;\n"
+"    transform: translateY(-1px);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background: #dee2e6;\n"
+"    border-color: #ced4da;\n"
+"    transform: translateY(0px);\n"
+"}")
 
         self.missionButtonsGrid.addWidget(self.btn_setMission, 0, 0, 1, 1)
 
         self.btn_undo = QPushButton(self.missionFrame)
         self.btn_undo.setObjectName(u"btn_undo")
-        self.btn_undo.setMinimumHeight(48)
+        self.btn_undo.setStyleSheet(u"QPushButton {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f8f9fa, stop:1 #e9ecef);\n"
+"    border: 2px solid #dee2e6;\n"
+"    border-radius: 12px;\n"
+"    padding: 16px 24px;\n"
+"    color: #495057;\n"
+"    font-weight: 600;\n"
+"    font-size: 15px;\n"
+"    min-height: 24px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f1f3f4, stop:1 #e8eaed);\n"
+"    border-color: #ced4da;\n"
+"    color: #343a40;\n"
+"    transform: translateY(-1px);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background: #dee2e6;\n"
+"    border-color: #ced4da;\n"
+"    transform: translateY(0px);\n"
+"}")
 
         self.missionButtonsGrid.addWidget(self.btn_undo, 0, 1, 1, 1)
 
         self.btn_clearAll = QPushButton(self.missionFrame)
         self.btn_clearAll.setObjectName(u"btn_clearAll")
-        self.btn_clearAll.setMinimumHeight(48)
+        self.btn_clearAll.setStyleSheet(u"QPushButton {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f8f9fa, stop:1 #e9ecef);\n"
+"    border: 2px solid #dee2e6;\n"
+"    border-radius: 12px;\n"
+"    padding: 16px 24px;\n"
+"    color: #495057;\n"
+"    font-weight: 600;\n"
+"    font-size: 15px;\n"
+"    min-height: 24px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f1f3f4, stop:1 #e8eaed);\n"
+"    border-color: #ced4da;\n"
+"    color: #343a40;\n"
+"    transform: translateY(-1px);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background: #dee2e6;\n"
+"    border-color: #ced4da;\n"
+"    transform: translateY(0px);\n"
+"}")
 
         self.missionButtonsGrid.addWidget(self.btn_clearAll, 1, 0, 1, 2)
 
@@ -269,7 +364,60 @@ class Ui_TargetsPage(object):
 
         self.btn_antenna = QPushButton(self.missionFrame)
         self.btn_antenna.setObjectName(u"btn_antenna")
-        self.btn_antenna.setMinimumHeight(56)
+        self.btn_antenna.setStyleSheet(u"\n"
+"/* ANTENNA BUTTON - RED STATE (DEFAULT) */\n"
+"QPushButton#btn_antenna {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #dc3545, stop:1 #c82333);\n"
+"    border: 2px solid #bd2130;\n"
+"    color: #ffffff;\n"
+"    font-weight: 600;\n"
+"    font-size: 15px;\n"
+"    border-radius: 12px;\n"
+"    padding: 16px 24px;\n"
+"    min-height: 24px;\n"
+"}\n"
+"\n"
+"/* ANTENNA BUTTON - DARKER RED ON HOVER (WHEN NOT ACTIVE) */\n"
+"QPushButton#btn_antenna:hover {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #c82333, stop:1 #a71e2a);\n"
+"    border-color: #a71e2a;\n"
+"    color: #ffffff;\n"
+"    transform: translateY(-1px);\n"
+"}\n"
+"\n"
+"/* ANTENNA BUTTON - PRESSED STATE (MOMENTARY) */\n"
+"QPushButton#btn_antenna:pressed {\n"
+"    background: #a71e2a;\n"
+"    border-color: #921924;\n"
+"    transform: translateY(0px);\n"
+"}\n"
+"\n"
+"/* ANTENNA BUTTON - ACTIVE/TRACKING STATE (GREEN) */\n"
+"QPushButton#btn_antenn"
+                        "a[tracking=\"true\"] {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #28a745, stop:1 #1e7e34);\n"
+"    border: 2px solid #155724;\n"
+"    color: #ffffff;\n"
+"}\n"
+"\n"
+"/* ANTENNA BUTTON - GREEN STATE HOVER (DARKER GREEN) */\n"
+"QPushButton#btn_antenna[tracking=\"true\"]:hover {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #1e7e34, stop:1 #155724);\n"
+"    border-color: #0f5132;\n"
+"    color: #ffffff;\n"
+"    transform: translateY(-1px);\n"
+"}\n"
+"\n"
+"/* ANTENNA BUTTON - GREEN STATE PRESSED */\n"
+"QPushButton#btn_antenna[tracking=\"true\"]:pressed {\n"
+"    background: #155724;\n"
+"    border-color: #0f5132;\n"
+"    transform: translateY(0px);\n"
+"}")
 
         self.missionLayout.addWidget(self.btn_antenna)
 
@@ -278,13 +426,61 @@ class Ui_TargetsPage(object):
         self.executionButtonsLayout.setObjectName(u"executionButtonsLayout")
         self.btn_startMission = QPushButton(self.missionFrame)
         self.btn_startMission.setObjectName(u"btn_startMission")
-        self.btn_startMission.setMinimumHeight(56)
+        self.btn_startMission.setStyleSheet(u"QPushButton#btn_startMission {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #28a745, stop:1 #20c997);\n"
+"    border: 2px solid #1e7e34;\n"
+"    color: #ffffff;\n"
+"    font-weight: 600;\n"
+"    font-size: 15px;\n"
+"    border-radius: 12px;\n"
+"    padding: 16px 24px;\n"
+"    min-height: 24px;\n"
+"}\n"
+"\n"
+"QPushButton#btn_startMission:hover {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #1e7e34, stop:1 #155724);\n"
+"    border-color: #0f5132;\n"
+"    color: #ffffff;\n"
+"    transform: translateY(-1px);\n"
+"}\n"
+"\n"
+"QPushButton#btn_startMission:pressed {\n"
+"    background: #155724;\n"
+"    border-color: #0f5132;\n"
+"    transform: translateY(0px);\n"
+"}")
 
         self.executionButtonsLayout.addWidget(self.btn_startMission)
 
         self.btn_abort = QPushButton(self.missionFrame)
         self.btn_abort.setObjectName(u"btn_abort")
-        self.btn_abort.setMinimumHeight(56)
+        self.btn_abort.setStyleSheet(u"QPushButton#btn_abort {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #dc3545, stop:1 #c82333);\n"
+"    border: 2px solid #bd2130;\n"
+"    color: #ffffff;\n"
+"    font-weight: 600;\n"
+"    font-size: 15px;\n"
+"    border-radius: 12px;\n"
+"    padding: 16px 24px;\n"
+"    min-height: 24px;\n"
+"}\n"
+"\n"
+"QPushButton#btn_abort:hover {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #c82333, stop:1 #a71e2a);\n"
+"    border-color: #a71e2a;\n"
+"    color: #ffffff;\n"
+"    transform: translateY(-1px);\n"
+"}\n"
+"\n"
+"QPushButton#btn_abort:pressed {\n"
+"    background: #a71e2a;\n"
+"    border-color: #921924;\n"
+"    transform: translateY(0px);\n"
+"}")
 
         self.executionButtonsLayout.addWidget(self.btn_abort)
 
@@ -293,7 +489,31 @@ class Ui_TargetsPage(object):
 
         self.btn_rtl = QPushButton(self.missionFrame)
         self.btn_rtl.setObjectName(u"btn_rtl")
-        self.btn_rtl.setMinimumHeight(48)
+        self.btn_rtl.setStyleSheet(u"QPushButton {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f8f9fa, stop:1 #e9ecef);\n"
+"    border: 2px solid #dee2e6;\n"
+"    border-radius: 12px;\n"
+"    padding: 16px 24px;\n"
+"    color: #495057;\n"
+"    font-weight: 600;\n"
+"    font-size: 15px;\n"
+"    min-height: 24px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f1f3f4, stop:1 #e8eaed);\n"
+"    border-color: #ced4da;\n"
+"    color: #343a40;\n"
+"    transform: translateY(-1px);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background: #dee2e6;\n"
+"    border-color: #ced4da;\n"
+"    transform: translateY(0px);\n"
+"}")
 
         self.missionLayout.addWidget(self.btn_rtl)
 
@@ -316,43 +536,211 @@ class Ui_TargetsPage(object):
         self.guidedButtonsGrid.setObjectName(u"guidedButtonsGrid")
         self.btn_takeoff = QPushButton(self.guidedFrame)
         self.btn_takeoff.setObjectName(u"btn_takeoff")
-        self.btn_takeoff.setMinimumHeight(48)
+        self.btn_takeoff.setStyleSheet(u"QPushButton {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f8f9fa, stop:1 #e9ecef);\n"
+"    border: 2px solid #dee2e6;\n"
+"    border-radius: 12px;\n"
+"    padding: 16px 24px;\n"
+"    color: #495057;\n"
+"    font-weight: 600;\n"
+"    font-size: 15px;\n"
+"    min-height: 24px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f1f3f4, stop:1 #e8eaed);\n"
+"    border-color: #ced4da;\n"
+"    color: #343a40;\n"
+"    transform: translateY(-1px);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background: #dee2e6;\n"
+"    border-color: #ced4da;\n"
+"    transform: translateY(0px);\n"
+"}")
 
         self.guidedButtonsGrid.addWidget(self.btn_takeoff, 0, 0, 1, 1)
 
         self.btn_move = QPushButton(self.guidedFrame)
         self.btn_move.setObjectName(u"btn_move")
-        self.btn_move.setMinimumHeight(48)
+        self.btn_move.setStyleSheet(u"QPushButton {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f8f9fa, stop:1 #e9ecef);\n"
+"    border: 2px solid #dee2e6;\n"
+"    border-radius: 12px;\n"
+"    padding: 16px 24px;\n"
+"    color: #495057;\n"
+"    font-weight: 600;\n"
+"    font-size: 15px;\n"
+"    min-height: 24px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f1f3f4, stop:1 #e8eaed);\n"
+"    border-color: #ced4da;\n"
+"    color: #343a40;\n"
+"    transform: translateY(-1px);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background: #dee2e6;\n"
+"    border-color: #ced4da;\n"
+"    transform: translateY(0px);\n"
+"}")
 
         self.guidedButtonsGrid.addWidget(self.btn_move, 0, 1, 1, 1)
 
         self.btn_track_all = QPushButton(self.guidedFrame)
         self.btn_track_all.setObjectName(u"btn_track_all")
-        self.btn_track_all.setMinimumHeight(48)
+        self.btn_track_all.setStyleSheet(u"QPushButton {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f8f9fa, stop:1 #e9ecef);\n"
+"    border: 2px solid #dee2e6;\n"
+"    border-radius: 12px;\n"
+"    padding: 16px 24px;\n"
+"    color: #495057;\n"
+"    font-weight: 600;\n"
+"    font-size: 15px;\n"
+"    min-height: 24px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f1f3f4, stop:1 #e8eaed);\n"
+"    border-color: #ced4da;\n"
+"    color: #343a40;\n"
+"    transform: translateY(-1px);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background: #dee2e6;\n"
+"    border-color: #ced4da;\n"
+"    transform: translateY(0px);\n"
+"}")
 
         self.guidedButtonsGrid.addWidget(self.btn_track_all, 1, 0, 1, 1)
 
         self.btn_land = QPushButton(self.guidedFrame)
         self.btn_land.setObjectName(u"btn_land")
-        self.btn_land.setMinimumHeight(48)
+        self.btn_land.setStyleSheet(u"QPushButton {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f8f9fa, stop:1 #e9ecef);\n"
+"    border: 2px solid #dee2e6;\n"
+"    border-radius: 12px;\n"
+"    padding: 16px 24px;\n"
+"    color: #495057;\n"
+"    font-weight: 600;\n"
+"    font-size: 15px;\n"
+"    min-height: 24px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f1f3f4, stop:1 #e8eaed);\n"
+"    border-color: #ced4da;\n"
+"    color: #343a40;\n"
+"    transform: translateY(-1px);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background: #dee2e6;\n"
+"    border-color: #ced4da;\n"
+"    transform: translateY(0px);\n"
+"}")
 
         self.guidedButtonsGrid.addWidget(self.btn_land, 1, 1, 1, 1)
 
         self.btn_rtl_2 = QPushButton(self.guidedFrame)
         self.btn_rtl_2.setObjectName(u"btn_rtl_2")
-        self.btn_rtl_2.setMinimumHeight(48)
+        self.btn_rtl_2.setStyleSheet(u"QPushButton {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f8f9fa, stop:1 #e9ecef);\n"
+"    border: 2px solid #dee2e6;\n"
+"    border-radius: 12px;\n"
+"    padding: 16px 24px;\n"
+"    color: #495057;\n"
+"    font-weight: 600;\n"
+"    font-size: 15px;\n"
+"    min-height: 24px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f1f3f4, stop:1 #e8eaed);\n"
+"    border-color: #ced4da;\n"
+"    color: #343a40;\n"
+"    transform: translateY(-1px);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background: #dee2e6;\n"
+"    border-color: #ced4da;\n"
+"    transform: translateY(0px);\n"
+"}")
 
         self.guidedButtonsGrid.addWidget(self.btn_rtl_2, 2, 0, 1, 2)
 
         self.btn_set_roi = QPushButton(self.guidedFrame)
         self.btn_set_roi.setObjectName(u"btn_set_roi")
-        self.btn_set_roi.setMinimumHeight(48)
+        self.btn_set_roi.setStyleSheet(u"QPushButton {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f8f9fa, stop:1 #e9ecef);\n"
+"    border: 2px solid #dee2e6;\n"
+"    border-radius: 12px;\n"
+"    padding: 16px 24px;\n"
+"    color: #495057;\n"
+"    font-weight: 600;\n"
+"    font-size: 15px;\n"
+"    min-height: 24px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f1f3f4, stop:1 #e8eaed);\n"
+"    border-color: #ced4da;\n"
+"    color: #343a40;\n"
+"    transform: translateY(-1px);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background: #dee2e6;\n"
+"    border-color: #ced4da;\n"
+"    transform: translateY(0px);\n"
+"}")
 
         self.guidedButtonsGrid.addWidget(self.btn_set_roi, 3, 0, 1, 1)
 
         self.btn_cancel_roi = QPushButton(self.guidedFrame)
         self.btn_cancel_roi.setObjectName(u"btn_cancel_roi")
-        self.btn_cancel_roi.setMinimumHeight(48)
+        self.btn_cancel_roi.setStyleSheet(u"QPushButton {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f8f9fa, stop:1 #e9ecef);\n"
+"    border: 2px solid #dee2e6;\n"
+"    border-radius: 12px;\n"
+"    padding: 16px 24px;\n"
+"    color: #495057;\n"
+"    font-weight: 600;\n"
+"    font-size: 15px;\n"
+"    min-height: 24px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #f1f3f4, stop:1 #e8eaed);\n"
+"    border-color: #ced4da;\n"
+"    color: #343a40;\n"
+"    transform: translateY(-1px);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background: #dee2e6;\n"
+"    border-color: #ced4da;\n"
+"    transform: translateY(0px);\n"
+"}")
 
         self.guidedButtonsGrid.addWidget(self.btn_cancel_roi, 3, 1, 1, 1)
 

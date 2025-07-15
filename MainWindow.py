@@ -2,9 +2,9 @@ import sys
 import threading
 
 from PySide6 import QtGui
-from PySide6.QtGui import QIcon
-from PySide6.QtCore import Qt, QEvent, QSize, QPropertyAnimation, QEasingCurve
-from PySide6.QtWidgets import QApplication, QMainWindow, QSizePolicy, QSizeGrip, QVBoxLayout, QWidget, QInputDialog
+from PySide6.QtGui import QIcon, QColor
+from PySide6.QtCore import Qt, QEvent, QSize, QPropertyAnimation, QEasingCurve, QTimer
+from PySide6.QtWidgets import QApplication, QMainWindow, QSizePolicy, QSizeGrip, QVBoxLayout, QWidget, QInputDialog, QGraphicsDropShadowEffect
 
 from HomePage import HomePage
 from uifolder import Ui_MainWindow
@@ -115,8 +115,61 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.indicatorspage.btn_AllocateWidget.clicked.connect(
             lambda: self.AllocateWidget(self.indicatorswidget, self.indicatorspage))
 
+        # **NEW: Add shadow effects after UI setup**
+        QTimer.singleShot(100, self.addShadowEffects)
+
         # To move the window only from top frame
         self.label_title_bar_top.installEventFilter(self)
+
+    def addShadowEffects(self):
+        """Add modern shadow effects to main UI elements"""
+        try:
+            # Main frame shadow
+            main_shadow = QGraphicsDropShadowEffect()
+            main_shadow.setBlurRadius(20)
+            main_shadow.setXOffset(0)
+            main_shadow.setYOffset(5)
+            main_shadow.setColor(QColor(0, 0, 0, 50))
+            self.frame_content.setGraphicsEffect(main_shadow)
+
+            # Left menu shadow
+            menu_shadow = QGraphicsDropShadowEffect()
+            menu_shadow.setBlurRadius(15)
+            menu_shadow.setXOffset(2)
+            menu_shadow.setYOffset(0)
+            menu_shadow.setColor(QColor(0, 0, 0, 30))
+            self.frame_left_menu.setGraphicsEffect(menu_shadow)
+
+            # Connect button shadow
+            connect_shadow = QGraphicsDropShadowEffect()
+            connect_shadow.setBlurRadius(12)
+            connect_shadow.setXOffset(0)
+            connect_shadow.setYOffset(3)
+            connect_shadow.setColor(QColor(13, 110, 253, 80))  # Blue shadow for connect button
+            self.btn_connect.setGraphicsEffect(connect_shadow)
+
+            # Navigation buttons shadows
+            self.addButtonShadow(self.btn_home_page)
+            self.addButtonShadow(self.btn_indicators_page) 
+            self.addButtonShadow(self.btn_targets_page)
+            self.addButtonShadow(self.btn_toggle_menu)
+
+            print("MainWindow: Shadow effects applied successfully")
+            
+        except Exception as e:
+            print(f"MainWindow: Error applying shadow effects: {e}")
+
+    def addButtonShadow(self, button):
+        """Add subtle shadow to a button"""
+        try:
+            shadow = QGraphicsDropShadowEffect()
+            shadow.setBlurRadius(8)
+            shadow.setXOffset(0)
+            shadow.setYOffset(2)
+            shadow.setColor(QColor(0, 0, 0, 25))
+            button.setGraphicsEffect(shadow)
+        except Exception as e:
+            print(f"Error adding shadow to button {button.objectName()}: {e}")
 
     #########################################################################################################################
 

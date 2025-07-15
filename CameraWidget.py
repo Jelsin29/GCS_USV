@@ -1,7 +1,8 @@
 import sys
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon, QPixmap
-from PySide6.QtWidgets import QApplication, QPushButton, QWidget, QLabel, QVBoxLayout, QCheckBox, QDialog, QInputDialog
+from PySide6.QtCore import QTimer
+from PySide6.QtGui import QIcon, QPixmap, QColor
+from PySide6.QtWidgets import QApplication, QPushButton, QWidget, QLabel, QVBoxLayout, QCheckBox, QDialog, QInputDialog, QGraphicsDropShadowEffect
 
 from Database.VideoStream import VideoStreamThread
 
@@ -47,8 +48,37 @@ class CameraWidget(QWidget):
 
         self.videothread.finished.connect(self.handleFinish)
 
+        # **NEW: Add shadow effects after UI setup**
+        QTimer.singleShot(100, self.addShadowEffects)
+
         # A variable that holds if the widget is child of the main window or not
         self.isAttached = True
+
+    def addShadowEffects(self):
+        """Add shadow effects to camera widget buttons"""
+        try:
+            # Connect button shadow
+            if hasattr(self, 'connect_button'):
+                connect_shadow = QGraphicsDropShadowEffect()
+                connect_shadow.setBlurRadius(10)
+                connect_shadow.setXOffset(0)
+                connect_shadow.setYOffset(3)
+                connect_shadow.setColor(QColor(0, 123, 255, 80))
+                self.connect_button.setGraphicsEffect(connect_shadow)
+
+            # Disconnect button shadow
+            if hasattr(self, 'disconnect_button'):
+                disconnect_shadow = QGraphicsDropShadowEffect()
+                disconnect_shadow.setBlurRadius(8)
+                disconnect_shadow.setXOffset(0)
+                disconnect_shadow.setYOffset(2)
+                disconnect_shadow.setColor(QColor(220, 53, 69, 80))
+                self.disconnect_button.setGraphicsEffect(disconnect_shadow)
+
+            print("CameraWidget: Shadow effects applied")
+            
+        except Exception as e:
+            print(f"CameraWidget: Error applying shadow effects: {e}")
 
     def ImageUpdateSlot(self, image, message):
         self.FeedLabel.setPixmap(QPixmap.fromImage(image))

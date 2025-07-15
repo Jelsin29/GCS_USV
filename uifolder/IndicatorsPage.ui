@@ -39,7 +39,6 @@ QFrame {
     border-radius: 20px;
     margin: 12px;
     padding: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 QLabel {
@@ -47,12 +46,6 @@ QLabel {
     color: #2c3e50;
     font-weight: 500;
     border: none;
-}
-
-/* INSTRUMENT SPECIFIC STYLING */
-QFrame:hover {
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-    transform: translateY(-4px);
 }
 
 /* REMOVE ALL HARSH BORDERS AND LINES */

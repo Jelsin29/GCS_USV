@@ -75,17 +75,16 @@ def updateData(thread, vehicle, mapwidget, indicators, camerawidget, firebase):
             # Update Firebase UAV Data
             firebase.marker_latitude = position[0]
             firebase.marker_longitude = position[1]
-            firebase.marker_compass = heading
 
-            camerawidget.videothread.lat = position[0]
-            camerawidget.videothread.lon = position[1]
-            camerawidget.videothread.heading = heading
         if msg.get_type() == 'VFR_HUD':
-            indicators.setSpeed(msg.airspeed)
-            indicators.setVerticalSpeed(msg.climb)
+            speed = msg.groundspeed
+            indicators.setSpeed(speed)
+            
         if msg.get_type() == 'ATTITUDE':
-            indicators.setAttitude(math.degrees(msg.pitch), math.degrees(msg.roll))
-            camerawidget.videothread.setHorizon(msg.roll)
+            pitch = msg.pitch
+            roll = msg.roll
+            indicators.setAttitude(pitch, roll)
+
         if msg.get_type() == 'SYS_STATUS':
             indicators.battery_label.setText(f"Battery: {msg.voltage_battery / 1e3}V")
             thread.parent.label_top_info_1.setText(f"Battery: {msg.battery_remaining}%      {msg.voltage_battery/1e3}V      {msg.current_battery}A")
@@ -99,6 +98,7 @@ def connectionLost(connectbutton, mapwidget):
     connectbutton.setText('Connect')
     connectbutton.setIcon(QIcon('../uifolder/assets/icons/24x24/cil-link-broken.png'))
     connectbutton.setDisabled(False)
+
     # Add UAV marker
     mapwidget.page().runJavaScript("""
                     map.removeLayer(uavMarker);

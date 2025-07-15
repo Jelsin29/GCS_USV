@@ -25,9 +25,12 @@ class TargetsPage(QWidget, Ui_TargetsPage):
         super().__init__()
         self.setupUi(self)
         self.parent = parent
+        
+        # Track antenna state
+        self.antenna_tracking_active = False
 
         # **NEW: Add shadow effects after UI setup**
-        self.addShadowEffects()
+        QTimer.singleShot(50, self.addShadowEffects)
 
         # **SAFE: Mission Control Button Connections with error handling**
         try:
@@ -41,7 +44,8 @@ class TargetsPage(QWidget, Ui_TargetsPage):
             if hasattr(self, 'btn_setMission'):
                 self.btn_setMission.clicked.connect(self.set_mission)
             if hasattr(self, 'btn_antenna'):
-                self.btn_antenna.clicked.connect(self.run_antenna_tracker)
+                self.btn_antenna.clicked.connect(self.toggle_antenna_tracking)
+                self.update_antenna_button_state()
             if hasattr(self, 'btn_startMission'):
                 self.btn_startMission.clicked.connect(self.start_mission)
             if hasattr(self, 'btn_abort'):
@@ -152,43 +156,83 @@ class TargetsPage(QWidget, Ui_TargetsPage):
             print("Error: Invalid altitude value")
         except Exception as e:
             print(f"Error setting mission: {e}")
-
-    def run_antenna_tracker(self):
-        if not self.parent or not hasattr(self.parent, 'homepage') or not hasattr(self.parent, 'connectionThread'):
-            print("Error: Parent, homepage, or connectionThread not available")
-            return
             
+            
+
+    def toggle_antenna_tracking(self):
+        """Toggle antenna tracking on/off"""
+        if not self.antenna_tracking_active:
+            # Start antenna tracking
+            self.start_antenna_tracking()
+        else:
+            # Stop antenna tracking
+            self.stop_antenna_tracking()
+    
+    def start_antenna_tracking(self):
+        """Start antenna tracking and update button to green state"""
         try:
+            # Your existing antenna tracking logic
             import threading
-            # Import here to avoid circular imports
             from AntennaTracker import AntennaTracker, antenna_tracker
             
-            # Create antenna tracker instance with default coordinates
             antenna = AntennaTracker(-35.3635, 149.1652)
             lat, lon = antenna.get_location()
             
-            print(f"Starting antenna tracker at coordinates: {lat}, {lon}")
-            
             # Add home marker to map
-            self.parent.homepage.mapwidget.page().runJavaScript("""
-                            var homeMarker = L.marker(
-                                        %s,
-                                        {icon: homeIcon,},).addTo(map);
-                            """ % [lat, lon]
-                                           )
-
+            if self.parent and hasattr(self.parent, 'homepage'):
+                self.parent.homepage.mapwidget.page().runJavaScript("""
+                    var homeMarker = L.marker(
+                        %s,
+                        {icon: homeIcon,}).addTo(map);
+                """ % [lat, lon])
+            
             # Start antenna tracker in separate thread
             threading.Thread(target=antenna_tracker, args=(antenna, self.parent.connectionThread)).start()
             
-            # Disable antenna button to prevent multiple instances
-            if hasattr(self, 'btn_antenna'):
-                self.btn_antenna.setDisabled(True)
-                print("Antenna tracking started - button disabled")
-                
-        except ImportError as e:
-            print(f"Error importing antenna tracker: {e}")
+            # Update state and button appearance
+            self.antenna_tracking_active = True
+            self.update_antenna_button_state()
+            
+            print("Antenna tracking started - button state changed to green")
+            
         except Exception as e:
             print(f"Error starting antenna tracker: {e}")
+    
+    def stop_antenna_tracking(self):
+        """Stop antenna tracking and update button back to red state"""
+        try:
+            # Add your antenna stopping logic here if needed
+            # For example, stopping the tracking thread
+            
+            # Update state and button appearance
+            self.antenna_tracking_active = False
+            self.update_antenna_button_state()
+            
+            print("Antenna tracking stopped - button state changed to red")
+            
+        except Exception as e:
+            print(f"Error stopping antenna tracker: {e}")
+    
+    def update_antenna_button_state(self):
+        """Update the antenna button's visual state based on tracking status"""
+        if hasattr(self, 'btn_antenna'):
+            if self.antenna_tracking_active:
+                # Set to green/active state
+                self.btn_antenna.setProperty("tracking", "true")
+                self.btn_antenna.setText("STOP TRACKING")
+            else:
+                # Set to red/inactive state
+                self.btn_antenna.setProperty("tracking", "false")
+                self.btn_antenna.setText("ANTENNA TRACKING")
+            
+            # Force style refresh
+            self.btn_antenna.style().unpolish(self.btn_antenna)
+            self.btn_antenna.style().polish(self.btn_antenna)
+    
+    # Keep your existing run_antenna_tracker method for compatibility
+    def run_antenna_tracker(self):
+        """Legacy method - redirects to toggle_antenna_tracking"""
+        self.toggle_antenna_tracking()
 
     def start_mission(self):
         if not self.parent or not hasattr(self.parent, 'connectionThread'):
@@ -315,39 +359,57 @@ class TargetsPage(QWidget, Ui_TargetsPage):
             print(f"Error canceling ROI: {e}")
 
     def addShadowEffects(self):
-        """Add modern shadow effects to frames for clean card appearance"""
+        """Add modern shadow effects to frames and buttons"""
         try:
-            # Mission Frame Shadow
+            # Main frames shadows
             if hasattr(self, 'missionFrame'):
-                mission_shadow = QGraphicsDropShadowEffect()
-                mission_shadow.setBlurRadius(20)
-                mission_shadow.setXOffset(0)
-                mission_shadow.setYOffset(4)
-                mission_shadow.setColor(QColor(0, 0, 0, 40))  # Light shadow
-                self.missionFrame.setGraphicsEffect(mission_shadow)
+                self.addFrameShadow(self.missionFrame)
 
-            # Guided Frame Shadow
             if hasattr(self, 'guidedFrame'):
-                guided_shadow = QGraphicsDropShadowEffect()
-                guided_shadow.setBlurRadius(20)
-                guided_shadow.setXOffset(0)
-                guided_shadow.setYOffset(4)
-                guided_shadow.setColor(QColor(0, 0, 0, 40))  # Light shadow
-                self.guidedFrame.setGraphicsEffect(guided_shadow)
+                self.addFrameShadow(self.guidedFrame)
 
-            # Console Frame Shadow - Darker for dark background
             if hasattr(self, 'consoleFrame'):
-                console_shadow = QGraphicsDropShadowEffect()
-                console_shadow.setBlurRadius(25)
-                console_shadow.setXOffset(0)
-                console_shadow.setYOffset(6)
-                console_shadow.setColor(QColor(0, 0, 0, 60))  # Slightly darker shadow
-                self.consoleFrame.setGraphicsEffect(console_shadow)
+                self.addFrameShadow(self.consoleFrame, blur=25, offset_y=6)
 
-            print("TargetsPage: Shadow effects applied successfully to frames only")
+            # Add shadows to important buttons
+            important_buttons = [
+                'btn_startMission', 'btn_abort', 'btn_antenna', 
+                'btn_takeoff', 'btn_land', 'btn_rtl', 'btn_rtl_2'
+            ]
+            
+            for button_name in important_buttons:
+                if hasattr(self, button_name):
+                    button = getattr(self, button_name)
+                    self.addButtonShadow(button)
+
+            print("TargetsPage: Shadow effects applied successfully")
             
         except Exception as e:
             print(f"TargetsPage: Error applying shadow effects: {e}")
+
+    def addFrameShadow(self, frame, blur=20, offset_y=4):
+        """Add shadow effect to a frame"""
+        try:
+            shadow = QGraphicsDropShadowEffect()
+            shadow.setBlurRadius(blur)
+            shadow.setXOffset(0)
+            shadow.setYOffset(offset_y)
+            shadow.setColor(QColor(0, 0, 0, 40))
+            frame.setGraphicsEffect(shadow)
+        except Exception as e:
+            print(f"Error adding shadow to frame: {e}")
+
+    def addButtonShadow(self, button):
+        """Add shadow effect to a button"""
+        try:
+            shadow = QGraphicsDropShadowEffect()
+            shadow.setBlurRadius(10)
+            shadow.setXOffset(0)
+            shadow.setYOffset(2)
+            shadow.setColor(QColor(0, 0, 0, 30))
+            button.setGraphicsEffect(shadow)
+        except Exception as e:
+            print(f"Error adding shadow to button: {e}")
 
     def addButtonHoverEffects(self):
         """Remove button shadow effects - buttons should only have borders"""

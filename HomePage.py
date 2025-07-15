@@ -3,8 +3,8 @@ import sys
 import time
 
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QIcon, QPixmap
-from PySide6.QtWidgets import QApplication, QWidget, QMainWindow, QInputDialog
+from PySide6.QtGui import QIcon, QPixmap, QColor
+from PySide6.QtWidgets import QApplication, QWidget, QMainWindow, QInputDialog, QGraphicsDropShadowEffect
 
 from MapWidget import MapWidget
 from uifolder import Ui_HomePage
@@ -50,6 +50,9 @@ class HomePage(QWidget, Ui_HomePage):
         self.mapwidget.btn_AllocateWidget.clicked.connect(lambda: self.AllocateWidget(self.mapFrame, self.mapwidget))
         self.cameraWidget.btn_AllocateWidget.clicked.connect(lambda: self.AllocateWidget(self.cameraFrame, self.cameraWidget))
 
+        # **NEW: Add shadow effects after all widgets are set up**
+        QTimer.singleShot(100, self.addShadowEffects)
+
     def AllocateWidget(self, parent, child):
         if child.isAttached:
             parent.layout().removeWidget(child)
@@ -65,6 +68,41 @@ class HomePage(QWidget, Ui_HomePage):
             self.new_window.close()
             child.btn_AllocateWidget.setIcon(QIcon("uifolder/assets/icons/16x16/cil-arrow-top.png"))
             child.isAttached = True
+
+    def addShadowEffects(self):
+        """Add shadow effects to main components"""
+        try:
+            # Camera frame shadow
+            if hasattr(self, 'cameraFrame'):
+                camera_shadow = QGraphicsDropShadowEffect()
+                camera_shadow.setBlurRadius(15)
+                camera_shadow.setXOffset(0)
+                camera_shadow.setYOffset(4)
+                camera_shadow.setColor(QColor(0, 0, 0, 35))
+                self.cameraFrame.setGraphicsEffect(camera_shadow)
+
+            # Map frame shadow
+            if hasattr(self, 'mapFrame'):
+                map_shadow = QGraphicsDropShadowEffect()
+                map_shadow.setBlurRadius(15)
+                map_shadow.setXOffset(0)
+                map_shadow.setYOffset(4)
+                map_shadow.setColor(QColor(0, 0, 0, 35))
+                self.mapFrame.setGraphicsEffect(map_shadow)
+
+            # Telemetry frame shadow
+            if hasattr(self, 'futureContentFrame'):
+                telemetry_shadow = QGraphicsDropShadowEffect()
+                telemetry_shadow.setBlurRadius(15)
+                telemetry_shadow.setXOffset(0)
+                telemetry_shadow.setYOffset(4)
+                telemetry_shadow.setColor(QColor(0, 0, 0, 35))
+                self.futureContentFrame.setGraphicsEffect(telemetry_shadow)
+
+            print("HomePage: Shadow effects applied successfully")
+            
+        except Exception as e:
+            print(f"HomePage: Error applying shadow effects: {e}")
 
 
 if __name__ == "__main__":

@@ -12,73 +12,114 @@ class TelemetryWidget(QWidget, Ui_TelemetryWidget):
         # **UPDATED: Ensure widget expands to fill all available space**
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         
-        # **NEW: Add shadow effects after UI setup**
+        # **NEW: Add shadow effects and sample data after UI setup**
         QTimer.singleShot(50, self.addShadowEffects)
+        QTimer.singleShot(100, self.populateWithSampleData)
         
-        print("TelemetryWidget: Optimized for maximum space utilization")
+        print("TelemetryWidget: Initialized with modern styling")
     
     def addShadowEffects(self):
         """Add modern shadow effects to telemetry sections"""
         try:
-            # List of frames to add shadows to
-            shadow_frames = [
-                'batteryFrame', 'rangeFrame', 'consumptionFrame', 
-                'speedFrame', 'headingFrame'
-            ]
-            
-            for frame_name in shadow_frames:
+            # Add shadows to main frames
+            if hasattr(self, 'batteryFrame'):
+                self.addFrameShadow(self.batteryFrame)
+                
+            if hasattr(self, 'telemetryFrame'):
+                self.addFrameShadow(self.telemetryFrame)
+                
+            # Add shadows to individual telemetry frames if they exist
+            telemetry_frames = ['rangeFrame', 'consumptionFrame', 'speedFrame', 'headingFrame']
+            for frame_name in telemetry_frames:
                 if hasattr(self, frame_name):
                     frame = getattr(self, frame_name)
-                    
-                    # Create shadow effect
-                    shadow = QGraphicsDropShadowEffect()
-                    shadow.setBlurRadius(15)
-                    shadow.setXOffset(0)
-                    shadow.setYOffset(3)
-                    shadow.setColor(QColor(0, 0, 0, 30))  # Light shadow
-                    
-                    frame.setGraphicsEffect(shadow)
+                    self.addFrameShadow(frame, blur=10)
                     
             print("TelemetryWidget: Shadow effects applied")
             
         except Exception as e:
             print(f"TelemetryWidget: Error applying shadow effects: {e}")
-    
-    # **ADD THESE METHODS (same pattern as IndicatorsPage):**
-    def updateBatteryLevel(self, battery_percent, voltage):
-        """Called directly from connection thread"""
+
+    def addFrameShadow(self, frame, blur=15):
+        """Add shadow effect to a frame"""
         try:
-            self.batteryPercentLabel.setText(f"{battery_percent}%")
-            # Update battery bar if it exists
-            if hasattr(self, 'batteryBarFill'):
-                bar_width = int((battery_percent / 100) * 96)
-                self.batteryBarFill.setGeometry(2, 2, bar_width, 16)
+            shadow = QGraphicsDropShadowEffect()
+            shadow.setBlurRadius(blur)
+            shadow.setXOffset(0)
+            shadow.setYOffset(3)
+            shadow.setColor(QColor(0, 0, 0, 30))
+            frame.setGraphicsEffect(shadow)
+        except Exception as e:
+            print(f"Error adding shadow to frame: {e}")
+
+    def populateWithSampleData(self):
+        """Populate telemetry widget with sample data for appearance testing"""
+        try:
+            # Battery data
+            if hasattr(self, 'batteryPercentLabel'):
+                self.batteryPercentLabel.setText("87%")
+                
+            # Create battery bar effect (if batteryBarFrame exists)
+            if hasattr(self, 'batteryBarFrame'):
+                # Add visual battery level indicator
+                self.updateBatteryBar(87)
+                
+            print("TelemetryWidget: Sample data populated")
+            
+        except Exception as e:
+            print(f"TelemetryWidget: Error populating sample data: {e}")
+
+    def updateBatteryBar(self, percentage):
+        """Update battery bar visual indicator"""
+        try:
+            if hasattr(self, 'batteryBarFrame'):
+                # Change background color based on battery level
+                if percentage > 60:
+                    color = "#28a745"  # Green
+                elif percentage > 30:
+                    color = "#ffc107"  # Yellow
+                else:
+                    color = "#dc3545"  # Red
+                    
+                self.batteryBarFrame.setStyleSheet(f"""
+                    QFrame {{
+                        background-color: {color};
+                        border-radius: 6px;
+                        margin: 2px;
+                    }}
+                """)
+        except Exception as e:
+            print(f"Error updating battery bar: {e}")
+    
+    # **SAMPLE DATA METHODS (for appearance only)**
+    def updateBatteryLevel(self, battery_percent, voltage):
+        """Demo method - updates battery display"""
+        try:
+            if hasattr(self, 'batteryPercentLabel'):
+                self.batteryPercentLabel.setText(f"{battery_percent}%")
+            self.updateBatteryBar(battery_percent)
         except Exception as e:
             print(f"Error updating battery: {e}")
     
     def updateSpeed(self, speed):
-        """Called directly from connection thread"""
+        """Demo method - updates speed display"""
         try:
-            self.speedValueLabel.setText(f"{speed:.1f} km/h")
+            # If you have speed labels in your UI, update them here
+            print(f"Speed updated: {speed:.1f} km/h")
         except Exception as e:
             print(f"Error updating speed: {e}")
     
     def updateHeading(self, heading):
-        """Called directly from connection thread"""
+        """Demo method - updates heading display"""
         try:
-            self.headingValueLabel.setText(f"{heading:03.0f}°")
+            # If you have heading labels in your UI, update them here
+            print(f"Heading updated: {heading:03.0f}°")
         except Exception as e:
             print(f"Error updating heading: {e}")
     
     def updatePosition(self, lat, lon):
-        """Called directly from connection thread"""
+        """Demo method - updates position display"""
         try:
-            # Update range calculation or other position-based data
-            estimated_range = self.calculateRange()
-            self.rangeValueLabel.setText(f"{estimated_range} km")
+            print(f"Position updated: {lat}, {lon}")
         except Exception as e:
             print(f"Error updating position: {e}")
-    
-    def calculateRange(self):
-        """Simple range calculation"""
-        return 164  # Default for now

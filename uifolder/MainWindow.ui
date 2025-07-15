@@ -86,17 +86,17 @@ QPushButton#btn_toggle_menu:hover {
     color: #0d6efd;
 }
 
-/* ENHANCED NAVIGATION BUTTONS - TESLA INSPIRED */
+/* ENHANCED NAVIGATION BUTTONS - FULL WIDTH BACKGROUND */
 QPushButton#btn_home_page, QPushButton#btn_indicators_page, QPushButton#btn_targets_page {
     background: transparent;
     border: none;
     text-align: left;
-    padding: 18px 24px;
+    padding: 18px 12px;  /* Reduced horizontal padding */
     color: #6c757d;
     font-size: 15px;
     font-weight: 500;
     border-radius: 14px;
-    margin: 6px 12px;
+    margin: 6px 8px;  /* Reduced margin for full width */
     min-height: 52px;
 }
 
@@ -107,10 +107,10 @@ QPushButton#btn_home_page:hover, QPushButton#btn_indicators_page:hover, QPushBut
                                stop:1 rgba(13, 110, 253, 0.02));
     color: #0d6efd;
     border-left: 4px solid #0d6efd;
-    padding-left: 20px;
+    padding-left: 8px;  /* Adjusted for border */
 }
 
-/* ENHANCED ACTIVE/DISABLED STATE - SELECTED BUTTON */
+/* ENHANCED ACTIVE/DISABLED STATE - FULL WIDTH BLUE BACKGROUND */
 QPushButton#btn_home_page:disabled, QPushButton#btn_indicators_page:disabled, QPushButton#btn_targets_page:disabled {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
                                stop:0 #0d6efd, 
@@ -118,8 +118,19 @@ QPushButton#btn_home_page:disabled, QPushButton#btn_indicators_page:disabled, QP
                                stop:1 #0a58ca);
     color: #ffffff;
     font-weight: 600;
-    border-left: 4px solid #ffffff;
-    padding-left: 20px;
+    border: none;  /* Remove border to use full width */
+    border-radius: 12px;  /* Slightly smaller radius for cleaner look */
+    margin: 6px 4px;  /* Minimal margin for full width coverage */
+    padding: 18px 12px;  /* Consistent padding */
+}
+
+/* FOR SVG ICONS - THIS WILL MAKE THEM WHITE WHEN SELECTED */
+QPushButton:disabled QSvgWidget {
+    color: #ffffff;
+}
+
+QPushButton:hover QSvgWidget {
+    color: #0d6efd;
 }
 
 /* MODERN CONTENT AREA */
@@ -653,15 +664,16 @@ QStackedWidget {
           </property>
           <item>
            <widget class="QFrame" name="frame_left_menu">
+            <!-- UPDATED: Start with collapsed 70px width -->
             <property name="minimumSize">
              <size>
-              <width>60</width>
+              <width>70</width>
               <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>240</width>
+              <width>70</width>
               <height>16777215</height>
              </size>
             </property>

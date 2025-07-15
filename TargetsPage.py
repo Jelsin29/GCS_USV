@@ -1,6 +1,6 @@
-from PySide6.QtGui import QPixmap, QImage
+from PySide6.QtGui import QPixmap, QImage, QColor
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGridLayout, \
-    QPushButton, QSpacerItem, QSizePolicy, QInputDialog
+    QPushButton, QSpacerItem, QSizePolicy, QInputDialog, QGraphicsDropShadowEffect
 from PySide6.QtCore import Qt, QEvent, QTimer, QByteArray, QBuffer, QIODevice
 
 from uifolder import Ui_TargetsPage
@@ -26,62 +26,52 @@ class TargetsPage(QWidget, Ui_TargetsPage):
         self.setupUi(self)
         self.parent = parent
 
+        # **NEW: Add shadow effects after UI setup**
+        self.addShadowEffects()
+
         # **SAFE: Mission Control Button Connections with error handling**
         try:
+            # Mission buttons
             if hasattr(self, 'btn_chooseMode'):
                 self.btn_chooseMode.clicked.connect(self.buttonFunctions)
-            else:
-                print("Warning: btn_chooseMode not found in UI")
-                
             if hasattr(self, 'btn_undo'):
                 self.btn_undo.clicked.connect(self.buttonFunctions)
-            else:
-                print("Warning: btn_undo not found in UI")
-                
             if hasattr(self, 'btn_clearAll'):
                 self.btn_clearAll.clicked.connect(self.buttonFunctions)
-            else:
-                print("Warning: btn_clearAll not found in UI")
-                
             if hasattr(self, 'btn_setMission'):
                 self.btn_setMission.clicked.connect(self.set_mission)
-            else:
-                print("Warning: btn_setMission not found in UI")
-                
             if hasattr(self, 'btn_antenna'):
                 self.btn_antenna.clicked.connect(self.run_antenna_tracker)
-            else:
-                print("Warning: btn_antenna not found in UI")
-                
             if hasattr(self, 'btn_startMission'):
                 self.btn_startMission.clicked.connect(self.start_mission)
-            else:
-                print("Warning: btn_startMission not found in UI")
-                
             if hasattr(self, 'btn_abort'):
                 self.btn_abort.clicked.connect(self.abort)
-            else:
-                print("Warning: btn_abort not found in UI")
-                
             if hasattr(self, 'btn_rtl'):
                 self.btn_rtl.clicked.connect(self.rtl)
-            else:
-                print("Warning: btn_rtl not found in UI")
             
-            print("TargetsPage: Mission control buttons connection completed")
+            # **NEW: Guided Control Button Connections**
+            if hasattr(self, 'btn_takeoff'):
+                self.btn_takeoff.clicked.connect(self.takeoff)
+            if hasattr(self, 'btn_move'):
+                self.btn_move.clicked.connect(self.move_to_point)
+            if hasattr(self, 'btn_track_all'):
+                self.btn_track_all.clicked.connect(self.track_all)
+            if hasattr(self, 'btn_land'):
+                self.btn_land.clicked.connect(self.land)
+            if hasattr(self, 'btn_rtl_2'):
+                self.btn_rtl_2.clicked.connect(self.rtl_2)
+            if hasattr(self, 'btn_set_roi'):
+                self.btn_set_roi.clicked.connect(self.set_roi)
+            if hasattr(self, 'btn_cancel_roi'):
+                self.btn_cancel_roi.clicked.connect(self.cancel_roi)
+            
+            print("TargetsPage: All mission and guided control buttons connected")
             
         except Exception as e:
             print(f"TargetsPage: Error connecting buttons: {e}")
-            print("Note: UI file may need to be regenerated from TargetsPage.ui")
 
         # Firebase Thread (if needed for mobile connections - optional now)
         self.firebase = self.parent.firebase if self.parent else None
-        
-        # **REMOVED: Target and User functionality**
-        # This page is now Mission Control only
-        # If you want to keep some target functionality, uncomment these:
-        # if self.firebase != None:
-        #     QTimer.singleShot(20000, self.addUsers)
 
     # **NEW: Mission Control Methods (moved from HomePage)**
     def buttonFunctions(self):
@@ -239,6 +229,135 @@ class TargetsPage(QWidget, Ui_TargetsPage):
         except Exception as e:
             print(f"Error activating RTL mode: {e}")
 
+    # **NEW: Guided Control Methods**
+    def takeoff(self):
+        if not self.parent or not hasattr(self.parent, 'connectionThread'):
+            print("Error: Parent or connectionThread not available")
+            return
+            
+        try:
+            altitude, okPressed = QInputDialog.getText(self, "Enter Altitude", "Altitude:", text="10")
+            if okPressed and altitude:
+                self.parent.connectionThread.takeoff(int(altitude))
+                print(f"Takeoff command sent with altitude: {altitude}m")
+        except ValueError:
+            print("Error: Invalid altitude value")
+        except Exception as e:
+            print(f"Error with takeoff: {e}")
+
+    def move_to_point(self):
+        if not self.parent or not hasattr(self.parent, 'connectionThread'):
+            print("Error: Parent or connectionThread not available")
+            return
+            
+        try:
+            self.parent.connectionThread.goto_markers_pos()
+            print("Move to marker position command sent")
+        except Exception as e:
+            print(f"Error moving to point: {e}")
+
+    def track_all(self):
+        if not self.parent or not hasattr(self.parent, 'homepage'):
+            print("Error: Parent or homepage not available")
+            return
+            
+        try:
+            if hasattr(self.parent.homepage, 'cameraWidget') and hasattr(self.parent.homepage.cameraWidget, 'videothread'):
+                self.parent.homepage.cameraWidget.videothread.sendMessage("track -1")
+                print("Track all command sent to camera widget")
+            else:
+                print("Warning: Camera widget or video thread not available")
+        except Exception as e:
+            print(f"Error with track all: {e}")
+
+    def land(self):
+        if not self.parent or not hasattr(self.parent, 'connectionThread'):
+            print("Error: Parent or connectionThread not available")
+            return
+            
+        try:
+            self.parent.connectionThread.land()
+            print("Land command sent")
+        except Exception as e:
+            print(f"Error with land command: {e}")
+
+    def rtl_2(self):
+        if not self.parent or not hasattr(self.parent, 'connectionThread'):
+            print("Error: Parent or connectionThread not available")
+            return
+            
+        try:
+            self.parent.connectionThread.rtl()
+            print("RTL command sent (alternative)")
+        except Exception as e:
+            print(f"Error with RTL command: {e}")
+
+    def set_roi(self):
+        if not self.parent or not hasattr(self.parent, 'connectionThread'):
+            print("Error: Parent or connectionThread not available")
+            return
+            
+        try:
+            self.parent.connectionThread.set_roi()
+            print("Set ROI command sent")
+        except Exception as e:
+            print(f"Error setting ROI: {e}")
+
+    def cancel_roi(self):
+        if not self.parent or not hasattr(self.parent, 'connectionThread'):
+            print("Error: Parent or connectionThread not available")
+            return
+            
+        try:
+            self.parent.connectionThread.cancel_roi_mode()
+            print("Cancel ROI command sent")
+        except Exception as e:
+            print(f"Error canceling ROI: {e}")
+
+    def addShadowEffects(self):
+        """Add modern shadow effects to frames for clean card appearance"""
+        try:
+            # Mission Frame Shadow
+            if hasattr(self, 'missionFrame'):
+                mission_shadow = QGraphicsDropShadowEffect()
+                mission_shadow.setBlurRadius(20)
+                mission_shadow.setXOffset(0)
+                mission_shadow.setYOffset(4)
+                mission_shadow.setColor(QColor(0, 0, 0, 40))  # Light shadow
+                self.missionFrame.setGraphicsEffect(mission_shadow)
+
+            # Guided Frame Shadow
+            if hasattr(self, 'guidedFrame'):
+                guided_shadow = QGraphicsDropShadowEffect()
+                guided_shadow.setBlurRadius(20)
+                guided_shadow.setXOffset(0)
+                guided_shadow.setYOffset(4)
+                guided_shadow.setColor(QColor(0, 0, 0, 40))  # Light shadow
+                self.guidedFrame.setGraphicsEffect(guided_shadow)
+
+            # Console Frame Shadow - Darker for dark background
+            if hasattr(self, 'consoleFrame'):
+                console_shadow = QGraphicsDropShadowEffect()
+                console_shadow.setBlurRadius(25)
+                console_shadow.setXOffset(0)
+                console_shadow.setYOffset(6)
+                console_shadow.setColor(QColor(0, 0, 0, 60))  # Slightly darker shadow
+                self.consoleFrame.setGraphicsEffect(console_shadow)
+
+            print("TargetsPage: Shadow effects applied successfully to frames only")
+            
+        except Exception as e:
+            print(f"TargetsPage: Error applying shadow effects: {e}")
+
+    def addButtonHoverEffects(self):
+        """Remove button shadow effects - buttons should only have borders"""
+        try:
+            # No shadow effects for buttons - they keep their borders from CSS
+            print("TargetsPage: Button styling handled by CSS borders only")
+                    
+        except Exception as e:
+            print(f"TargetsPage: Error in button effects: {e}")
+
     # **DEBUGGING: Method to check what UI elements are available**
     def debug_ui_elements(self):
         print("=== TargetsPage UI Elements Debug ===")
@@ -276,8 +395,9 @@ class TargetsPage(QWidget, Ui_TargetsPage):
         """Called when the page is shown"""
         super().showEvent(event)
         print("TargetsPage (Mission Control) is now visible")
-        # Uncomment for debugging:
-        # self.debug_ui_elements()
+        
+        # **NEW: Apply additional effects when page is shown**
+        QTimer.singleShot(100, self.addButtonHoverEffects)  # Delay to ensure UI is ready
 
     def hideEvent(self, event):
         """Called when the page is hidden"""

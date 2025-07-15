@@ -1,5 +1,7 @@
-from PySide6.QtWidgets import QWidget, QSizePolicy
+from PySide6.QtGui import QColor
+from PySide6.QtCore import QTimer
 from uifolder.ui_TelemetryWidget import Ui_TelemetryWidget
+from PySide6.QtWidgets import QWidget, QSizePolicy, QGraphicsDropShadowEffect
 
 class TelemetryWidget(QWidget, Ui_TelemetryWidget):
     def __init__(self, parent=None):
@@ -10,7 +12,37 @@ class TelemetryWidget(QWidget, Ui_TelemetryWidget):
         # **UPDATED: Ensure widget expands to fill all available space**
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         
+        # **NEW: Add shadow effects after UI setup**
+        QTimer.singleShot(50, self.addShadowEffects)
+        
         print("TelemetryWidget: Optimized for maximum space utilization")
+    
+    def addShadowEffects(self):
+        """Add modern shadow effects to telemetry sections"""
+        try:
+            # List of frames to add shadows to
+            shadow_frames = [
+                'batteryFrame', 'rangeFrame', 'consumptionFrame', 
+                'speedFrame', 'headingFrame'
+            ]
+            
+            for frame_name in shadow_frames:
+                if hasattr(self, frame_name):
+                    frame = getattr(self, frame_name)
+                    
+                    # Create shadow effect
+                    shadow = QGraphicsDropShadowEffect()
+                    shadow.setBlurRadius(15)
+                    shadow.setXOffset(0)
+                    shadow.setYOffset(3)
+                    shadow.setColor(QColor(0, 0, 0, 30))  # Light shadow
+                    
+                    frame.setGraphicsEffect(shadow)
+                    
+            print("TelemetryWidget: Shadow effects applied")
+            
+        except Exception as e:
+            print(f"TelemetryWidget: Error applying shadow effects: {e}")
     
     # **ADD THESE METHODS (same pattern as IndicatorsPage):**
     def updateBatteryLevel(self, battery_percent, voltage):

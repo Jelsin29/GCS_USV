@@ -18,8 +18,8 @@ class HomePage(QWidget, Ui_HomePage):
         self.parent = parent
         
         # Set Map Widget
-        istanbulhavalimani = [41.27442, 28.727317]
-        self.mapwidget = MapWidget(istanbulhavalimani)
+        uskudar = [41.037083, 29.029528]
+        self.mapwidget = MapWidget(uskudar)
         self.mapFrame.layout().addWidget(self.mapwidget)
 
         # Set Camera Widget

@@ -98,8 +98,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setButton(self.btn_indicators_page, 'uifolder/assets/icons/svg/speed.svg')
         
         # Targets button - start black
-        self.btn_targets_page.black_icon = QtGui.QIcon('uifolder/assets/icons/svg/user.svg')
-        self.btn_targets_page.white_icon = createWhiteIcon('uifolder/assets/icons/svg/user.svg')
+        self.btn_targets_page.black_icon = QtGui.QIcon('uifolder/assets/icons/svg/task-manager.svg')
+        self.btn_targets_page.white_icon = createWhiteIcon('uifolder/assets/icons/svg/task-manager.svg')
         self.btn_targets_page.setIcon(self.btn_targets_page.black_icon)  # Start black
         self.setButton(self.btn_targets_page, 'uifolder/assets/icons/svg/user.svg')
         

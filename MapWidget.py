@@ -124,98 +124,98 @@ class MapWidget(QtWebEngineWidgets.QWebEngineView):
 
     def custom_code(self, map_variable_name):
         return '''
-                // custom code
-                
-                // Rotated Marker Function
-                (function() {
-                    // save these original methods before they are overwritten
-                    var proto_initIcon = L.Marker.prototype._initIcon;
-                    var proto_setPos = L.Marker.prototype._setPos;
-                
-                    var oldIE = (L.DomUtil.TRANSFORM === 'msTransform');
-                
-                    L.Marker.addInitHook(function () {
-                        var iconOptions = this.options.icon && this.options.icon.options;
-                        var iconAnchor = iconOptions && this.options.icon.options.iconAnchor;
-                        if (iconAnchor) {
-                            iconAnchor = (iconAnchor[0] + 'px ' + iconAnchor[1] + 'px');
-                        }
-                        this.options.rotationOrigin = this.options.rotationOrigin || iconAnchor || 'center bottom' ;
-                        this.options.rotationAngle = this.options.rotationAngle || 0;
-                
-                        // Ensure marker keeps rotated during dragging
-                        this.on('drag', function(e) { e.target._applyRotation(); });
-                    });
-                
-                    L.Marker.include({
-                        _initIcon: function() {
-                            proto_initIcon.call(this);
-                        },
-                
-                        _setPos: function (pos) {
-                            proto_setPos.call(this, pos);
-                            this._applyRotation();
-                        },
-                
-                        _applyRotation: function () {
-                            if(this.options.rotationAngle) {
-                                this._icon.style[L.DomUtil.TRANSFORM+'Origin'] = this.options.rotationOrigin;
-                
-                                if(oldIE) {
-                                    // for IE 9, use the 2D rotation
-                                    this._icon.style[L.DomUtil.TRANSFORM] = 'rotate(' + this.options.rotationAngle + 'deg)';
-                                } else {
-                                    // for modern browsers, prefer the 3D accelerated version
-                                    this._icon.style[L.DomUtil.TRANSFORM] += ' rotateZ(' + this.options.rotationAngle + 'deg)';
-                                }
+            // custom code
+            
+            // Rotated Marker Function
+            (function() {
+                // save these original methods before they are overwritten
+                var proto_initIcon = L.Marker.prototype._initIcon;
+                var proto_setPos = L.Marker.prototype._setPos;
+            
+                var oldIE = (L.DomUtil.TRANSFORM === 'msTransform');
+            
+                L.Marker.addInitHook(function () {
+                    var iconOptions = this.options.icon && this.options.icon.options;
+                    var iconAnchor = iconOptions && this.options.icon.options.iconAnchor;
+                    if (iconAnchor) {
+                        iconAnchor = (iconAnchor[0] + 'px ' + iconAnchor[1] + 'px');
+                    }
+                    this.options.rotationOrigin = this.options.rotationOrigin || iconAnchor || 'center bottom' ;
+                    this.options.rotationAngle = this.options.rotationAngle || 0;
+            
+                    // Ensure marker keeps rotated during dragging
+                    this.on('drag', function(e) { e.target._applyRotation(); });
+                });
+            
+                L.Marker.include({
+                    _initIcon: function() {
+                        proto_initIcon.call(this);
+                    },
+            
+                    _setPos: function (pos) {
+                        proto_setPos.call(this, pos);
+                        this._applyRotation();
+                    },
+            
+                    _applyRotation: function () {
+                        if(this.options.rotationAngle) {
+                            this._icon.style[L.DomUtil.TRANSFORM+'Origin'] = this.options.rotationOrigin;
+            
+                            if(oldIE) {
+                                // for IE 9, use the 2D rotation
+                                this._icon.style[L.DomUtil.TRANSFORM] = 'rotate(' + this.options.rotationAngle + 'deg)';
+                            } else {
+                                // for modern browsers, prefer the 3D accelerated version
+                                this._icon.style[L.DomUtil.TRANSFORM] += ' rotateZ(' + this.options.rotationAngle + 'deg)';
                             }
-                        },
-                
-                        setRotationAngle: function(angle) {
-                            this.options.rotationAngle = angle;
-                            this.update();
-                            return this;
-                        },
-                
-                        setRotationOrigin: function(origin) {
-                            this.options.rotationOrigin = origin;
-                            this.update();
-                            return this;
                         }
-                    });
-                })();
-                // Rotated Marker part is taken from this repo: https://github.com/bbecquet/Leaflet.RotatedMarker
-                // Huge thanks to its contributors
+                    },
+            
+                    setRotationAngle: function(angle) {
+                        this.options.rotationAngle = angle;
+                        this.update();
+                        return this;
+                    },
+            
+                    setRotationOrigin: function(origin) {
+                        this.options.rotationOrigin = origin;
+                        this.update();
+                        return this;
+                    }
+                });
+            })();
+            // Rotated Marker part is taken from this repo: https://github.com/bbecquet/Leaflet.RotatedMarker
+            // Huge thanks to its contributors
+            
+            // Take the generated map variable from folium
+            var map = %s;
+            
+            
+            var uavIcon = L.icon({
+                iconUrl: 'data:image/png;base64,%s', 
+                iconSize: [40, 40],
+                });
                 
-                // Take the generated map variable from folium
-                var map = %s;
+            var targetIcon = L.icon({
+                iconUrl: 'data:image/png;base64,%s', 
+                iconSize: [40, 40],
+                });
                 
+            var userIcon = L.icon({
+                iconUrl: 'data:image/png;base64,%s', 
+                iconSize: [40, 40],
+                });
+            
+            var homeIcon = L.icon({
+                iconUrl: 'data:image/png;base64,%s', 
+                iconSize: [40, 40],
+                });
                 
-                var uavIcon = L.icon({
-                    iconUrl: 'data:image/png;base64,%s', 
-                    iconSize: [40, 40],
-                    });
-                    
-                var targetIcon = L.icon({
-                    iconUrl: 'data:image/png;base64,%s', 
-                    iconSize: [40, 40],
-                    });
-                    
-                var userIcon = L.icon({
-                    iconUrl: 'data:image/png;base64,%s', 
-                    iconSize: [40, 40],
-                    });
-                
-                var homeIcon = L.icon({
-                    iconUrl: 'data:image/png;base64,%s', 
-                    iconSize: [40, 40],
-                    });
-                    
-                // Adding First Marker
-                var mymarker = L.marker(
-                        [41.27442, 28.727317],
-                        {}
-                    ).addTo(map);
+            // Adding First Marker
+            var mymarker = L.marker(
+                    [%f, %f],
+                    {}
+                ).addTo(map);
                 
                 // Some Functions To Make Map Interactive
                 function moveMarkerByClick(e) {
@@ -311,16 +311,16 @@ class MapWidget(QtWebEngineWidgets.QWebEngineView):
                 map.on('click', moveMarkerByClick);
                 
                 // end custom code
-        ''' % (map_variable_name, uav_icon_base64, target_marker_base64, mobileuser_marker_base64, home_icon_base64)
+    ''' % (map_variable_name, uav_icon_base64, target_marker_base64, mobileuser_marker_base64, home_icon_base64, self.marker_coord[0], self.marker_coord[1])
 
 
 if __name__ == "__main__":
     # create variables
-    istanbul_airport = [41.27442, 28.727317]
+    uskudar = [41.037083, 29.029528] 
 
     # Display the Window
     app = QApplication([])
-    widget = MapWidget(istanbul_airport)
+    widget = MapWidget(uskudar)
     widget.show()
 
     sys.exit(app.exec())

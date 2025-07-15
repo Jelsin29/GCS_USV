@@ -255,11 +255,13 @@ class TargetsPage(QWidget, Ui_TargetsPage):
         print("=====================================")
 
     # **OPTIONAL: Keep these if you want some target functionality in the future**
-    def addTarget(self, image, position, time, no):
-        """
-        Optional method for adding targets (currently disabled)
-        Can be implemented later if target functionality is needed
-        """
+    def addTarget(self, image, position, time_interval, no):
+        """Add target method for compatibility with VideoStreamThread"""
+        print(f"Target detected: ID {no} at position {position} at time {time_interval}")
+        # Since this is now mission control, you can either:
+        # 1. Log the target detection
+        # 2. Add it to a mission log
+        # 3. Or simply ignore it
         pass
 
     def addUsers(self):

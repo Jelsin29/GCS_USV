@@ -15,53 +15,76 @@
   </property>
   <property name="styleSheet">
    <string notr="true">
-/* MODERN MISSION CONTROL STYLING */
+/* MODERN MISSION CONTROL - TESLA STYLE */
 QWidget {
-    background-color: #ffffff;
-    color: #495057;
+    background-color: #f5f5f5;
+    color: #2c3e50;
+    font-family: 'Segoe UI', 'San Francisco', Arial, sans-serif;
 }
 
 QFrame {
     background-color: #ffffff;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
+    border: none;
+    border-radius: 16px;
+    margin: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 QPushButton {
-    background: #f8f9fa;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    padding: 12px 16px;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f8f9fa, stop:1 #e9ecef);
+    border: none;
+    border-radius: 12px;
+    padding: 16px 24px;
     color: #495057;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 15px;
     min-height: 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 QPushButton:hover {
-    background: #e9ecef;
-    border-color: #adb5bd;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #e9ecef, stop:1 #dee2e6);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 QPushButton:pressed {
     background: #dee2e6;
+    transform: translateY(0px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 QComboBox {
     background: #ffffff;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    padding: 8px 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px 16px;
     color: #495057;
+    font-weight: 500;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 QComboBox:hover {
     border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
 }
 
 QLabel {
-    color: #495057;
+    color: #2c3e50;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 16px;
+    background: transparent;
+    border: none;
+}
+
+/* HOVER EFFECTS FOR FRAMES */
+QFrame:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
 }
    </string>
   </property>

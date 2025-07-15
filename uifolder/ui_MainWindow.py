@@ -26,208 +26,279 @@ class Ui_MainWindow(object):
         MainWindow.resize(1400, 900)
         MainWindow.setMinimumSize(QSize(1200, 800))
         MainWindow.setStyleSheet(u"\n"
-"/* MODERN WINDOWS 10 LIGHT STYLE */\n"
+"/* MODERN TESLA-STYLE DASHBOARD */\n"
 "QMainWindow {\n"
-"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
-"                                stop:0 #f8f9fa, stop:1 #e9ecef);\n"
-"    color: #212529;\n"
+"    background-color: #f5f5f5;\n"
+"    color: #2c3e50;\n"
+"    font-family: 'Segoe UI', 'San Francisco', 'Helvetica Neue', Arial, sans-serif;\n"
 "}\n"
 "\n"
 "/* MODERN TITLE BAR */\n"
 "QFrame#frame_top {\n"
-"    background: #ffffff;\n"
-"    border-bottom: 1px solid #dee2e6;\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #ffffff, stop:1 #f8f9fa);\n"
+"    border: none;\n"
+"    border-bottom: 1px solid #e9ecef;\n"
 "}\n"
 "\n"
 "QFrame#frame_top_btns {\n"
-"    background: #ffffff;\n"
+"    background: transparent;\n"
+"    border: none;\n"
 "}\n"
 "\n"
 "/* MODERN BUTTONS - TITLE BAR */\n"
 "QPushButton#btn_minimize, QPushButton#btn_maximize_restore, QPushButton#btn_close {\n"
 "    border: none;\n"
 "    background: transparent;\n"
-"    padding: 8px;\n"
+"    padding: 12px;\n"
+"    color: #6c757d;\n"
+"    border-radius: 6px;\n"
+"    font-size: 14px;\n"
+"}\n"
+"\n"
+"QPushButton#btn_minimize:hover, QPushButton#btn_maximize_restore:hover {\n"
+"    background: rgba(108, 117, 125, 0.1);\n"
 "    color: #495057;\n"
 "}\n"
-"QPushButton#btn_minimize:hover, QPushButton#btn_maximize_restore:hover {\n"
-"    background: #e9ecef;\n"
-"}\n"
-"QPushButton#btn_close:hover {\n"
+"\n"
+"QPushButt"
+                        "on#btn_close:hover {\n"
 "    background: #dc3545;\n"
 "    color: white;\n"
 "}\n"
 "\n"
-"/* MODERN SIDEBAR */\n"
+"/* MODERN SIDEBAR - TESLA STYLE */\n"
 "QFrame#frame_left_menu {\n"
-"    background: #f8f9fa;\n"
-"    border-right: 1px solid #dee2e6;\n"
+"    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, \n"
+"                               stop:0 #ffffff, stop:1 #f8f9fa);\n"
+"    border: none;\n"
+"    border-right: 1px solid #e9ecef;\n"
 "}\n"
 "\n"
-"QPushButton#btn_toggle"
-                        "_menu {\n"
+"QPushButton#btn_toggle_menu {\n"
 "    background: transparent;\n"
 "    border: none;\n"
-"    padding: 15px;\n"
+"    padding: 16px;\n"
 "    color: #495057;\n"
-"}\n"
-"QPushButton#btn_toggle_menu:hover {\n"
-"    background: #e9ecef;\n"
+"    border-radius: 8px;\n"
+"    margin: 8px;\n"
 "}\n"
 "\n"
-"/* MODERN NAVIGATION BUTTONS */\n"
+"QPushButton#btn_toggle_menu:hover {\n"
+"    background: rgba(13, 110, 253, 0.1);\n"
+"    color: #0d6efd;\n"
+"}\n"
+"\n"
+"/* MODERN NAVIGATION BUTTONS - TESLA INSPIRED */\n"
 "QPushButton#btn_home_page, QPushButton#btn_indicators_page, QPushButton#btn_targets_page {\n"
 "    background: transparent;\n"
 "    border: none;\n"
 "    text-align: left;\n"
-"    padding: 15px 20px;\n"
-"    color: #495057;\n"
-"    font-size: 14px;\n"
-"    border-left: 3px solid transparent;\n"
+"    padding: 16px 24px;\n"
+"    color: #6c757d;\n"
+"    font-size: 15px;\n"
+"    font-weight: 500;\n"
+"    border-radius: "
+                        "12px;\n"
+"    margin: 4px 12px;\n"
+"    min-height: 48px;\n"
 "}\n"
 "\n"
 "QPushButton#btn_home_page:hover, QPushButton#btn_indicators_page:hover, QPushButton#btn_targets_page:hover {\n"
-"    background: #e9ecef;\n"
-"    color: #212529;\n"
+"    background: rgba(13, 110, 253, 0.08);\n"
+"    color: #0d6efd;\n"
+"    transform: translateX(4px);\n"
 "}\n"
 "\n"
 "QPushButton#btn_home_page:disabled, QPushButton#btn_indicators_page:disabled, QPushButton#btn_targets_page:disabled {\n"
-"    background: #0d6efd;\n"
-"    border-left: 3px solid #0d6efd;\n"
+"    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, \n"
+"                               stop:0 #0d6efd, stop:1 #0b5ed7);\n"
 "    color: #ffffff;\n"
+"    font-weight: 600;\n"
+"    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);\n"
 "}\n"
 "\n"
 "/* MODERN CONTENT AREA */\n"
 "QFrame#frame_content_right {\n"
-"    background:"
-                        " #ffffff;\n"
+"    background: #f5f5f5;\n"
+"    border: none;\n"
 "}\n"
 "\n"
 "QFrame#frame_content {\n"
 "    background: #ffffff;\n"
-"    border-radius: 8px;\n"
+"    border: none;\n"
+"    border-radius: 16px;\n"
+"    margin: 16px;\n"
+"    padding: 0px;\n"
+"    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);\n"
 "}\n"
 "\n"
-"/* MODERN CONNECTION CONTROLS */\n"
+"/* MODERN CONNE"
+                        "CTION CONTROLS - TESLA STYLE */\n"
 "QComboBox {\n"
 "    background: #ffffff;\n"
-"    border: 1px solid #ced4da;\n"
-"    border-radius: 4px;\n"
-"    padding: 8px 12px;\n"
+"    border: 2px solid #e9ecef;\n"
+"    border-radius: 8px;\n"
+"    padding: 12px 16px;\n"
 "    color: #495057;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
 "    selection-background-color: #0d6efd;\n"
+"    min-height: 20px;\n"
 "}\n"
 "\n"
 "QComboBox:hover {\n"
-"    border: 1px solid #0d6efd;\n"
+"    border-color: #0d6efd;\n"
+"    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);\n"
 "}\n"
 "\n"
 "QComboBox:focus {\n"
-"    border: 2px solid #0d6efd;\n"
+"    border-color: #0d6efd;\n"
 "    outline: none;\n"
+"    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);\n"
 "}\n"
 "\n"
 "QComboBox::drop-down {\n"
 "    border: none;\n"
-"    width: 20px;\n"
+"    width: 32px;\n"
+"    border-radius: 4px;\n"
 "}\n"
 "\n"
 "QComboBox::down-arrow {\n"
 "    image: url(uifolder/assets/icons/16x16/cil-arrow-bottom.png);\n"
-"    width: 12px;\n"
-"    height: 12px;\n"
+"    width: 16px;\n"
+"    height: 16px;\n"
 "}\n"
 "\n"
 "QComboBox QAbstractItemView {\n"
 "    background: #ffffff;\n"
-"    border: 1px solid #ced4da;\n"
+"    border: 1px solid #e9ecef;\n"
+"    border-radius: 8px;\n"
 "    selection-background-color: #0d6efd;\n"
-"    color: #495057;\n"
+"  "
+                        "  color: #495057;\n"
+"    padding: 8px;\n"
+"    margin-top: 4px;\n"
+"    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);\n"
 "}\n"
 "\n"
-"/* MODERN CONNECT BUTTON */\n"
+"/* MODERN CONNECT BUTTON - TESLA STYLE */\n"
 "QPushButton#btn_connect {\n"
-"    background: qline"
-                        "argradient(x1:0, y1:0, x2:0, y2:1, \n"
-"                                stop:0 #0d6efd, stop:1 #0b5ed7);\n"
-"    border: 1px solid #0a58ca;\n"
-"    border-radius: 4px;\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #0d6efd, stop:1 #0b5ed7);\n"
+"    border: none;\n"
+"    border-radius: 12px;\n"
 "    color: #ffffff;\n"
 "    font-weight: 600;\n"
-"    padding: 8px 16px;\n"
+"    font-size: 15px;\n"
+"    padding: 16px 32px;\n"
+"    min-height: 24px;\n"
+"    box-shadow: 0 4px 16px rgba(13, 110, 253, 0.3);\n"
 "}\n"
 "\n"
 "QPushButton#btn_connect:hover {\n"
 "    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
-"                                stop:0 #0b5ed7, stop:1 #0a58ca);\n"
+"                               stop:0 #0b5ed7, stop:1 #0a58ca);\n"
+"    transform: translateY(-2px);\n"
+"    box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);\n"
 "}\n"
 "\n"
 "QPushButton#btn_connect:pressed {\n"
 "    background: #0a58ca;\n"
+"    transform: translateY(0px);\n"
+"    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);\n"
 "}\n"
 "\n"
-"/* MODERN SCROLLBARS */\n"
+"/* M"
+                        "ODERN SCROLLBARS - MINIMAL DESIGN */\n"
 "QScrollBar:vertical {\n"
-"    background: #f8f9fa;\n"
-"    width: 12px;\n"
-"    border-radius: 6px;\n"
+"    background: transparent;\n"
+"    width: 8px;\n"
+"    border-radius: 4px;\n"
+"    margin: 0px;\n"
 "}\n"
 "\n"
 "QScrollBar::handle:vertical {\n"
-"    background: #ced4da;\n"
-"    border-radius: 6px;\n"
+"    background: rgba(108, 117, 125, 0.3);\n"
+"    border-radius: 4px;\n"
 "    min-height: 20px;\n"
+"    margin: 2px;\n"
 "}\n"
 "\n"
 "QScrollBar::handle:vertical:hover {\n"
-"    background: #adb5bd;\n"
+"    background: rgba(108, 117, 125, 0.5);\n"
 "}\n"
 "\n"
 "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {\n"
 "    border: none;\n"
 "    background: none;\n"
+"    height: 0px;\n"
 "}\n"
 "\n"
 "/* MODERN STATUS BAR */\n"
-"QFram"
-                        "e#frame_top_info {\n"
-"    background: #0d6efd;\n"
+"QFrame#frame_top_info {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
+"                               stop:0 #0d6efd, stop:1 #0b5ed7);\n"
 "    color: #ffffff;\n"
+"    border: none;\n"
+"    border-radius: 8px;\n"
+"    margin: 8px;\n"
+"    padding: 8px 16px;\n"
+"    font-weight: 600;\n"
 "}\n"
 "\n"
 "/* MODERN GRIP */\n"
 "QFrame#frame_grip {\n"
-"    background: #f8f9fa;\n"
+"    background: transparent;\n"
+"    border: "
+                        "none;\n"
 "}\n"
 "\n"
-"/* LABELS */\n"
+"/* LABELS - TESLA STYLE */\n"
 "QLabel {\n"
 "    color: #495057;\n"
+"    font-weight: 500;\n"
+"    background: transparent;\n"
+"    border: none;\n"
 "}\n"
 "\n"
-"/* GENERAL BUTTONS */\n"
+"/* GENERAL BUTTONS - MODERN STYLE */\n"
 "QPushButton {\n"
 "    background: #f8f9fa;\n"
-"    border: 1px solid #ced4da;\n"
-"    border-radius: 4px;\n"
-"    padding: 6px 12px;\n"
+"    border: 2px solid #e9ecef;\n"
+"    border-radius: 8px;\n"
+"    padding: 10px 16px;\n"
 "    color: #495057;\n"
 "    font-weight: 500;\n"
+"    font-size: 14px;\n"
+"    min-height: 16px;\n"
 "}\n"
 "\n"
 "QPushButton:hover {\n"
 "    background: #e9ecef;\n"
-"    border-color: #adb5bd;\n"
+"    border-color: #ced4da;\n"
+"    color: #212529;\n"
+"    transform: translateY(-1px);\n"
+"    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);\n"
 "}\n"
 "\n"
 "QPushButton:pressed {\n"
 "    background: #dee2e6;\n"
+"    transform: translateY(0px);\n"
+"    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);\n"
 "}\n"
 "\n"
 "QPushButton:disabled {\n"
 "    background: #e9ecef;\n"
 "    color: #6c757d;\n"
 "    border-color: #dee2e6;\n"
+"}\n"
+"\n"
+"/* STACKED WIDGET - CLEAN CONTAINER */\n"
+"QStackedWidget {\n"
+"    backg"
+                        "round: transparent;\n"
+"    border: none;\n"
 "}\n"
 "   ")
         self.centralwidget = QWidget(MainWindow)
@@ -302,7 +373,7 @@ class Ui_MainWindow(object):
         self.combobox_connectionstring.addItem("")
         self.combobox_connectionstring.addItem("")
         self.combobox_connectionstring.setObjectName(u"combobox_connectionstring")
-        self.combobox_connectionstring.setMinimumSize(QSize(150, 32))
+        self.combobox_connectionstring.setMinimumSize(QSize(150, 48))
 
         self.horizontalLayout_4.addWidget(self.combobox_connectionstring)
 
@@ -315,13 +386,13 @@ class Ui_MainWindow(object):
         self.combobox_baudrate.addItem("")
         self.combobox_baudrate.addItem("")
         self.combobox_baudrate.setObjectName(u"combobox_baudrate")
-        self.combobox_baudrate.setMinimumSize(QSize(100, 32))
+        self.combobox_baudrate.setMinimumSize(QSize(100, 48))
 
         self.horizontalLayout_4.addWidget(self.combobox_baudrate)
 
         self.btn_connect = QPushButton(self.frame_top_btns)
         self.btn_connect.setObjectName(u"btn_connect")
-        self.btn_connect.setMinimumSize(QSize(80, 32))
+        self.btn_connect.setMinimumSize(QSize(80, 56))
 
         self.horizontalLayout_4.addWidget(self.btn_connect)
 
@@ -335,21 +406,21 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
         self.btn_minimize = QPushButton(self.frame_btns_right)
         self.btn_minimize.setObjectName(u"btn_minimize")
-        self.btn_minimize.setMinimumSize(QSize(46, 32))
+        self.btn_minimize.setMinimumSize(QSize(46, 40))
         self.btn_minimize.setMaximumSize(QSize(46, 32))
 
         self.horizontalLayout_5.addWidget(self.btn_minimize)
 
         self.btn_maximize_restore = QPushButton(self.frame_btns_right)
         self.btn_maximize_restore.setObjectName(u"btn_maximize_restore")
-        self.btn_maximize_restore.setMinimumSize(QSize(46, 32))
+        self.btn_maximize_restore.setMinimumSize(QSize(46, 40))
         self.btn_maximize_restore.setMaximumSize(QSize(46, 32))
 
         self.horizontalLayout_5.addWidget(self.btn_maximize_restore)
 
         self.btn_close = QPushButton(self.frame_btns_right)
         self.btn_close.setObjectName(u"btn_close")
-        self.btn_close.setMinimumSize(QSize(46, 32))
+        self.btn_close.setMinimumSize(QSize(46, 40))
         self.btn_close.setMaximumSize(QSize(46, 32))
 
         self.horizontalLayout_5.addWidget(self.btn_close)
@@ -365,17 +436,6 @@ class Ui_MainWindow(object):
 
 
         self.verticalLayout.addWidget(self.frame_top)
-
-        self.frame_top_info = QFrame(self.frame_main)
-        self.frame_top_info.setObjectName(u"frame_top_info")
-        self.frame_top_info.setMaximumSize(QSize(16777215, 32))
-        self.frame_top_info.setFrameShape(QFrame.NoFrame)
-        self.horizontalLayout_8 = QHBoxLayout(self.frame_top_info)
-        self.horizontalLayout_8.setSpacing(0)
-        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
-        self.horizontalLayout_8.setContentsMargins(20, 0, 20, 0)
-
-        self.verticalLayout.addWidget(self.frame_top_info)
 
         self.frame_center = QFrame(self.frame_main)
         self.frame_center.setObjectName(u"frame_center")
@@ -402,21 +462,21 @@ class Ui_MainWindow(object):
         self.layout_menus.setContentsMargins(0, 0, 0, 0)
         self.btn_home_page = QPushButton(self.frame_menus)
         self.btn_home_page.setObjectName(u"btn_home_page")
-        self.btn_home_page.setMinimumSize(QSize(0, 48))
+        self.btn_home_page.setMinimumSize(QSize(0, 88))
         self.btn_home_page.setIconSize(QSize(24, 24))
 
         self.layout_menus.addWidget(self.btn_home_page)
 
         self.btn_indicators_page = QPushButton(self.frame_menus)
         self.btn_indicators_page.setObjectName(u"btn_indicators_page")
-        self.btn_indicators_page.setMinimumSize(QSize(0, 48))
+        self.btn_indicators_page.setMinimumSize(QSize(0, 88))
         self.btn_indicators_page.setIconSize(QSize(24, 24))
 
         self.layout_menus.addWidget(self.btn_indicators_page)
 
         self.btn_targets_page = QPushButton(self.frame_menus)
         self.btn_targets_page.setObjectName(u"btn_targets_page")
-        self.btn_targets_page.setMinimumSize(QSize(0, 48))
+        self.btn_targets_page.setMinimumSize(QSize(0, 88))
         self.btn_targets_page.setIconSize(QSize(24, 24))
 
         self.layout_menus.addWidget(self.btn_targets_page)

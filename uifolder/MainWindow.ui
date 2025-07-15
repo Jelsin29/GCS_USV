@@ -21,204 +21,272 @@
   </property>
   <property name="styleSheet">
    <string notr="true">
-/* MODERN WINDOWS 10 LIGHT STYLE */
+/* MODERN TESLA-STYLE DASHBOARD */
 QMainWindow {
-    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
-                                stop:0 #f8f9fa, stop:1 #e9ecef);
-    color: #212529;
+    background-color: #f5f5f5;
+    color: #2c3e50;
+    font-family: 'Segoe UI', 'San Francisco', 'Helvetica Neue', Arial, sans-serif;
 }
 
 /* MODERN TITLE BAR */
 QFrame#frame_top {
-    background: #ffffff;
-    border-bottom: 1px solid #dee2e6;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #ffffff, stop:1 #f8f9fa);
+    border: none;
+    border-bottom: 1px solid #e9ecef;
 }
 
 QFrame#frame_top_btns {
-    background: #ffffff;
+    background: transparent;
+    border: none;
 }
 
 /* MODERN BUTTONS - TITLE BAR */
 QPushButton#btn_minimize, QPushButton#btn_maximize_restore, QPushButton#btn_close {
     border: none;
     background: transparent;
-    padding: 8px;
+    padding: 12px;
+    color: #6c757d;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+QPushButton#btn_minimize:hover, QPushButton#btn_maximize_restore:hover {
+    background: rgba(108, 117, 125, 0.1);
     color: #495057;
 }
-QPushButton#btn_minimize:hover, QPushButton#btn_maximize_restore:hover {
-    background: #e9ecef;
-}
+
 QPushButton#btn_close:hover {
     background: #dc3545;
     color: white;
 }
 
-/* MODERN SIDEBAR */
+/* MODERN SIDEBAR - TESLA STYLE */
 QFrame#frame_left_menu {
-    background: #f8f9fa;
-    border-right: 1px solid #dee2e6;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
+                               stop:0 #ffffff, stop:1 #f8f9fa);
+    border: none;
+    border-right: 1px solid #e9ecef;
 }
 
 QPushButton#btn_toggle_menu {
     background: transparent;
     border: none;
-    padding: 15px;
+    padding: 16px;
     color: #495057;
-}
-QPushButton#btn_toggle_menu:hover {
-    background: #e9ecef;
+    border-radius: 8px;
+    margin: 8px;
 }
 
-/* MODERN NAVIGATION BUTTONS */
+QPushButton#btn_toggle_menu:hover {
+    background: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+}
+
+/* MODERN NAVIGATION BUTTONS - TESLA INSPIRED */
 QPushButton#btn_home_page, QPushButton#btn_indicators_page, QPushButton#btn_targets_page {
     background: transparent;
     border: none;
     text-align: left;
-    padding: 15px 20px;
-    color: #495057;
-    font-size: 14px;
-    border-left: 3px solid transparent;
+    padding: 16px 24px;
+    color: #6c757d;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 12px;
+    margin: 4px 12px;
+    min-height: 48px;
 }
 
 QPushButton#btn_home_page:hover, QPushButton#btn_indicators_page:hover, QPushButton#btn_targets_page:hover {
-    background: #e9ecef;
-    color: #212529;
+    background: rgba(13, 110, 253, 0.08);
+    color: #0d6efd;
+    transform: translateX(4px);
 }
 
 QPushButton#btn_home_page:disabled, QPushButton#btn_indicators_page:disabled, QPushButton#btn_targets_page:disabled {
-    background: #0d6efd;
-    border-left: 3px solid #0d6efd;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
+                               stop:0 #0d6efd, stop:1 #0b5ed7);
     color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
 }
 
 /* MODERN CONTENT AREA */
 QFrame#frame_content_right {
-    background: #ffffff;
+    background: #f5f5f5;
+    border: none;
 }
 
 QFrame#frame_content {
     background: #ffffff;
-    border-radius: 8px;
+    border: none;
+    border-radius: 16px;
+    margin: 16px;
+    padding: 0px;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
 }
 
-/* MODERN CONNECTION CONTROLS */
+/* MODERN CONNECTION CONTROLS - TESLA STYLE */
 QComboBox {
     background: #ffffff;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    padding: 8px 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px 16px;
     color: #495057;
+    font-size: 14px;
+    font-weight: 500;
     selection-background-color: #0d6efd;
+    min-height: 20px;
 }
 
 QComboBox:hover {
-    border: 1px solid #0d6efd;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
 }
 
 QComboBox:focus {
-    border: 2px solid #0d6efd;
+    border-color: #0d6efd;
     outline: none;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
 }
 
 QComboBox::drop-down {
     border: none;
-    width: 20px;
+    width: 32px;
+    border-radius: 4px;
 }
 
 QComboBox::down-arrow {
     image: url(uifolder/assets/icons/16x16/cil-arrow-bottom.png);
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
 }
 
 QComboBox QAbstractItemView {
     background: #ffffff;
-    border: 1px solid #ced4da;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
     selection-background-color: #0d6efd;
     color: #495057;
+    padding: 8px;
+    margin-top: 4px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
-/* MODERN CONNECT BUTTON */
+/* MODERN CONNECT BUTTON - TESLA STYLE */
 QPushButton#btn_connect {
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
-                                stop:0 #0d6efd, stop:1 #0b5ed7);
-    border: 1px solid #0a58ca;
-    border-radius: 4px;
+                               stop:0 #0d6efd, stop:1 #0b5ed7);
+    border: none;
+    border-radius: 12px;
     color: #ffffff;
     font-weight: 600;
-    padding: 8px 16px;
+    font-size: 15px;
+    padding: 16px 32px;
+    min-height: 24px;
+    box-shadow: 0 4px 16px rgba(13, 110, 253, 0.3);
 }
 
 QPushButton#btn_connect:hover {
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
-                                stop:0 #0b5ed7, stop:1 #0a58ca);
+                               stop:0 #0b5ed7, stop:1 #0a58ca);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
 }
 
 QPushButton#btn_connect:pressed {
     background: #0a58ca;
+    transform: translateY(0px);
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
 }
 
-/* MODERN SCROLLBARS */
+/* MODERN SCROLLBARS - MINIMAL DESIGN */
 QScrollBar:vertical {
-    background: #f8f9fa;
-    width: 12px;
-    border-radius: 6px;
+    background: transparent;
+    width: 8px;
+    border-radius: 4px;
+    margin: 0px;
 }
 
 QScrollBar::handle:vertical {
-    background: #ced4da;
-    border-radius: 6px;
+    background: rgba(108, 117, 125, 0.3);
+    border-radius: 4px;
     min-height: 20px;
+    margin: 2px;
 }
 
 QScrollBar::handle:vertical:hover {
-    background: #adb5bd;
+    background: rgba(108, 117, 125, 0.5);
 }
 
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
     border: none;
     background: none;
+    height: 0px;
 }
 
 /* MODERN STATUS BAR */
 QFrame#frame_top_info {
-    background: #0d6efd;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #0d6efd, stop:1 #0b5ed7);
     color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    margin: 8px;
+    padding: 8px 16px;
+    font-weight: 600;
 }
 
 /* MODERN GRIP */
 QFrame#frame_grip {
-    background: #f8f9fa;
+    background: transparent;
+    border: none;
 }
 
-/* LABELS */
+/* LABELS - TESLA STYLE */
 QLabel {
     color: #495057;
+    font-weight: 500;
+    background: transparent;
+    border: none;
 }
 
-/* GENERAL BUTTONS */
+/* GENERAL BUTTONS - MODERN STYLE */
 QPushButton {
     background: #f8f9fa;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    padding: 6px 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 10px 16px;
     color: #495057;
     font-weight: 500;
+    font-size: 14px;
+    min-height: 16px;
 }
 
 QPushButton:hover {
     background: #e9ecef;
-    border-color: #adb5bd;
+    border-color: #ced4da;
+    color: #212529;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 QPushButton:pressed {
     background: #dee2e6;
+    transform: translateY(0px);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 QPushButton:disabled {
     background: #e9ecef;
     color: #6c757d;
     border-color: #dee2e6;
+}
+
+/* STACKED WIDGET - CLEAN CONTAINER */
+QStackedWidget {
+    background: transparent;
+    border: none;
 }
    </string>
   </property>
@@ -390,7 +458,7 @@ QPushButton:disabled {
                    <font>
                     <family>Segoe UI</family>
                     <pointsize>14</pointsize>
-                    <weight>75</weight>
+                    <weight>63</weight>
                     <bold>true</bold>
                    </font>
                   </property>
@@ -407,7 +475,7 @@ QPushButton:disabled {
                   <property name="minimumSize">
                    <size>
                     <width>150</width>
-                    <height>32</height>
+                    <height>48</height>
                    </size>
                   </property>
                   <item>
@@ -447,7 +515,7 @@ QPushButton:disabled {
                   <property name="minimumSize">
                    <size>
                     <width>100</width>
-                    <height>32</height>
+                    <height>48</height>
                    </size>
                   </property>
                   <item>
@@ -492,7 +560,7 @@ QPushButton:disabled {
                   <property name="minimumSize">
                    <size>
                     <width>80</width>
-                    <height>32</height>
+                    <height>56</height>
                    </size>
                   </property>
                   <property name="text">
@@ -532,7 +600,7 @@ QPushButton:disabled {
                      <property name="minimumSize">
                       <size>
                        <width>46</width>
-                       <height>32</height>
+                       <height>40</height>
                       </size>
                      </property>
                      <property name="maximumSize">
@@ -551,7 +619,7 @@ QPushButton:disabled {
                      <property name="minimumSize">
                       <size>
                        <width>46</width>
-                       <height>32</height>
+                       <height>40</height>
                       </size>
                      </property>
                      <property name="maximumSize">
@@ -570,7 +638,7 @@ QPushButton:disabled {
                      <property name="minimumSize">
                       <size>
                        <width>46</width>
-                       <height>32</height>
+                       <height>40</height>
                       </size>
                      </property>
                      <property name="maximumSize">
@@ -593,36 +661,6 @@ QPushButton:disabled {
             </layout>
            </widget>
           </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QFrame" name="frame_top_info">
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>32</height>
-          </size>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_8">
-          <property name="spacing">
-           <number>0</number>
-          </property>
-          <property name="leftMargin">
-           <number>20</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>20</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
          </layout>
         </widget>
        </item>
@@ -706,7 +744,7 @@ QPushButton:disabled {
                   <property name="minimumSize">
                    <size>
                     <width>0</width>
-                    <height>48</height>
+                    <height>88</height>
                    </size>
                   </property>
                   <property name="text">
@@ -725,7 +763,7 @@ QPushButton:disabled {
                   <property name="minimumSize">
                    <size>
                     <width>0</width>
-                    <height>48</height>
+                    <height>88</height>
                    </size>
                   </property>
                   <property name="text">
@@ -744,7 +782,7 @@ QPushButton:disabled {
                   <property name="minimumSize">
                    <size>
                     <width>0</width>
-                    <height>48</height>
+                    <height>88</height>
                    </size>
                   </property>
                   <property name="text">

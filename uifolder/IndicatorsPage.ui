@@ -20,12 +20,47 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QFrame{background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.542, y2:0.0283636, stop:0.133663 rgba(30, 33, 31, 255), stop:0.816832 rgba(40, 44, 52, 255));
-                border-radius: 20px;
-                border: 0px, solid, black;
-                color: #ffffff;
-                }
-                QLabel{background-color: transparent;}</string>
+   <string notr="true">
+/* MODERN INSTRUMENTS - TESLA DASHBOARD STYLE */
+QWidget {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                               stop:0 #f8f9fa, stop:1 #e9ecef);
+    color: #2c3e50;
+    font-family: 'Segoe UI', 'San Francisco', Arial, sans-serif;
+}
+
+QFrame {
+    background: qradial-gradient(cx:0.5, cy:0.5, radius:1.0, 
+                                fx:0.5, fy:0.3,
+                                stop:0 #ffffff, 
+                                stop:0.8 #f8f9fa, 
+                                stop:1.0 #e9ecef);
+    border: none;
+    border-radius: 20px;
+    margin: 12px;
+    padding: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+QLabel {
+    background: transparent;
+    color: #2c3e50;
+    font-weight: 500;
+    border: none;
+}
+
+/* INSTRUMENT SPECIFIC STYLING */
+QFrame:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+}
+
+/* REMOVE ALL HARSH BORDERS AND LINES */
+* {
+    border: none;
+    outline: none;
+}
+   </string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

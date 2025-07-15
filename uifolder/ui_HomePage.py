@@ -24,63 +24,102 @@ class Ui_HomePage(object):
             HomePage.setObjectName(u"HomePage")
         HomePage.resize(1400, 900)
         HomePage.setStyleSheet(u"\n"
-"/* MODERN HOMEPAGE STYLING */\n"
+"/* MODERN HOMEPAGE - TESLA DASHBOARD STYLE */\n"
 "QWidget {\n"
-"    background-color: #ffffff;\n"
-"    color: #495057;\n"
+"    background-color: #f5f5f5;\n"
+"    color: #2c3e50;\n"
+"    font-family: 'Segoe UI', 'San Francisco', Arial, sans-serif;\n"
 "}\n"
 "\n"
 "QFrame {\n"
 "    background-color: #ffffff;\n"
-"    border: 1px solid #dee2e6;\n"
-"    border-radius: 8px;\n"
+"    border: none;\n"
+"    border-radius: 16px;\n"
+"    margin: 8px;\n"
+"    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);\n"
+"}\n"
+"\n"
+"/* CAMERA FRAME - CLEAN MODERN */\n"
+"QWidget#cameraFrame {\n"
+"    background: #ffffff;\n"
+"    border: none;\n"
+"    border-radius: 16px;\n"
+"    margin: 8px;\n"
+"    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);\n"
+"}\n"
+"\n"
+"/* MAP FRAME - TESLA STYLE */\n"
+"QWidget#mapFrame {\n"
+"    background: #ffffff;\n"
+"    border: none;\n"
+"    border-radius: 16px;\n"
+"    margin: 8px;\n"
+"    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);\n"
+"}\n"
+"\n"
+"/* TELEMETRY FRAME - MODERN CARD */\n"
+"QFrame#futureContentFrame {\n"
+"    background: #ffffff;\n"
+"    border: none;\n"
+"    border-radius: 16px;\n"
+"    margin: 8px;\n"
+"    padding:"
+                        " 16px;\n"
+"    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);\n"
+"}\n"
+"\n"
+"/* HOVER EFFECTS FOR INTERACTIVE ELEMENTS */\n"
+"QWidget#cameraFrame:hover, QWidget#mapFrame:hover, QFrame#futureContentFrame:hover {\n"
+"    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);\n"
+"    transform: translateY(-2px);\n"
 "}\n"
 "   ")
         self.mainHorizontalLayout = QHBoxLayout(HomePage)
-        self.mainHorizontalLayout.setSpacing(12)
+        self.mainHorizontalLayout.setSpacing(0)
         self.mainHorizontalLayout.setObjectName(u"mainHorizontalLayout")
-        self.mainHorizontalLayout.setContentsMargins(12, 12, 12, 12)
+        self.mainHorizontalLayout.setContentsMargins(16, 16, 16, 16)
         self.leftFrame = QFrame(HomePage)
         self.leftFrame.setObjectName(u"leftFrame")
         self.leftFrame.setMinimumSize(QSize(400, 0))
         self.leftFrame.setMaximumSize(QSize(450, 16777215))
-        self.leftFrame.setStyleSheet(u"QFrame{\n"
-"    background-color: #ffffff;\n"
-"    border: 1px solid #dee2e6;\n"
-"    border-radius: 8px;\n"
+        self.leftFrame.setStyleSheet(u"QFrame {\n"
+"    background: transparent;\n"
+"    border: none;\n"
+"    margin: 0px;\n"
 "}")
         self.leftFrame.setFrameShape(QFrame.StyledPanel)
         self.leftFrame.setFrameShadow(QFrame.Raised)
         self.leftVerticalLayout = QVBoxLayout(self.leftFrame)
-        self.leftVerticalLayout.setSpacing(12)
+        self.leftVerticalLayout.setSpacing(16)
         self.leftVerticalLayout.setObjectName(u"leftVerticalLayout")
-        self.leftVerticalLayout.setContentsMargins(12, 12, 12, 12)
+        self.leftVerticalLayout.setContentsMargins(0, 0, 8, 0)
         self.cameraFrame = QWidget(self.leftFrame)
         self.cameraFrame.setObjectName(u"cameraFrame")
         self.cameraFrame.setMinimumSize(QSize(0, 350))
         self.cameraFrame.setMaximumSize(QSize(16777215, 400))
         self.cameraFrame.setStyleSheet(u"QWidget{\n"
-"    background-color: #f8f9fa;\n"
-"    border: 1px solid #dee2e6;\n"
-"    border-radius: 8px;\n"
+"    background: transparent;\n"
+"    border: none;\n"
 "}")
         self.horizontalLayout_3 = QHBoxLayout(self.cameraFrame)
+        self.horizontalLayout_3.setSpacing(0)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
 
         self.leftVerticalLayout.addWidget(self.cameraFrame)
 
         self.futureContentFrame = QFrame(self.leftFrame)
         self.futureContentFrame.setObjectName(u"futureContentFrame")
         self.futureContentFrame.setStyleSheet(u"QFrame{\n"
-"    background-color: #f8f9fa;\n"
-"    border: 2px dashed #ced4da;\n"
-"    border-radius: 8px;\n"
+"    background: transparent;\n"
+"    border: none;\n"
 "}")
         self.futureContentFrame.setFrameShape(QFrame.StyledPanel)
         self.futureContentFrame.setFrameShadow(QFrame.Raised)
         self.futureContentLayout = QVBoxLayout(self.futureContentFrame)
         self.futureContentLayout.setSpacing(0)
         self.futureContentLayout.setObjectName(u"futureContentLayout")
+        self.futureContentLayout.setContentsMargins(0, 0, 0, 0)
         self.futureContentLabel = QLabel(self.futureContentFrame)
         self.futureContentLabel.setObjectName(u"futureContentLabel")
         self.futureContentLabel.setAlignment(Qt.AlignCenter)
@@ -97,13 +136,13 @@ class Ui_HomePage(object):
         self.mapFrame.setObjectName(u"mapFrame")
         self.mapFrame.setMinimumSize(QSize(650, 0))
         self.mapFrame.setStyleSheet(u"QWidget{\n"
-"    background-color: #ffffff;\n"
-"    border: 1px solid #dee2e6;\n"
-"    border-radius: 8px;\n"
+"    background: transparent;\n"
+"    border: none;\n"
 "}")
         self.horizontalLayout_2 = QHBoxLayout(self.mapFrame)
+        self.horizontalLayout_2.setSpacing(0)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.horizontalLayout_2.setContentsMargins(8, 8, 8, 8)
+        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
 
         self.mainHorizontalLayout.addWidget(self.mapFrame)
 
@@ -115,13 +154,13 @@ class Ui_HomePage(object):
 
     def retranslateUi(self, HomePage):
         HomePage.setWindowTitle(QCoreApplication.translate("HomePage", u"Form", None))
-        self.futureContentLabel.setText(QCoreApplication.translate("HomePage", u"Reserved Space\n"
-"Future Content Area", None))
         self.futureContentLabel.setStyleSheet(QCoreApplication.translate("HomePage", u"QLabel { \n"
 "    color: #6c757d; \n"
 "    font-size: 14px; \n"
 "    font-style: italic;\n"
 "    border: none;\n"
+"    background: transparent;\n"
 "}", None))
+        self.futureContentLabel.setText("")
     # retranslateUi
 

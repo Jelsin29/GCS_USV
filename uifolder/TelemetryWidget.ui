@@ -7,15 +7,15 @@
     <x>0</x>
     <y>0</y>
     <width>429</width>
-    <height>731</height>
+    <height>882</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Telemetry</string>
+   <string>USV Telemetry</string>
   </property>
   <property name="styleSheet">
    <string notr="true">
-/* MODERN TELEMETRY WIDGET - LIGHT THEME */
+/* MODERN TELEMETRY WIDGET - USV THEME */
 QWidget {
     background-color: #f8f9fa;
     color: #495057;
@@ -56,7 +56,7 @@ QLabel {
      <property name="styleSheet">
       <string>QLabel {
     color: #ffffff;
-    background-color: #495057;
+    background-color: #0d47a1;
     font-size: 16px;
     font-weight: bold;
     padding: 12px;
@@ -70,81 +70,6 @@ QLabel {
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QFrame" name="batteryFrame">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>80</height>
-      </size>
-     </property>
-     <property name="styleSheet">
-      <string>QFrame {
-    background-color: #ffffff;
-    border: 1px solid #dee2e6;
-    border-radius: 12px;
-    padding: 15px;
-}</string>
-     </property>
-     <layout class="QHBoxLayout" name="batteryLayout">
-      <property name="spacing">
-       <number>15</number>
-      </property>
-      <item>
-       <widget class="QLabel" name="batteryLabel">
-        <property name="styleSheet">
-         <string>QLabel {
-    color: #495057;
-    font-size: 18px;
-    font-weight: 600;
-    background: transparent;
-    border: none;
-}</string>
-        </property>
-        <property name="text">
-         <string>Battery:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="batteryPercentLabel">
-        <property name="styleSheet">
-         <string>QLabel {
-    color: #28a745;
-    font-size: 32px;
-    font-weight: bold;
-    background: transparent;
-    border: none;
-}</string>
-        </property>
-        <property name="text">
-         <string>50%</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QFrame" name="batteryBarFrame">
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string>QFrame {
-    background-color: #e9ecef;
-    border: 1px solid #ced4da;
-    border-radius: 10px;
-}</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </widget>
    </item>
    <item>
@@ -182,7 +107,7 @@ QLabel {
 }</string>
            </property>
            <property name="text">
-            <string>Estimated Range</string>
+            <string>Latitude</string>
            </property>
           </widget>
          </item>
@@ -196,7 +121,7 @@ QLabel {
 }</string>
            </property>
            <property name="text">
-            <string>164 km</string>
+            <string>14.4155610</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -210,8 +135,8 @@ QLabel {
        <widget class="QFrame" name="consumptionFrame">
         <property name="styleSheet">
          <string>QFrame {
-    background-color: #fff3e0;
-    border: 1px solid #ffcc02;
+    background-color: #e8f5e8;
+    border: 1px solid #c3e6cb;
     border-radius: 8px;
     padding: 12px;
 }</string>
@@ -221,13 +146,13 @@ QLabel {
           <widget class="QLabel" name="consumptionLabel">
            <property name="styleSheet">
             <string>QLabel {
-    color: #f57c00;
+    color: #155724;
     font-weight: 600;
     font-size: 14px;
 }</string>
            </property>
            <property name="text">
-            <string>Avg. Consumption</string>
+            <string>Longitude</string>
            </property>
           </widget>
          </item>
@@ -235,13 +160,13 @@ QLabel {
           <widget class="QLabel" name="consumptionValueLabel">
            <property name="styleSheet">
             <string>QLabel {
-    color: #f57c00;
+    color: #155724;
     font-weight: bold;
     font-size: 16px;
 }</string>
            </property>
            <property name="text">
-            <string>304 Wh/km</string>
+            <string>13.8964845</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -272,7 +197,7 @@ QLabel {
 }</string>
            </property>
            <property name="text">
-            <string>Avg. Speed</string>
+            <string>Speed</string>
            </property>
           </widget>
          </item>
@@ -286,7 +211,7 @@ QLabel {
 }</string>
            </property>
            <property name="text">
-            <string>43 km/h</string>
+            <string>2.5 kts</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -300,8 +225,8 @@ QLabel {
        <widget class="QFrame" name="headingFrame">
         <property name="styleSheet">
          <string>QFrame {
-    background-color: #e8f5e8;
-    border: 1px solid #c3e6cb;
+    background-color: #fff3e0;
+    border: 1px solid #ffcc02;
     border-radius: 8px;
     padding: 12px;
 }</string>
@@ -311,13 +236,13 @@ QLabel {
           <widget class="QLabel" name="headingLabel">
            <property name="styleSheet">
             <string>QLabel {
-    color: #155724;
+    color: #f57c00;
     font-weight: 600;
     font-size: 14px;
 }</string>
            </property>
            <property name="text">
-            <string>Heading</string>
+            <string>Roll</string>
            </property>
           </widget>
          </item>
@@ -325,13 +250,58 @@ QLabel {
           <widget class="QLabel" name="headingValueLabel">
            <property name="styleSheet">
             <string>QLabel {
-    color: #155724;
+    color: #f57c00;
     font-weight: bold;
     font-size: 16px;
 }</string>
            </property>
            <property name="text">
-            <string>045°</string>
+            <string>-0.05°</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="pitchFrame">
+        <property name="styleSheet">
+         <string>QFrame {
+    background-color: #fce4ec;
+    border: 1px solid #f8bbd9;
+    border-radius: 8px;
+    padding: 12px;
+}</string>
+        </property>
+        <layout class="QHBoxLayout" name="pitchLayout">
+         <item>
+          <widget class="QLabel" name="pitchLabel">
+           <property name="styleSheet">
+            <string>QLabel {
+    color: #ad1457;
+    font-weight: 600;
+    font-size: 14px;
+}</string>
+           </property>
+           <property name="text">
+            <string>Pitch</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="pitchValueLabel">
+           <property name="styleSheet">
+            <string>QLabel {
+    color: #ad1457;
+    font-weight: bold;
+    font-size: 16px;
+}</string>
+           </property>
+           <property name="text">
+            <string>-0.09°</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -364,19 +334,6 @@ QLabel {
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-   </item>
-   <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>

@@ -16,15 +16,15 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
-    QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
+    QSizePolicy, QVBoxLayout, QWidget)
 
 class Ui_TelemetryWidget(object):
     def setupUi(self, TelemetryWidget):
         if not TelemetryWidget.objectName():
             TelemetryWidget.setObjectName(u"TelemetryWidget")
-        TelemetryWidget.resize(429, 731)
+        TelemetryWidget.resize(429, 882)
         TelemetryWidget.setStyleSheet(u"\n"
-"/* MODERN TELEMETRY WIDGET - LIGHT THEME */\n"
+"/* MODERN TELEMETRY WIDGET - USV THEME */\n"
 "QWidget {\n"
 "    background-color: #f8f9fa;\n"
 "    color: #495057;\n"
@@ -52,32 +52,6 @@ class Ui_TelemetryWidget(object):
         self.titleLabel.setAlignment(Qt.AlignCenter)
 
         self.mainLayout.addWidget(self.titleLabel)
-
-        self.batteryFrame = QFrame(TelemetryWidget)
-        self.batteryFrame.setObjectName(u"batteryFrame")
-        self.batteryFrame.setMinimumSize(QSize(0, 80))
-        self.batteryLayout = QHBoxLayout(self.batteryFrame)
-        self.batteryLayout.setSpacing(15)
-        self.batteryLayout.setObjectName(u"batteryLayout")
-        self.batteryLabel = QLabel(self.batteryFrame)
-        self.batteryLabel.setObjectName(u"batteryLabel")
-
-        self.batteryLayout.addWidget(self.batteryLabel)
-
-        self.batteryPercentLabel = QLabel(self.batteryFrame)
-        self.batteryPercentLabel.setObjectName(u"batteryPercentLabel")
-        self.batteryPercentLabel.setAlignment(Qt.AlignCenter)
-
-        self.batteryLayout.addWidget(self.batteryPercentLabel)
-
-        self.batteryBarFrame = QFrame(self.batteryFrame)
-        self.batteryBarFrame.setObjectName(u"batteryBarFrame")
-        self.batteryBarFrame.setMinimumSize(QSize(100, 20))
-
-        self.batteryLayout.addWidget(self.batteryBarFrame)
-
-
-        self.mainLayout.addWidget(self.batteryFrame)
 
         self.telemetryFrame = QFrame(TelemetryWidget)
         self.telemetryFrame.setObjectName(u"telemetryFrame")
@@ -156,6 +130,24 @@ class Ui_TelemetryWidget(object):
 
         self.telemetryLayout.addWidget(self.headingFrame)
 
+        self.pitchFrame = QFrame(self.telemetryFrame)
+        self.pitchFrame.setObjectName(u"pitchFrame")
+        self.pitchLayout = QHBoxLayout(self.pitchFrame)
+        self.pitchLayout.setObjectName(u"pitchLayout")
+        self.pitchLabel = QLabel(self.pitchFrame)
+        self.pitchLabel.setObjectName(u"pitchLabel")
+
+        self.pitchLayout.addWidget(self.pitchLabel)
+
+        self.pitchValueLabel = QLabel(self.pitchFrame)
+        self.pitchValueLabel.setObjectName(u"pitchValueLabel")
+        self.pitchValueLabel.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+
+        self.pitchLayout.addWidget(self.pitchValueLabel)
+
+
+        self.telemetryLayout.addWidget(self.pitchFrame)
+
 
         self.mainLayout.addWidget(self.telemetryFrame)
 
@@ -165,10 +157,6 @@ class Ui_TelemetryWidget(object):
 
         self.mainLayout.addWidget(self.connectionStatusLabel)
 
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-
-        self.mainLayout.addItem(self.verticalSpacer)
-
 
         self.retranslateUi(TelemetryWidget)
 
@@ -176,10 +164,10 @@ class Ui_TelemetryWidget(object):
     # setupUi
 
     def retranslateUi(self, TelemetryWidget):
-        TelemetryWidget.setWindowTitle(QCoreApplication.translate("TelemetryWidget", u"Telemetry", None))
+        TelemetryWidget.setWindowTitle(QCoreApplication.translate("TelemetryWidget", u"USV Telemetry", None))
         self.titleLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
 "    color: #ffffff;\n"
-"    background-color: #495057;\n"
+"    background-color: #0d47a1;\n"
 "    font-size: 16px;\n"
 "    font-weight: bold;\n"
 "    padding: 12px;\n"
@@ -187,33 +175,6 @@ class Ui_TelemetryWidget(object):
 "    text-align: center;\n"
 "}", None))
         self.titleLabel.setText(QCoreApplication.translate("TelemetryWidget", u"AUTONOMOUS USV", None))
-        self.batteryFrame.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QFrame {\n"
-"    background-color: #ffffff;\n"
-"    border: 1px solid #dee2e6;\n"
-"    border-radius: 12px;\n"
-"    padding: 15px;\n"
-"}", None))
-        self.batteryLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
-"    color: #495057;\n"
-"    font-size: 18px;\n"
-"    font-weight: 600;\n"
-"    background: transparent;\n"
-"    border: none;\n"
-"}", None))
-        self.batteryLabel.setText(QCoreApplication.translate("TelemetryWidget", u"Battery:", None))
-        self.batteryPercentLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
-"    color: #28a745;\n"
-"    font-size: 32px;\n"
-"    font-weight: bold;\n"
-"    background: transparent;\n"
-"    border: none;\n"
-"}", None))
-        self.batteryPercentLabel.setText(QCoreApplication.translate("TelemetryWidget", u"50%", None))
-        self.batteryBarFrame.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QFrame {\n"
-"    background-color: #e9ecef;\n"
-"    border: 1px solid #ced4da;\n"
-"    border-radius: 10px;\n"
-"}", None))
         self.telemetryFrame.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QFrame {\n"
 "    background-color: #ffffff;\n"
 "    border: 1px solid #dee2e6;\n"
@@ -231,31 +192,31 @@ class Ui_TelemetryWidget(object):
 "    font-weight: 600;\n"
 "    font-size: 14px;\n"
 "}", None))
-        self.rangeLabel.setText(QCoreApplication.translate("TelemetryWidget", u"Estimated Range", None))
+        self.rangeLabel.setText(QCoreApplication.translate("TelemetryWidget", u"Latitude", None))
         self.rangeValueLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
 "    color: #1976d2;\n"
 "    font-weight: bold;\n"
 "    font-size: 16px;\n"
 "}", None))
-        self.rangeValueLabel.setText(QCoreApplication.translate("TelemetryWidget", u"164 km", None))
+        self.rangeValueLabel.setText(QCoreApplication.translate("TelemetryWidget", u"14.4155610", None))
         self.consumptionFrame.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QFrame {\n"
-"    background-color: #fff3e0;\n"
-"    border: 1px solid #ffcc02;\n"
+"    background-color: #e8f5e8;\n"
+"    border: 1px solid #c3e6cb;\n"
 "    border-radius: 8px;\n"
 "    padding: 12px;\n"
 "}", None))
         self.consumptionLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
-"    color: #f57c00;\n"
+"    color: #155724;\n"
 "    font-weight: 600;\n"
 "    font-size: 14px;\n"
 "}", None))
-        self.consumptionLabel.setText(QCoreApplication.translate("TelemetryWidget", u"Avg. Consumption", None))
+        self.consumptionLabel.setText(QCoreApplication.translate("TelemetryWidget", u"Longitude", None))
         self.consumptionValueLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
-"    color: #f57c00;\n"
+"    color: #155724;\n"
 "    font-weight: bold;\n"
 "    font-size: 16px;\n"
 "}", None))
-        self.consumptionValueLabel.setText(QCoreApplication.translate("TelemetryWidget", u"304 Wh/km", None))
+        self.consumptionValueLabel.setText(QCoreApplication.translate("TelemetryWidget", u"13.8964845", None))
         self.speedFrame.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QFrame {\n"
 "    background-color: #f3e5f5;\n"
 "    border: 1px solid #ce93d8;\n"
@@ -267,31 +228,49 @@ class Ui_TelemetryWidget(object):
 "    font-weight: 600;\n"
 "    font-size: 14px;\n"
 "}", None))
-        self.speedLabel.setText(QCoreApplication.translate("TelemetryWidget", u"Avg. Speed", None))
+        self.speedLabel.setText(QCoreApplication.translate("TelemetryWidget", u"Speed", None))
         self.speedValueLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
 "    color: #7b1fa2;\n"
 "    font-weight: bold;\n"
 "    font-size: 16px;\n"
 "}", None))
-        self.speedValueLabel.setText(QCoreApplication.translate("TelemetryWidget", u"43 km/h", None))
+        self.speedValueLabel.setText(QCoreApplication.translate("TelemetryWidget", u"2.5 kts", None))
         self.headingFrame.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QFrame {\n"
-"    background-color: #e8f5e8;\n"
-"    border: 1px solid #c3e6cb;\n"
+"    background-color: #fff3e0;\n"
+"    border: 1px solid #ffcc02;\n"
 "    border-radius: 8px;\n"
 "    padding: 12px;\n"
 "}", None))
         self.headingLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
-"    color: #155724;\n"
+"    color: #f57c00;\n"
 "    font-weight: 600;\n"
 "    font-size: 14px;\n"
 "}", None))
-        self.headingLabel.setText(QCoreApplication.translate("TelemetryWidget", u"Heading", None))
+        self.headingLabel.setText(QCoreApplication.translate("TelemetryWidget", u"Roll", None))
         self.headingValueLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
-"    color: #155724;\n"
+"    color: #f57c00;\n"
 "    font-weight: bold;\n"
 "    font-size: 16px;\n"
 "}", None))
-        self.headingValueLabel.setText(QCoreApplication.translate("TelemetryWidget", u"045\u00b0", None))
+        self.headingValueLabel.setText(QCoreApplication.translate("TelemetryWidget", u"-0.05\u00b0", None))
+        self.pitchFrame.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QFrame {\n"
+"    background-color: #fce4ec;\n"
+"    border: 1px solid #f8bbd9;\n"
+"    border-radius: 8px;\n"
+"    padding: 12px;\n"
+"}", None))
+        self.pitchLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
+"    color: #ad1457;\n"
+"    font-weight: 600;\n"
+"    font-size: 14px;\n"
+"}", None))
+        self.pitchLabel.setText(QCoreApplication.translate("TelemetryWidget", u"Pitch", None))
+        self.pitchValueLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
+"    color: #ad1457;\n"
+"    font-weight: bold;\n"
+"    font-size: 16px;\n"
+"}", None))
+        self.pitchValueLabel.setText(QCoreApplication.translate("TelemetryWidget", u"-0.09\u00b0", None))
         self.connectionStatusLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
 "    color: #28a745;\n"
 "    font-size: 14px;\n"

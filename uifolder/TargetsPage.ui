@@ -59,13 +59,13 @@ QPushButton:hover {
                                stop:0 #e9ecef, stop:1 #dee2e6);
     border-color: #0d6efd;
     color: #0d6efd;
-    transform: translateY(-1px);
+
 }
 
 QPushButton:pressed {
     background: #dee2e6;
     border-color: #ced4da;
-    transform: translateY(0px);
+
 }
 
 /* MODERN COMBO BOX - WITH BORDERS */
@@ -305,13 +305,13 @@ QPushButton:hover {
                                stop:0 #f1f3f4, stop:1 #e8eaed);
     border-color: #ced4da;
     color: #343a40;
-    transform: translateY(-1px);
+
 }
 
 QPushButton:pressed {
     background: #dee2e6;
     border-color: #ced4da;
-    transform: translateY(0px);
+
 }</string>
               </property>
               <property name="text">
@@ -347,13 +347,13 @@ QPushButton:hover {
                                stop:0 #f1f3f4, stop:1 #e8eaed);
     border-color: #ced4da;
     color: #343a40;
-    transform: translateY(-1px);
+
 }
 
 QPushButton:pressed {
     background: #dee2e6;
     border-color: #ced4da;
-    transform: translateY(0px);
+
 }</string>
              </property>
              <property name="text">
@@ -381,13 +381,13 @@ QPushButton:hover {
                                stop:0 #f1f3f4, stop:1 #e8eaed);
     border-color: #ced4da;
     color: #343a40;
-    transform: translateY(-1px);
+
 }
 
 QPushButton:pressed {
     background: #dee2e6;
     border-color: #ced4da;
-    transform: translateY(0px);
+
 }</string>
              </property>
              <property name="text">
@@ -415,13 +415,13 @@ QPushButton:hover {
                                stop:0 #f1f3f4, stop:1 #e8eaed);
     border-color: #ced4da;
     color: #343a40;
-    transform: translateY(-1px);
+
 }
 
 QPushButton:pressed {
     background: #dee2e6;
     border-color: #ced4da;
-    transform: translateY(0px);
+
 }</string>
              </property>
              <property name="text">
@@ -454,14 +454,14 @@ QPushButton#btn_antenna:hover {
                                stop:0 #c82333, stop:1 #a71e2a);
     border-color: #a71e2a;
     color: #ffffff;
-    transform: translateY(-1px);
+
 }
 
 /* ANTENNA BUTTON - PRESSED STATE (MOMENTARY) */
 QPushButton#btn_antenna:pressed {
     background: #a71e2a;
     border-color: #921924;
-    transform: translateY(0px);
+
 }
 
 /* ANTENNA BUTTON - ACTIVE/TRACKING STATE (GREEN) */
@@ -478,14 +478,14 @@ QPushButton#btn_antenna[tracking=&quot;true&quot;]:hover {
                                stop:0 #1e7e34, stop:1 #155724);
     border-color: #0f5132;
     color: #ffffff;
-    transform: translateY(-1px);
+
 }
 
 /* ANTENNA BUTTON - GREEN STATE PRESSED */
 QPushButton#btn_antenna[tracking=&quot;true&quot;]:pressed {
     background: #155724;
     border-color: #0f5132;
-    transform: translateY(0px);
+
 }</string>
            </property>
            <property name="text">
@@ -518,13 +518,13 @@ QPushButton#btn_startMission:hover {
                                stop:0 #1e7e34, stop:1 #155724);
     border-color: #0f5132;
     color: #ffffff;
-    transform: translateY(-1px);
+
 }
 
 QPushButton#btn_startMission:pressed {
     background: #155724;
     border-color: #0f5132;
-    transform: translateY(0px);
+
 }</string>
              </property>
              <property name="text">
@@ -552,13 +552,13 @@ QPushButton#btn_abort:hover {
                                stop:0 #c82333, stop:1 #a71e2a);
     border-color: #a71e2a;
     color: #ffffff;
-    transform: translateY(-1px);
+
 }
 
 QPushButton#btn_abort:pressed {
     background: #a71e2a;
     border-color: #921924;
-    transform: translateY(0px);
+
 }</string>
              </property>
              <property name="text">
@@ -588,13 +588,13 @@ QPushButton:hover {
                                stop:0 #f1f3f4, stop:1 #e8eaed);
     border-color: #ced4da;
     color: #343a40;
-    transform: translateY(-1px);
+
 }
 
 QPushButton:pressed {
     background: #dee2e6;
     border-color: #ced4da;
-    transform: translateY(0px);
+
 }</string>
            </property>
            <property name="text">
@@ -655,13 +655,13 @@ QPushButton:hover {
                                stop:0 #f1f3f4, stop:1 #e8eaed);
     border-color: #ced4da;
     color: #343a40;
-    transform: translateY(-1px);
+
 }
 
 QPushButton:pressed {
     background: #dee2e6;
     border-color: #ced4da;
-    transform: translateY(0px);
+
 }</string>
              </property>
              <property name="text">
@@ -689,13 +689,13 @@ QPushButton:hover {
                                stop:0 #f1f3f4, stop:1 #e8eaed);
     border-color: #ced4da;
     color: #343a40;
-    transform: translateY(-1px);
+
 }
 
 QPushButton:pressed {
     background: #dee2e6;
     border-color: #ced4da;
-    transform: translateY(0px);
+
 }</string>
              </property>
              <property name="text">
@@ -723,13 +723,13 @@ QPushButton:hover {
                                stop:0 #f1f3f4, stop:1 #e8eaed);
     border-color: #ced4da;
     color: #343a40;
-    transform: translateY(-1px);
+
 }
 
 QPushButton:pressed {
     background: #dee2e6;
     border-color: #ced4da;
-    transform: translateY(0px);
+
 }</string>
              </property>
              <property name="text">
@@ -757,13 +757,13 @@ QPushButton:hover {
                                stop:0 #f1f3f4, stop:1 #e8eaed);
     border-color: #ced4da;
     color: #343a40;
-    transform: translateY(-1px);
+
 }
 
 QPushButton:pressed {
     background: #dee2e6;
     border-color: #ced4da;
-    transform: translateY(0px);
+
 }</string>
              </property>
              <property name="text">
@@ -791,13 +791,13 @@ QPushButton:hover {
                                stop:0 #f1f3f4, stop:1 #e8eaed);
     border-color: #ced4da;
     color: #343a40;
-    transform: translateY(-1px);
+
 }
 
 QPushButton:pressed {
     background: #dee2e6;
     border-color: #ced4da;
-    transform: translateY(0px);
+
 }</string>
              </property>
              <property name="text">
@@ -825,13 +825,13 @@ QPushButton:hover {
                                stop:0 #f1f3f4, stop:1 #e8eaed);
     border-color: #ced4da;
     color: #343a40;
-    transform: translateY(-1px);
+
 }
 
 QPushButton:pressed {
     background: #dee2e6;
     border-color: #ced4da;
-    transform: translateY(0px);
+
 }</string>
              </property>
              <property name="text">
@@ -859,13 +859,13 @@ QPushButton:hover {
                                stop:0 #f1f3f4, stop:1 #e8eaed);
     border-color: #ced4da;
     color: #343a40;
-    transform: translateY(-1px);
+
 }
 
 QPushButton:pressed {
     background: #dee2e6;
     border-color: #ced4da;
-    transform: translateY(0px);
+
 }</string>
              </property>
              <property name="text">

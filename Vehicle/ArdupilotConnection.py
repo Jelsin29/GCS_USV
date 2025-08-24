@@ -4,13 +4,13 @@ import time
 from pymavlink import mavutil
 import pymavlink.dialects.v20.all as dialect
 
-from PySide6.QtCore import QThread, Signal, QTimer
 from PySide6.QtGui import QIcon
+from PySide6.QtCore import QThread, Signal, QTimer
 from PySide6.QtWidgets import QPushButton, QInputDialog
 
+from MapWidget import MapWidget
 from CameraWidget import CameraWidget
 from IndicatorsPage import IndicatorsPage
-from MapWidget import MapWidget
 from Database.users_db import FirebaseUser
 from Vehicle.Exploration import exploration
 
@@ -33,14 +33,14 @@ def handleConnectedVehicle(connection, mapwidget, connectbutton):
     connectbutton.setDisabled(True)
 
     # Fly to UAV's position
-    mapwidget.page().runJavaScript(f'console.log("uav position: {position}")')
+    mapwidget.page().runJavaScript(f'console.log("usv position: {position}")')
     mapwidget.page().runJavaScript(f"{mapwidget.map_variable_name}.flyTo({position})")
 
-    # Add UAV marker
+    # Add USV marker
     mapwidget.page().runJavaScript("""
-                    var uavMarker = L.marker(
+                    var usvMarker = L.marker(
                                 %s,
-                                {icon: uavIcon,},).addTo(map);
+                                {icon: usvIcon,},).addTo(map);
                     """ % position
                                    )
 
@@ -57,22 +57,22 @@ def updateData(thread, vehicle, mapwidget, indicators, camerawidget, firebase):
             heading = msg.hdg / 100
             altitude = msg.relative_alt / 1000.0
 
-            # Update UAV Data
+            # Update USV Data
             thread.latitude = position[0]
             thread.longitude = position[1]
             thread.altitude = altitude
 
             # Update indicators
             indicators.setAltitude(altitude)
-            indicators.xpos_label.setText(f"X: {position[0]}")
-            indicators.ypos_label.setText(f"Y: {position[1]}")
+            indicators.xpos_label.setText(f"Lat: {position[0]:.6f}")
+            indicators.ypos_label.setText(f"Lon: {position[1]:.6f}")
             indicators.setHeading(heading)
-            # Update UAV marker
-            mapwidget.page().runJavaScript(f"uavMarker.setLatLng({str(position)});")  # to set position of UAV marker
+            # Update USV marker
+            mapwidget.page().runJavaScript(f"uavMarker.setLatLng({str(position)});")  # to set position of USV marker
             mapwidget.page().runJavaScript(
-                f"uavMarker.setRotationAngle({heading - 45});")  # to set rotation of UAV
+                f"uavMarker.setRotationAngle({heading - 45});")  # to set rotation of USV
 
-            # Update Firebase UAV Data
+            # Update Firebase USV Data
             firebase.marker_latitude = position[0]
             firebase.marker_longitude = position[1]
 
@@ -91,7 +91,7 @@ def updateData(thread, vehicle, mapwidget, indicators, camerawidget, firebase):
         if msg.get_type() == 'HEARTBEAT':
             thread.last_heartbeat = time.time()
             flight_mode = mavutil.mode_string_v10(msg)
-            indicators.flight_mode_label.setText(f"Flight Mode: {flight_mode}")
+            indicators.flight_mode_label.setText(f"Mode: {flight_mode}")
 
 
 def connectionLost(connectbutton, mapwidget):
@@ -99,7 +99,7 @@ def connectionLost(connectbutton, mapwidget):
     connectbutton.setIcon(QIcon('../uifolder/assets/icons/24x24/cil-link-broken.png'))
     connectbutton.setDisabled(False)
 
-    # Add UAV marker
+    # Remove USV marker
     mapwidget.page().runJavaScript("""
                     map.removeLayer(uavMarker);
                     """
@@ -125,7 +125,7 @@ class ArdupilotConnectionThread(QThread):
         # Telemetry Data
         self.latitude = 0
         self.longitude = 0
-        self.altitude = 15
+        self.altitude = 0  # For surface vessels, this is typically 0
 
         # Variables
         self.home_position = [0,0]
@@ -140,13 +140,16 @@ class ArdupilotConnectionThread(QThread):
         timeout = 10  # seconds
         connected = False  # Flag to monitor connection status
 
+        # For VRX/SITL testing, you can uncomment the following line
+        # self.connection_string = "udp:127.0.0.1:14550"
+
         try:
             print(f"Connecting to vehicle on: {self.connection_string}")
             self.connection = mavutil.mavlink_connection(self.connection_string, baud=self.baudrate, autoreconnect=True,
                                                          timeout=timeout)
             print("Waiting for heartbeat...")
             if self.connection.wait_heartbeat(timeout=timeout):
-                print("Connected")
+                print("Connected to USV")
                 connected = True
                 self.vehicleConnected_signal.emit(self.connection, self.mapwidget, self.connectButton)
             else:
@@ -173,12 +176,16 @@ class ArdupilotConnectionThread(QThread):
     def setConnectionString(self, connectionstring):
         if connectionstring == 'Telemetri':
             self.connection_string = '/dev/ttyUSB0'
-        if connectionstring == 'USB':
+        elif connectionstring == 'USB':
             self.connection_string = '/dev/ttyACM0'
         elif connectionstring == 'SITL (UDP)':
             self.connection_string = 'udp:127.0.0.1:14550'
         elif connectionstring == 'SITL (TCP)':
             self.connection_string = 'tcp:127.0.0.1:5760'
+        elif connectionstring == 'VRX Simulation':  # New option for VRX
+            self.connection_string = 'udp:127.0.0.1:14550'
+        elif connectionstring == 'MAVROS Direct':
+            self.connection_string = 'udp:127.0.0.1:14556' 
         elif connectionstring == 'UDP':
             text, ok = QInputDialog.getText(self.parent, "Input Dialog", "Enter an IP:")
             if ok and text:
@@ -187,25 +194,27 @@ class ArdupilotConnectionThread(QThread):
             text, ok = QInputDialog.getText(self.parent, "Input Dialog", "Enter an IP:")
             if ok and text:
                 self.connection_string = f'tcp:{text}:5760'
+        else:
+            self.connection_string = connectionstring
 
     def goto_markers_pos(self, speed=-1):
         lat = float(self.mapwidget.map_page.markers_pos[0])
         lng = float(self.mapwidget.map_page.markers_pos[1])
 
         self.connection.set_mode_apm('GUIDED')
-
         self.move_to(lat, lng)
 
     def move_to(self, lat, lng, speed=5):
         lat = int(lat * 1e7)
         lng = int(lng * 1e7)
-        alt = self.connection.location(relative_alt=True).alt
-        # Send command to move to the specified latitude, longitude, and current altitude
+        # For USV, altitude is always 0
+        alt = 0
+        
+        # Send command to move to the specified latitude, longitude
         self.connection.mav.command_int_send(
             self.connection.target_system,
             self.connection.target_component,
             dialect.MAV_FRAME_GLOBAL_RELATIVE_ALT,
-            # “frame” = 0 or 3 for alt-above-sea-level, 6 for alt-above-home or 11 for alt-above-terrain
             dialect.MAV_CMD_DO_REPOSITION,
             0,  # Current
             0,  # Autocontinue
@@ -223,7 +232,6 @@ class ArdupilotConnectionThread(QThread):
             self.connection.target_system,
             self.connection.target_component,
             dialect.MAV_FRAME_GLOBAL_RELATIVE_ALT,
-            # “frame” = 0 or 3 for alt-above-sea-level, 6 for alt-above-home or 11 for alt-above-terrain
             dialect.MAV_CMD_DO_SET_ROI_LOCATION,
             0,  # Current
             0,  # Autocontinue
@@ -245,34 +253,32 @@ class ArdupilotConnectionThread(QThread):
             0, 0, 0
         )
 
-    def land(self):
-        print("Landing")
-        self.connection.set_mode_apm('QLAND')
+    def hold_position(self):
+        """USV equivalent of land - hold current position"""
+        print("Holding position (switching to HOLD mode)")
+        self.connection.set_mode('HOLD')
 
     def rtl(self):
-        def control_if_reached():
-            if abs(self.latitude - self.home_position[0]) > 0.0001 or abs(self.longitude - self.home_position[1]) > 0.0001:
-                QTimer.singleShot(100, control_if_reached)
-            else:
-                self.land()
-        print("Returning back to home")
-        self.move_to(self.home_position[0], self.home_position[1])
-        QTimer.singleShot(100, control_if_reached)
+        print("Returning to Launch")
+        self.connection.set_mode('RTL')
 
-
-
-
-    def takeoff(self, target_altitude):
-        self.connection.set_mode_apm('GUIDED')
-        self.connection.arducopter_arm()
-
+    def arm_and_start(self): 
+        """USV equivalent of takeoff - just arm and switch to GUIDED mode"""
+        print("Arming USV...")
+        self.connection.set_mode('GUIDED')
+        
+        # Send arm command
         self.connection.mav.command_long_send(
             self.connection.target_system,
             self.connection.target_component,
-            mavutil.mavlink.MAV_CMD_NAV_TAKEOFF,
+            mavutil.mavlink.MAV_CMD_COMPONENT_ARM_DISARM,
             0,
-            0, 0, 0, 0,
-            0, 0, target_altitude)
+            1, 0, 0, 0, 0, 0, 0) # 1 to arm
+
+        # Wait for the vehicle to be armed
+        print("Waiting for USV to arm...")
+        self.connection.motors_armed_wait()
+        print("USV Armed and Ready.")
 
         self.set_home_position(self.latitude, self.longitude)
 
@@ -281,8 +287,18 @@ class ArdupilotConnectionThread(QThread):
         self.home_position[1] = lng
 
     def start_mission(self):
-        self.connection.set_mode_apm('GUIDED')
-        self.connection.arducopter_arm()
+        self.connection.set_mode('GUIDED')
+        # Arm the USV
+        self.connection.mav.command_long_send(
+            self.connection.target_system,
+            self.connection.target_component,
+            mavutil.mavlink.MAV_CMD_COMPONENT_ARM_DISARM,
+            0,
+            1, 0, 0, 0, 0, 0, 0) # 1 to arm
+        
+        print("Waiting for USV to arm...")
+        self.connection.motors_armed_wait()
+        print("USV armed, starting mission.")
         self.connection.set_mode('AUTO')
 
         time.sleep(0.2)
@@ -295,17 +311,17 @@ class ArdupilotConnectionThread(QThread):
             0, speed, -1, 0,
             0, 0, 0)
 
-    def set_mission(self, mission_mode, waypoints, altitude):
-        print("Altitude: ", altitude)
+    def set_mission(self, mission_mode, waypoints, altitude=0):
+        print("Setting mission for USV")
         if mission_mode == MissionModes.EXPLORATION:
             waypoints = exploration(self, waypoints[0], waypoints[1], altitude, FOV)
-            self.upload_mission(waypoints, altitude)
-            # Put waypoints
+            self.upload_mission(waypoints)
+            # Put waypoints on map
             for wp in waypoints:
                 self.mapwidget.page().runJavaScript(f"putWaypoint({wp[0]}, {wp[1]});")
 
         elif mission_mode == MissionModes.WAYPOINTS:
-            self.upload_mission(waypoints, )
+            self.upload_mission(waypoints)
 
     def clear_mission(self):
         self.connection.mav.mission_clear_all_send(
@@ -314,67 +330,35 @@ class ArdupilotConnectionThread(QThread):
             mission_type=dialect.MAV_MISSION_TYPE_MISSION
         )
 
-    def upload_mission(self, waypoints, altitude=15, speed=5):
+    def upload_mission(self, waypoints, speed=5):
         self.clear_mission()
 
-        # Verify mission count
-        self.connection.mav.mission_count_send(
-            self.connection.target_system,
-            self.connection.target_component,
-            len(waypoints) + 3
-        )
-
-        # Upload home
-        self.connection.mav.mission_item_int_send(
-            self.connection.target_system,
-            self.connection.target_component,
-            0,
-            dialect.MAV_FRAME_GLOBAL,
-            dialect.MAV_CMD_NAV_WAYPOINT,
-            0,  # current
-            0,  # auto continue
-            0, 0, 0, 0,  # params 1-4
-            0, 0, 0)
-
-        self.connection.mav.mission_item_int_send(
-            self.connection.target_system,
-            self.connection.target_component,
-            1,
-            dialect.MAV_FRAME_GLOBAL_RELATIVE_ALT,
-            dialect.MAV_CMD_NAV_TAKEOFF,
-            0,  # current
-            0,  # auto continue
-            0, 0, 0, 0,  # params 1-4
-            0,
-            0,
-            altitude)
-        
-        self.connection.mav.mission_item_int_send(
-            self.connection.target_system,
-            self.connection.target_component,
-            2,
-            dialect.MAV_FRAME_GLOBAL_RELATIVE_ALT,
-            dialect.MAV_CMD_DO_VTOL_TRANSITION,
-            0,  # current
-            0,  # auto continue
-            dialect.MAV_VTOL_STATE_MC, 0, 0, 0,  # params 1-4
-            0,0,0)
+        # USV mission is simpler - just waypoints on the water surface
+        mission_items = []
 
         # Upload waypoints
-        for i, item in enumerate(waypoints, start=3):
-            print(i, item)
+        for i, item in enumerate(waypoints):
             self.connection.mav.mission_item_int_send(
                 self.connection.target_system,
                 self.connection.target_component,
-                i,
+                i, # Sequence number
                 dialect.MAV_FRAME_GLOBAL_RELATIVE_ALT,
                 dialect.MAV_CMD_NAV_WAYPOINT,
-                0,  # current
-                0,  # auto continue
-                0, 0, 0, 0,  # params 1-4
+                1 if i == 0 else 0,  # current = true for first waypoint, false for others
+                1,  # auto continue
+                0, 0, 0, 0,  # params 1-4 (hold, acceptance radius, pass radius, yaw)
                 int(item[0] * 1e7),
                 int(item[1] * 1e7),
-                altitude)
+                0) # Altitude for USV is always 0
 
         self.set_home_position(self.latitude, self.longitude)
-        print("Mission uploaded successfully.")
+        print("USV mission uploaded successfully.")
+
+    # Compatibility methods - keep the old names for existing UI code
+    def takeoff(self, target_altitude=0):
+        """Compatibility wrapper - calls arm_and_start for USV"""
+        self.arm_and_start()
+        
+    def land(self):
+        """Compatibility wrapper - calls hold_position for USV"""
+        self.hold_position()

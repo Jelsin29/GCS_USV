@@ -36,8 +36,7 @@ def icon_to_base64(image_path):
         return ""
 
 
-uav_icon_base64 = icon_to_base64('uifolder/assets/icons/uav.png')
-mobileuser_marker_base64 = icon_to_base64('uifolder/assets/icons/mobileuser.png')
+usv_icon_base64 = icon_to_base64('uifolder/assets/icons/usv.png')
 target_marker_base64 = icon_to_base64('uifolder/assets/icons/target.png')
 home_icon_base64 = icon_to_base64('uifolder/assets/icons/antenna.png')
 
@@ -311,7 +310,7 @@ class MapWidget(QtWebEngineWidgets.QWebEngineView):
                 map.on('click', moveMarkerByClick);
                 
                 // end custom code
-    ''' % (map_variable_name, uav_icon_base64, target_marker_base64, mobileuser_marker_base64, home_icon_base64, self.marker_coord[0], self.marker_coord[1])
+    ''' % (map_variable_name, usv_icon_base64, target_marker_base64, home_icon_base64, self.marker_coord[0], self.marker_coord[1])
 
 
 if __name__ == "__main__":

@@ -2,9 +2,9 @@ import sys
 import threading
 
 from PySide6 import QtGui
-from PySide6.QtGui import QIcon, QColor
-from PySide6.QtCore import Qt, QEvent, QSize, QPropertyAnimation, QEasingCurve, QTimer
-from PySide6.QtWidgets import QApplication, QMainWindow, QSizePolicy, QSizeGrip, QVBoxLayout, QWidget, QInputDialog, QGraphicsDropShadowEffect
+from PySide6.QtGui import QIcon
+from PySide6.QtCore import Qt, QEvent, QSize, QPropertyAnimation, QEasingCurve
+from PySide6.QtWidgets import QApplication, QMainWindow, QSizePolicy, QSizeGrip, QVBoxLayout, QWidget, QInputDialog
 
 from HomePage import HomePage
 from uifolder import Ui_MainWindow
@@ -12,8 +12,6 @@ from TargetsPage import TargetsPage
 from IndicatorsPage import IndicatorsPage
 from AntennaTracker import AntennaTracker, antenna_tracker
 from Vehicle.ArdupilotConnection import ArdupilotConnectionThread
-
-from IconUtils import createWhiteIcon
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -42,9 +40,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Set Font
         QtGui.QFontDatabase.addApplicationFont('uifolder/assets/fonts/segoeui.ttf')
         QtGui.QFontDatabase.addApplicationFont('uifolder/assets/fonts/segoeuib.ttf')
-
-        # **NEW: Initialize menu in collapsed state**
-        self.initializeMenuCollapsed()
 
         # Sizegrip (To Resize Window)
         self.sizegrip = QSizeGrip(self.frame_size_grip)
@@ -77,34 +72,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_minimize.setIcon(QtGui.QIcon('uifolder/assets/icons/16x16/cil-window-minimize.png'))
         self.btn_minimize.clicked.connect(lambda: self.showMinimized())
 
-        # **UPDATED: Setup navigation buttons with black and white icons**
         self.btn_home_page.setDisabled(True)
         self.disabledbutton = self.btn_home_page
-        
-        # Toggle menu button
-        self.btn_toggle_menu.setIcon(QtGui.QIcon('uifolder/assets/icons/svg/menu.svg'))
-        self.setButton(self.btn_toggle_menu, 'uifolder/assets/icons/svg/menu.svg')
-        
-        # Home button - start white (active)
-        self.btn_home_page.black_icon = QtGui.QIcon('uifolder/assets/icons/svg/home.svg')
-        self.btn_home_page.white_icon = createWhiteIcon('uifolder/assets/icons/svg/home.svg')
-        self.btn_home_page.setIcon(self.btn_home_page.white_icon)  # Start white (active)
-        self.setButton(self.btn_home_page, 'uifolder/assets/icons/svg/home.svg')
-        
-        # Indicators button - start black
-        self.btn_indicators_page.black_icon = QtGui.QIcon('uifolder/assets/icons/svg/speed.svg')
-        self.btn_indicators_page.white_icon = createWhiteIcon('uifolder/assets/icons/svg/speed.svg')
-        self.btn_indicators_page.setIcon(self.btn_indicators_page.black_icon)  # Start black
-        self.setButton(self.btn_indicators_page, 'uifolder/assets/icons/svg/speed.svg')
-        
-        # Targets button - start black
-        self.btn_targets_page.black_icon = QtGui.QIcon('uifolder/assets/icons/svg/task-manager.svg')
-        self.btn_targets_page.white_icon = createWhiteIcon('uifolder/assets/icons/svg/task-manager.svg')
-        self.btn_targets_page.setIcon(self.btn_targets_page.black_icon)  # Start black
-        self.setButton(self.btn_targets_page, 'uifolder/assets/icons/svg/user.svg')
-        
-        # Connect button
-        self.btn_connect.setIcon(QtGui.QIcon('uifolder/assets/icons/svg/connection.svg'))
+        self.setButton(self.btn_toggle_menu, 'uifolder/assets/icons/24x24/cil-menu.png')
+        self.setButton(self.btn_home_page, 'uifolder/assets/icons/24x24/cil-home.png')
+        self.setButton(self.btn_indicators_page, 'uifolder/assets/icons/24x24/cil-speedometer.png')
+        self.setButton(self.btn_targets_page, 'uifolder/assets/icons/24x24/cil-user.png')
+        self.btn_connect.setIcon(QtGui.QIcon('uifolder/assets/icons/24x24/cil-link-broken.png'))
 
         # **UPDATED: Main Connection Button**
         self.btn_connect.clicked.connect(self.connectToVehicle)
@@ -141,61 +115,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.indicatorspage.btn_AllocateWidget.clicked.connect(
             lambda: self.AllocateWidget(self.indicatorswidget, self.indicatorspage))
 
-        # **NEW: Add shadow effects after UI setup**
-        QTimer.singleShot(100, self.addShadowEffects)
-
         # To move the window only from top frame
         self.label_title_bar_top.installEventFilter(self)
-
-    def addShadowEffects(self):
-        """Add modern shadow effects to main UI elements"""
-        try:
-            # Main frame shadow
-            main_shadow = QGraphicsDropShadowEffect()
-            main_shadow.setBlurRadius(20)
-            main_shadow.setXOffset(0)
-            main_shadow.setYOffset(5)
-            main_shadow.setColor(QColor(0, 0, 0, 50))
-            self.frame_content.setGraphicsEffect(main_shadow)
-
-            # Left menu shadow
-            menu_shadow = QGraphicsDropShadowEffect()
-            menu_shadow.setBlurRadius(15)
-            menu_shadow.setXOffset(2)
-            menu_shadow.setYOffset(0)
-            menu_shadow.setColor(QColor(0, 0, 0, 30))
-            self.frame_left_menu.setGraphicsEffect(menu_shadow)
-
-            # Connect button shadow
-            connect_shadow = QGraphicsDropShadowEffect()
-            connect_shadow.setBlurRadius(12)
-            connect_shadow.setXOffset(0)
-            connect_shadow.setYOffset(3)
-            connect_shadow.setColor(QColor(13, 110, 253, 80))  # Blue shadow for connect button
-            self.btn_connect.setGraphicsEffect(connect_shadow)
-
-            # Navigation buttons shadows
-            self.addButtonShadow(self.btn_home_page)
-            self.addButtonShadow(self.btn_indicators_page) 
-            self.addButtonShadow(self.btn_targets_page)
-            self.addButtonShadow(self.btn_toggle_menu)
-
-            print("MainWindow: Shadow effects applied successfully")
-            
-        except Exception as e:
-            print(f"MainWindow: Error applying shadow effects: {e}")
-
-    def addButtonShadow(self, button):
-        """Add subtle shadow to a button"""
-        try:
-            shadow = QGraphicsDropShadowEffect()
-            shadow.setBlurRadius(8)
-            shadow.setXOffset(0)
-            shadow.setYOffset(2)
-            shadow.setColor(QColor(0, 0, 0, 25))
-            button.setGraphicsEffect(shadow)
-        except Exception as e:
-            print(f"Error adding shadow to button {button.objectName()}: {e}")
 
     #########################################################################################################################
 
@@ -227,6 +148,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         button.setSizePolicy(sizePolicy3)
         button.setMinimumSize(QSize(0, 70))
         button.setLayoutDirection(Qt.LeftToRight)
+        button.setIcon(QtGui.QIcon(icon))
         button.clicked.connect(self.buttonFunctions)
 
     def maximize_restore(self):
@@ -243,7 +165,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def buttonFunctions(self):
         button = self.sender()
-        
         # Toggle Button
         if button.objectName() == "btn_toggle_menu":
             width = self.frame_left_menu.width()
@@ -258,7 +179,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.btn_indicators_page.setText("   Indicators") 
                 self.btn_targets_page.setText("   Mission Control")
                 # Change icon to indicate menu can be collapsed
-                self.btn_toggle_menu.setIcon(QtGui.QIcon('uifolder/assets/icons/svg/close.svg'))
+                self.btn_toggle_menu.setIcon(QtGui.QIcon('uifolder/assets/icons/24x24/cil-x.png'))
             else:
                 widthExtended = standard
                 # Hide text labels when collapsed
@@ -266,7 +187,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.btn_indicators_page.setText("")
                 self.btn_targets_page.setText("")
                 # Change icon back to menu
-                self.btn_toggle_menu.setIcon(QtGui.QIcon('uifolder/assets/icons/svg/menu.svg'))
+                self.btn_toggle_menu.setIcon(QtGui.QIcon('uifolder/assets/icons/24x24/cil-menu.png'))
 
             # ANIMATION for smooth width transition
             self.animation = QPropertyAnimation(self.frame_left_menu, b"minimumWidth")
@@ -287,15 +208,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             # Handle page navigation buttons
             self.disabledbutton.setDisabled(False)
-            # **NEW: Set old button to black icon**
-            if hasattr(self.disabledbutton, 'black_icon'):
-                self.disabledbutton.setIcon(self.disabledbutton.black_icon)
-                
             self.disabledbutton = button
             self.disabledbutton.setDisabled(True)
-            # **NEW: Set new active button to white icon**
-            if hasattr(self.disabledbutton, 'white_icon'):
-                self.disabledbutton.setIcon(self.disabledbutton.white_icon)
 
         # PAGE HOME
         if button.objectName() == "btn_home_page":
@@ -360,27 +274,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.new_window.close()
             child.btn_AllocateWidget.setIcon(QIcon("uifolder/assets/icons/16x16/cil-arrow-top.png"))
             child.isAttached = True
-
-    def initializeMenuCollapsed(self):
-        """Initialize the left menu in collapsed state"""
-        try:
-            # Set menu to collapsed width
-            standard_width = 70
-            self.frame_left_menu.setMinimumWidth(standard_width)
-            self.frame_left_menu.setMaximumWidth(standard_width)
-            
-            # Remove text from navigation buttons (start collapsed)
-            self.btn_home_page.setText("")
-            self.btn_indicators_page.setText("")
-            self.btn_targets_page.setText("")
-            
-            # Set toggle button icon to menu (not X)
-            self.btn_toggle_menu.setIcon(QtGui.QIcon('uifolder/assets/icons/svg/menu.svg'))
-            
-            print("MainWindow: Menu initialized in collapsed state")
-            
-        except Exception as e:
-            print(f"MainWindow: Error initializing collapsed menu: {e}")
 
 
 if __name__ == "__main__":

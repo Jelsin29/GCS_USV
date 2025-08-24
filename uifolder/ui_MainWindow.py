@@ -348,6 +348,7 @@ class Ui_MainWindow(object):
         self.combobox_connectionstring.addItem("")
         self.combobox_connectionstring.addItem("")
         self.combobox_connectionstring.addItem("")
+        self.combobox_connectionstring.addItem("")
         self.combobox_connectionstring.setObjectName(u"combobox_connectionstring")
         self.combobox_connectionstring.setMinimumSize(QSize(150, 48))
 
@@ -539,6 +540,7 @@ class Ui_MainWindow(object):
         self.combobox_connectionstring.setItemText(3, QCoreApplication.translate("MainWindow", u"SITL (TCP)", None))
         self.combobox_connectionstring.setItemText(4, QCoreApplication.translate("MainWindow", u"TCP", None))
         self.combobox_connectionstring.setItemText(5, QCoreApplication.translate("MainWindow", u"UDP", None))
+        self.combobox_connectionstring.setItemText(6, QCoreApplication.translate("MainWindow", u"VRX Simulation", None))
 
         self.combobox_baudrate.setItemText(0, QCoreApplication.translate("MainWindow", u"128000", None))
         self.combobox_baudrate.setItemText(1, QCoreApplication.translate("MainWindow", u"115200", None))

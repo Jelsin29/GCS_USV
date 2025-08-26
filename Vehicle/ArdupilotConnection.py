@@ -68,9 +68,9 @@ def updateData(thread, vehicle, mapwidget, indicators, camerawidget, firebase):
             indicators.ypos_label.setText(f"Lon: {position[1]:.6f}")
             indicators.setHeading(heading)
             # Update USV marker
-            mapwidget.page().runJavaScript(f"uavMarker.setLatLng({str(position)});")  # to set position of USV marker
+            mapwidget.page().runJavaScript(f"usvMarker.setLatLng({str(position)});")  # to set position of USV marker
             mapwidget.page().runJavaScript(
-                f"uavMarker.setRotationAngle({heading - 45});")  # to set rotation of USV
+                f"usvMarker.setRotationAngle({heading - 45});")  # to set rotation of USV
 
             # Update Firebase USV Data
             firebase.marker_latitude = position[0]
@@ -101,7 +101,7 @@ def connectionLost(connectbutton, mapwidget):
 
     # Remove USV marker
     mapwidget.page().runJavaScript("""
-                    map.removeLayer(uavMarker);
+                    map.removeLayer(usvMarker);
                     """
                                    )
 

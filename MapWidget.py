@@ -190,7 +190,7 @@ class MapWidget(QtWebEngineWidgets.QWebEngineView):
             var map = %s;
             
             
-            var uavIcon = L.icon({
+            var usvIcon = L.icon({
                 iconUrl: 'data:image/png;base64,%s', 
                 iconSize: [40, 40],
                 });
@@ -310,7 +310,9 @@ class MapWidget(QtWebEngineWidgets.QWebEngineView):
                 map.on('click', moveMarkerByClick);
                 
                 // end custom code
-    ''' % (map_variable_name, usv_icon_base64, target_marker_base64, home_icon_base64, self.marker_coord[0], self.marker_coord[1])
+    ''' % (map_variable_name, usv_icon_base64, target_marker_base64, 
+       home_icon_base64, home_icon_base64, 
+       self.marker_coord[0], self.marker_coord[1])
 
 
 if __name__ == "__main__":

@@ -1,0 +1,36 @@
+# USV-specific ArduPilot parameters
+
+# Frame configuration for boat
+FRAME_CLASS,1          # Set to Boat frame
+FRAME_TYPE,0           # Basic boat configuration
+
+# Steering and throttle configuration
+SERVO1_FUNCTION,26     # Throttle (main motor)
+SERVO3_FUNCTION,26     # Throttle (if using dual motors)
+SERVO1_MIN,1100        # Throttle minimum PWM
+SERVO1_MAX,1900        # Throttle maximum PWM
+
+# Rudder/steering configuration  
+SERVO4_FUNCTION,26     # Steering servo
+SERVO4_MIN,1100        # Steering minimum PWM
+SERVO4_MAX,1900        # Steering maximum PWM
+
+# Navigation and waypoint behavior
+WP_RADIUS,2.0          # Waypoint radius (meters) - smaller for USV precision
+NAVL1_PERIOD,8         # L1 controller period for marine vehicles
+NAVL1_DAMPING,0.85     # L1 damping for water conditions
+
+# Speed control for water
+CRUISE_SPEED,2         # Cruise speed in m/s (typical for USV)
+SPEED_TURN_GAIN,50     # Turn speed reduction
+WP_SPEED,2.5           # Waypoint speed in m/s
+
+# Failsafe configuration for marine environment
+FS_ACTION,2            # Return to Launch on failsafe
+RTL_SPEED,1.5          # RTL speed for USV
+BATT_LOW_VOLT,10.5     # Battery low voltage threshold
+
+# GPS and compass settings for marine use
+GPS_TYPE,1             # Auto GPS
+COMPASS_USE,1          # Use compass
+COMPASS_AUTODEC,1      # Auto declination

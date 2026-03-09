@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "ardupilot-docs": {
+      "command": "node",
+      "args": [
+        "/home/jelsin/.nvm/versions/node/v22.17.0/lib/node_modules/mcp-fetch-server/dist/index.js"
+      ]
+    }
+  }
+}

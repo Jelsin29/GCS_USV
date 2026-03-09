@@ -167,14 +167,14 @@ class Ui_TelemetryWidget(object):
         TelemetryWidget.setWindowTitle(QCoreApplication.translate("TelemetryWidget", u"USV Telemetry", None))
         self.titleLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
 "    color: #ffffff;\n"
-"    background-color: #0d47a1;\n"
+"    background-color: #6c757d;\n"
 "    font-size: 16px;\n"
 "    font-weight: bold;\n"
 "    padding: 12px;\n"
 "    border-radius: 8px;\n"
 "    text-align: center;\n"
 "}", None))
-        self.titleLabel.setText(QCoreApplication.translate("TelemetryWidget", u"AUTONOMOUS USV", None))
+        self.titleLabel.setText(QCoreApplication.translate("TelemetryWidget", u"USV TELEMETRY - DISCONNECTED", None))
         self.telemetryFrame.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QFrame {\n"
 "    background-color: #ffffff;\n"
 "    border: 1px solid #dee2e6;\n"
@@ -182,104 +182,104 @@ class Ui_TelemetryWidget(object):
 "    padding: 15px;\n"
 "}", None))
         self.rangeFrame.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QFrame {\n"
-"    background-color: #e3f2fd;\n"
-"    border: 1px solid #bbdefb;\n"
+"    background-color: #f8f9fa;\n"
+"    border: 1px solid #6c757d;\n"
 "    border-radius: 8px;\n"
 "    padding: 12px;\n"
 "}", None))
         self.rangeLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
-"    color: #1976d2;\n"
+"    color: #6c757d;\n"
 "    font-weight: 600;\n"
 "    font-size: 14px;\n"
 "}", None))
         self.rangeLabel.setText(QCoreApplication.translate("TelemetryWidget", u"Latitude", None))
         self.rangeValueLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
-"    color: #1976d2;\n"
-"    font-weight: bold;\n"
+"    color: #6c757d;\n"
+"    font-weight: normal;\n"
 "    font-size: 16px;\n"
 "}", None))
-        self.rangeValueLabel.setText(QCoreApplication.translate("TelemetryWidget", u"14.4155610", None))
+        self.rangeValueLabel.setText(QCoreApplication.translate("TelemetryWidget", u"0.000000 (NO DATA)", None))
         self.consumptionFrame.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QFrame {\n"
-"    background-color: #e8f5e8;\n"
-"    border: 1px solid #c3e6cb;\n"
+"    background-color: #f8f9fa;\n"
+"    border: 1px solid #6c757d;\n"
 "    border-radius: 8px;\n"
 "    padding: 12px;\n"
 "}", None))
         self.consumptionLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
-"    color: #155724;\n"
+"    color: #6c757d;\n"
 "    font-weight: 600;\n"
 "    font-size: 14px;\n"
 "}", None))
         self.consumptionLabel.setText(QCoreApplication.translate("TelemetryWidget", u"Longitude", None))
         self.consumptionValueLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
-"    color: #155724;\n"
-"    font-weight: bold;\n"
+"    color: #6c757d;\n"
+"    font-weight: normal;\n"
 "    font-size: 16px;\n"
 "}", None))
-        self.consumptionValueLabel.setText(QCoreApplication.translate("TelemetryWidget", u"13.8964845", None))
+        self.consumptionValueLabel.setText(QCoreApplication.translate("TelemetryWidget", u"0.000000 (NO DATA)", None))
         self.speedFrame.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QFrame {\n"
-"    background-color: #f3e5f5;\n"
-"    border: 1px solid #ce93d8;\n"
+"    background-color: #f8f9fa;\n"
+"    border: 1px solid #6c757d;\n"
 "    border-radius: 8px;\n"
 "    padding: 12px;\n"
 "}", None))
         self.speedLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
-"    color: #7b1fa2;\n"
+"    color: #6c757d;\n"
 "    font-weight: 600;\n"
 "    font-size: 14px;\n"
 "}", None))
         self.speedLabel.setText(QCoreApplication.translate("TelemetryWidget", u"Speed", None))
         self.speedValueLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
-"    color: #7b1fa2;\n"
-"    font-weight: bold;\n"
+"    color: #6c757d;\n"
+"    font-weight: normal;\n"
 "    font-size: 16px;\n"
 "}", None))
-        self.speedValueLabel.setText(QCoreApplication.translate("TelemetryWidget", u"2.5 kts", None))
+        self.speedValueLabel.setText(QCoreApplication.translate("TelemetryWidget", u"0.0 kts (NO DATA)", None))
         self.headingFrame.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QFrame {\n"
-"    background-color: #fff3e0;\n"
-"    border: 1px solid #ffcc02;\n"
+"    background-color: #f8f9fa;\n"
+"    border: 1px solid #6c757d;\n"
 "    border-radius: 8px;\n"
 "    padding: 12px;\n"
 "}", None))
         self.headingLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
-"    color: #f57c00;\n"
+"    color: #6c757d;\n"
 "    font-weight: 600;\n"
 "    font-size: 14px;\n"
 "}", None))
         self.headingLabel.setText(QCoreApplication.translate("TelemetryWidget", u"Roll", None))
         self.headingValueLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
-"    color: #f57c00;\n"
-"    font-weight: bold;\n"
+"    color: #6c757d;\n"
+"    font-weight: normal;\n"
 "    font-size: 16px;\n"
 "}", None))
-        self.headingValueLabel.setText(QCoreApplication.translate("TelemetryWidget", u"-0.05\u00b0", None))
+        self.headingValueLabel.setText(QCoreApplication.translate("TelemetryWidget", u"+0.000\u00b0 (NO DATA)", None))
         self.pitchFrame.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QFrame {\n"
-"    background-color: #fce4ec;\n"
-"    border: 1px solid #f8bbd9;\n"
+"    background-color: #f8f9fa;\n"
+"    border: 1px solid #6c757d;\n"
 "    border-radius: 8px;\n"
 "    padding: 12px;\n"
 "}", None))
         self.pitchLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
-"    color: #ad1457;\n"
+"    color: #6c757d;\n"
 "    font-weight: 600;\n"
 "    font-size: 14px;\n"
 "}", None))
         self.pitchLabel.setText(QCoreApplication.translate("TelemetryWidget", u"Pitch", None))
         self.pitchValueLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
-"    color: #ad1457;\n"
-"    font-weight: bold;\n"
+"    color: #6c757d;\n"
+"    font-weight: normal;\n"
 "    font-size: 16px;\n"
 "}", None))
-        self.pitchValueLabel.setText(QCoreApplication.translate("TelemetryWidget", u"-0.09\u00b0", None))
+        self.pitchValueLabel.setText(QCoreApplication.translate("TelemetryWidget", u"+0.000\u00b0 (NO DATA)", None))
         self.connectionStatusLabel.setStyleSheet(QCoreApplication.translate("TelemetryWidget", u"QLabel {\n"
-"    color: #28a745;\n"
+"    color: #dc3545;\n"
 "    font-size: 14px;\n"
 "    font-weight: bold;\n"
-"    background-color: #d4edda;\n"
-"    border: 1px solid #c3e6cb;\n"
+"    background-color: #f8d7da;\n"
+"    border: 1px solid #f5c6cb;\n"
 "    border-radius: 8px;\n"
 "    padding: 12px;\n"
 "}", None))
-        self.connectionStatusLabel.setText(QCoreApplication.translate("TelemetryWidget", u"\u25cf CONNECTED", None))
+        self.connectionStatusLabel.setText(QCoreApplication.translate("TelemetryWidget", u"\u25cf DISCONNECTED", None))
     # retranslateUi
 

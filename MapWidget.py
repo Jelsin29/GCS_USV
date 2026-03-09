@@ -101,7 +101,7 @@ class MapWidget(QtWebEngineWidgets.QWebEngineView):
             self.markers_pos = []
 
         def javaScriptConsoleMessage(self, level, msg, line, sourceID):
-            if msg[0] == 'm':
+            if msg and msg[0] == 'm':
                 MapWidget.mission = []
                 pairs = msg[1:].split('&')
                 for pair in pairs:
@@ -125,14 +125,11 @@ class MapWidget(QtWebEngineWidgets.QWebEngineView):
         return '''
             // custom code
             
-            // Rotated Marker Function
+            // Rotated Marker Function (unchanged)
             (function() {
-                // save these original methods before they are overwritten
                 var proto_initIcon = L.Marker.prototype._initIcon;
                 var proto_setPos = L.Marker.prototype._setPos;
-            
                 var oldIE = (L.DomUtil.TRANSFORM === 'msTransform');
-            
                 L.Marker.addInitHook(function () {
                     var iconOptions = this.options.icon && this.options.icon.options;
                     var iconAnchor = iconOptions && this.options.icon.options.iconAnchor;
@@ -141,175 +138,116 @@ class MapWidget(QtWebEngineWidgets.QWebEngineView):
                     }
                     this.options.rotationOrigin = this.options.rotationOrigin || iconAnchor || 'center bottom' ;
                     this.options.rotationAngle = this.options.rotationAngle || 0;
-            
-                    // Ensure marker keeps rotated during dragging
                     this.on('drag', function(e) { e.target._applyRotation(); });
                 });
-            
                 L.Marker.include({
-                    _initIcon: function() {
-                        proto_initIcon.call(this);
-                    },
-            
-                    _setPos: function (pos) {
-                        proto_setPos.call(this, pos);
-                        this._applyRotation();
-                    },
-            
+                    _initIcon: function() { proto_initIcon.call(this); },
+                    _setPos: function (pos) { proto_setPos.call(this, pos); this._applyRotation(); },
                     _applyRotation: function () {
                         if(this.options.rotationAngle) {
                             this._icon.style[L.DomUtil.TRANSFORM+'Origin'] = this.options.rotationOrigin;
-            
-                            if(oldIE) {
-                                // for IE 9, use the 2D rotation
-                                this._icon.style[L.DomUtil.TRANSFORM] = 'rotate(' + this.options.rotationAngle + 'deg)';
-                            } else {
-                                // for modern browsers, prefer the 3D accelerated version
-                                this._icon.style[L.DomUtil.TRANSFORM] += ' rotateZ(' + this.options.rotationAngle + 'deg)';
-                            }
+                            if(oldIE) { this._icon.style[L.DomUtil.TRANSFORM] = 'rotate(' + this.options.rotationAngle + 'deg)'; } 
+                            else { this._icon.style[L.DomUtil.TRANSFORM] += ' rotateZ(' + this.options.rotationAngle + 'deg)'; }
                         }
                     },
-            
-                    setRotationAngle: function(angle) {
-                        this.options.rotationAngle = angle;
-                        this.update();
-                        return this;
-                    },
-            
-                    setRotationOrigin: function(origin) {
-                        this.options.rotationOrigin = origin;
-                        this.update();
-                        return this;
-                    }
+                    setRotationAngle: function(angle) { this.options.rotationAngle = angle; this.update(); return this; },
+                    setRotationOrigin: function(origin) { this.options.rotationOrigin = origin; this.update(); return this; }
                 });
             })();
-            // Rotated Marker part is taken from this repo: https://github.com/bbecquet/Leaflet.RotatedMarker
-            // Huge thanks to its contributors
             
-            // Take the generated map variable from folium
             var map = %s;
             
+            var usvIcon = L.icon({ iconUrl: 'data:image/png;base64,%s', iconSize: [40, 40], });
+            var targetIcon = L.icon({ iconUrl: 'data:image/png;base64,%s', iconSize: [40, 40], });
+            var userIcon = L.icon({ iconUrl: 'data:image/png;base64,%s', iconSize: [40, 40], });
+            var homeIcon = L.icon({ iconUrl: 'data:image/png;base64,%s', iconSize: [40, 40], });
+                
+            var mymarker = L.marker([%f, %f], {});  // Not added to map until user clicks in Marker Mode
+
+            function moveMarkerByClick(e) {
+                if (!mymarker._map) mymarker.addTo(map);
+                mymarker.setLatLng([e.latlng.lat, e.latlng.lng]);
+            }
             
-            var usvIcon = L.icon({
-                iconUrl: 'data:image/png;base64,%s', 
-                iconSize: [40, 40],
-                });
-                
-            var targetIcon = L.icon({
-                iconUrl: 'data:image/png;base64,%s', 
-                iconSize: [40, 40],
-                });
-                
-            var userIcon = L.icon({
-                iconUrl: 'data:image/png;base64,%s', 
-                iconSize: [40, 40],
-                });
+            function undoWaypoint() {
+                if(waypoints.length > 0) waypoints.pop().remove();
+                if(lines.length > 0) lines.pop().remove();
+            }
             
-            var homeIcon = L.icon({
-                iconUrl: 'data:image/png;base64,%s', 
-                iconSize: [40, 40],
-                });
-                
-            // Adding First Marker
-            var mymarker = L.marker(
-                    [%f, %f],
-                    {}
-                ).addTo(map);
-                
-                // Some Functions To Make Map Interactive
-                function moveMarkerByClick(e) {
-                    console.log(e.latlng.lat.toFixed(4) + "," +e.latlng.lng.toFixed(4));
-                    mymarker.setLatLng([e.latlng.lat, e.latlng.lng])
+            var waypoints = [];
+            var lines = [];
+            function putWaypointEvent(e) {
+                putWaypoint(e.latlng.lat.toFixed(4), e.latlng.lng.toFixed(4));
+            }
+            
+            function putWaypoint(lat, lng) {
+                var marker = L.marker([lat, lng], {}).addTo(map);
+                if(waypoints.length > 0) {
+                    points = [waypoints[waypoints.length-1].getLatLng(), marker.getLatLng()];
+                    line = L.polyline(points, {color: 'red'}).addTo(map);
+                    lines.push(line);
                 }
-                
-                function undoWaypoint() {
-                    if(waypoints.length >0)
-                        waypoints.pop().remove();
-                    if(lines.length > 0)
-                        lines.pop().remove();
-                }
-                
-                // To plan a mission putting waypoints to the places that we want uav to go
-                var waypointNumber = 0;
-                var waypoints = [];
-                var lines = [];
-                function putWaypointEvent(e) {
-                    putWaypoint(e.latlng.lat.toFixed(4), e.latlng.lng.toFixed(4))
-                }
-                
-                function putWaypoint(lat, lng) {
-                    var marker = L.marker(
-                        [lat, lng],
-                        {}
-                    ).addTo(map);
-                    
-                    // Add lines between last to waypoints
-                    if(waypoints.length > 0){
-                        points = [waypoints[waypoints.length-1].getLatLng(), marker.getLatLng()];
-                        line = L.polyline(points, {color: 'red'}).addTo(map);
-                        lines.push(line);
-                    }
-                    waypoints.push(marker);
-                }
-                
-                var rect = 0;
-                var corners = 0;
-                function drawRectangle(e) {
-                    if (corners.length == 0) {
-                        corners.push(e.latlng);
-                    } else if (corners.length == 1){
-                        corners.push(e.latlng);
+                waypoints.push(marker);
+            }
+            
+            var rect = 0;
+            var corners = [];
+            function drawRectangle(e) {
+                if (corners.length < 2) {
+                    corners.push(e.latlng);
+                    if (corners.length == 2) {
+                        if (rect) map.removeLayer(rect);
                         rect = L.rectangle(corners, {color: "#ff7800", weight: 1}).addTo(map);
-                    } else {
-                        corners = [];
-                        corners.push(e.latlng);
-                        map.removeLayer(rect);
                     }
+                } else {
+                    corners = [e.latlng];
+                    if (rect) map.removeLayer(rect);
                 }
-                
-                function setMission(mission_type) {
-                    var msg = "m";
-                    if (mission_type){ // waypoints
-                        for(let i = 0; i < waypoints.length; i++){
-                            msg += waypoints[i].getLatLng().lat.toFixed(4) + "," + waypoints[i].getLatLng().lng.toFixed(4) ;
-                            if (i < waypoints.length-1){
-                                msg += "&"
-                            }
+            }
+            
+            // *** MODIFIED FUNCTION ***
+            // This function now RETURNS the mission string instead of logging it.
+            function setMission(mission_type) {
+                var msg = "";
+                if (mission_type == 1){ // waypoints
+                    for(let i = 0; i < waypoints.length; i++){
+                        msg += waypoints[i].getLatLng().lat.toFixed(4) + "," + waypoints[i].getLatLng().lng.toFixed(4);
+                        if (i < waypoints.length - 1) {
+                            msg += "&";
                         }
                     }
-                    else{ // exploration
+                } else { // exploration
+                    if (corners.length == 2) {
                         for(let i = 0; i < 2; i++){
-                            msg += corners[i].lat.toFixed(4) + "," + corners[i].lng.toFixed(4) ;
-                            if (i < corners.length-1){
-                                msg += "&"
+                            msg += corners[i].lat.toFixed(4) + "," + corners[i].lng.toFixed(4);
+                            if (i < corners.length - 1) {
+                                msg += "&";
                             }
                         }
                     }
-                    console.log(msg);
                 }
-                
-                function clearAll() {
-                    if (waypoints.length > 0){
-                        for(let i = 0; i < waypoints.length; i++){
-                            waypoints[i].remove();
-                        }
-                        waypoints = [];
-                    }
-                    if (lines.length > 0){
-                        for(let i = 0; i < lines.length; i++){
-                            lines[i].remove();
-                        }
-                        lines = [];
-                    }
-                    if (rect != 0){
-                        map.removeLayer(rect);
-                    }
-                }
-                
-                // Initial mode for clicking on the map
-                map.on('click', moveMarkerByClick);
-                
-                // end custom code
+                return msg; // Return the data
+            }
+            
+            function getMarkerPosition() {
+                if (!mymarker._map) return null;
+                var latlng = mymarker.getLatLng();
+                return latlng.lat.toFixed(6) + "," + latlng.lng.toFixed(6);
+            }
+
+            function clearAll() {
+                waypoints.forEach(marker => marker.remove());
+                waypoints = [];
+                lines.forEach(line => line.remove());
+                lines = [];
+                if (rect != 0) map.removeLayer(rect);
+                corners = [];
+                if (mymarker._map) map.removeLayer(mymarker);
+            }
+
+            map.on('click', putWaypointEvent);
+            
+            // end custom code
     ''' % (map_variable_name, usv_icon_base64, target_marker_base64, 
        home_icon_base64, home_icon_base64, 
        self.marker_coord[0], self.marker_coord[1])

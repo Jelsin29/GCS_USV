@@ -2,19 +2,18 @@ import sys
 from PySide6.QtWidgets import QApplication
 
 from MainWindow import MainWindow
-from Database.Cloud import FirebaseThread
-from Database.users_db import FirebaseUser
 
 if __name__ == '__main__':
 
+    firebase = None
     try:
+        from Database.Cloud import FirebaseThread
+        from Database.users_db import FirebaseUser
         firebase = FirebaseUser()
-        # Firebase Thread
         firebaseThread = FirebaseThread(firebase)
         firebaseThread.start()
-    except:
-        firebase = None
-        pass
+    except Exception as e:
+        print(f"[INFO] Firebase not available, continuing without it: {e}")
 
     app = QApplication(sys.argv)
     window = MainWindow(firebase)

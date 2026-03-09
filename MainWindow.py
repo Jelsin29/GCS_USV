@@ -1,5 +1,6 @@
 import sys
 import threading
+import serial.tools.list_ports
 
 from PySide6 import QtGui
 from PySide6.QtGui import QIcon
@@ -13,9 +14,8 @@ from IndicatorsPage import IndicatorsPage
 from AntennaTracker import AntennaTracker, antenna_tracker
 from Vehicle.ArdupilotConnection import ArdupilotConnectionThread
 
-
 class MainWindow(QMainWindow, Ui_MainWindow):
-    def __init__(self, firebase):
+    def __init__(self, firebase=None):
         super().__init__()
         self.setupUi(self)
 
@@ -48,11 +48,28 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Set Initial Baud Rate to Combobox
         self.combobox_baudrate.setCurrentText('115200')
+        
+        # Enhanced serial port detection
+        self.update_serial_ports()
+        
+        # Set up connection status indicator
+        self.connection_status_label = None  # Will be set if exists in UI
 
         # Setting Pages
         self.targetspage = TargetsPage(self)
         self.homepage = HomePage(self)
         self.indicatorspage = IndicatorsPage()
+        
+        # **NEW: Initialize telemetry widgets with proper disconnected state**
+        # Make sure HomePage TelemetryWidget starts disconnected
+        if hasattr(self.homepage, 'telemetryWidget'):
+            self.homepage.telemetryWidget.setConnectionStatus(False)
+            print("MainWindow: HomePage TelemetryWidget initialized - disconnected")
+        
+        # Make sure IndicatorsPage starts with zero values
+        if hasattr(self.indicatorspage, 'resetForArduPilot'):
+            self.indicatorspage.resetForArduPilot()
+            print("MainWindow: IndicatorsPage initialized - zero values")
         self.indicatorswidget = QWidget(layout=QVBoxLayout())
         self.indicatorswidget.layout().addWidget(self.indicatorspage)
         self.stackedWidget.addWidget(self.homepage)
@@ -223,15 +240,319 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if button.objectName() == "btn_targets_page":
             self.stackedWidget.setCurrentWidget(self.targetspage)
 
+    def update_serial_ports(self):
+        """Update the connection string combobox with available serial ports"""
+        # Clear current items except for network options
+        network_options = ['SITL (UDP)', 'SITL (TCP)', 'MAVROS Direct', 'UDP', 'TCP']
+        
+        # Clear and add network options
+        self.combobox_connectionstring.clear()
+        for option in network_options:
+            self.combobox_connectionstring.addItem(option)
+        
+        # Add detected serial ports
+        ports = serial.tools.list_ports.comports()
+        for port in ports:
+            if port.device:
+                self.combobox_connectionstring.addItem(port.device)
+
+        # Set default to first serial port if available, otherwise SITL
+        if ports:
+            self.combobox_connectionstring.setCurrentText(ports[0].device)
+        else:
+            # Default to SITL if no serial ports found
+            self.combobox_connectionstring.setCurrentText('SITL (UDP)')
+    
+    def setup_connection_signals(self):
+        """Connect signals from the connection thread to UI handlers."""
+        try:
+            if hasattr(self.connectionThread, 'connection_status'):
+                self.connectionThread.connection_status.connect(self.on_connection_status_changed)
+            if hasattr(self.connectionThread, 'telemetry_update'):
+                self.connectionThread.telemetry_update.connect(self.on_telemetry_update)
+            if hasattr(self.connectionThread, 'mission_status'):
+                self.connectionThread.mission_status.connect(self.on_mission_status_changed)
+        except Exception as e:
+            print(f'ERROR setting up connection signals: {e}')
+    
+    def on_connection_status_changed(self, connected, message):
+        """Handle connection status changes from the connection thread signal."""
+        if connected:
+            self.btn_connect.setText('Disconnect')
+            self.btn_connect.setIcon(QtGui.QIcon('uifolder/assets/icons/24x24/cil-wifi.png'))
+            self._set_all_widgets_connection_status(True)
+            if hasattr(self, 'indicatorspage') and hasattr(self.indicatorspage, 'switchToRealDataMode'):
+                self.indicatorspage.switchToRealDataMode()
+        else:
+            self.btn_connect.setText('Connect')
+            self.btn_connect.setIcon(QtGui.QIcon('uifolder/assets/icons/24x24/cil-link-broken.png'))
+            self._set_all_widgets_connection_status(False)
+            if hasattr(self, 'indicatorspage') and hasattr(self.indicatorspage, 'onConnectionLost'):
+                self.indicatorspage.onConnectionLost()
+
+        if hasattr(self, 'connection_status_label') and self.connection_status_label:
+            self.connection_status_label.setText(message)
+    
+    def on_mission_status_changed(self, message, success):
+        """Handle mission status updates"""
+        status_text = "✅ SUCCESS" if success else "❌ FAILED"
+        print(f"[MISSION STATUS] {status_text}: {message}")
+        
+        # Update UI status if available
+        if hasattr(self, 'mission_status_label') and self.mission_status_label:
+            self.mission_status_label.setText(f"{status_text}: {message}")
+        
+        # You can add more UI updates here, like:
+        # - Updating mission progress bar
+        # - Showing success/failure dialogs
+        # - Enabling/disabling mission buttons
+        # - Updating mission list display
+    
+    def on_telemetry_update(self, telemetry_data):
+        """Route incoming telemetry data to all registered UI widgets."""
+        connection_running = hasattr(self.connectionThread, 'is_running') and self.connectionThread.is_running
+        if not connection_running:
+            return
+
+        try:
+            # Update map marker when GPS data arrives
+            if 'latitude' in telemetry_data and 'longitude' in telemetry_data:
+                self._update_map_position(
+                    telemetry_data['latitude'],
+                    telemetry_data['longitude'],
+                    telemetry_data.get('heading', 0)
+                )
+
+            # Convert to VRX format for widgets that expect that structure
+            vrx_data = self.convert_telemetry_to_vrx_format(telemetry_data)
+
+            # Forward to HomePage TelemetryWidget
+            if hasattr(self, 'homepage') and hasattr(self.homepage, 'telemetryWidget'):
+                telemetry_widget = self.homepage.telemetryWidget
+                if hasattr(telemetry_widget, 'updateFromArduPilotData'):
+                    telemetry_widget.updateFromArduPilotData(telemetry_data)
+                elif hasattr(telemetry_widget, 'updateFromVRXData'):
+                    telemetry_widget.updateFromVRXData(vrx_data)
+                elif hasattr(telemetry_widget, 'process_telemetry'):
+                    telemetry_widget.process_telemetry(vrx_data)
+
+            # Forward to IndicatorsPage USV Telemetry Widget
+            if hasattr(self, 'indicatorspage') and hasattr(self.indicatorspage, 'usv_telemetry'):
+                usv_widget = self.indicatorspage.usv_telemetry
+                if hasattr(usv_widget, 'updateFromArduPilotData'):
+                    usv_widget.updateFromArduPilotData(telemetry_data)
+                elif hasattr(usv_widget, 'updateFromVRXData'):
+                    usv_widget.updateFromVRXData(vrx_data)
+                elif hasattr(usv_widget, 'process_telemetry'):
+                    usv_widget.process_telemetry(vrx_data)
+
+            # Also update IndicatorsPage main instruments
+            if hasattr(self, 'indicatorspage') and hasattr(self.indicatorspage, 'updateFromArduPilotData'):
+                self.indicatorspage.updateFromArduPilotData(telemetry_data)
+
+        except Exception as e:
+            print(f'ERROR in telemetry update: {e}')
+
+    def _update_map_position(self, lat: float, lon: float, heading: float) -> None:
+        """Update the USV marker on the map. Runs on the Qt main thread."""
+        try:
+            if not (hasattr(self, 'homepage') and hasattr(self.homepage, 'mapwidget')):
+                return
+            if lat == 0.0 and lon == 0.0:
+                return
+
+            mapwidget = self.homepage.mapwidget
+            position = [lat, lon]
+            ct = self.connectionThread
+
+            if not ct.usv_marker_created:
+                mapwidget.page().runJavaScript(
+                    f"{mapwidget.map_variable_name}.flyTo({position}, 16)"
+                )
+                mapwidget.page().runJavaScript(f'''
+                    if (typeof usvMarker !== 'undefined') {{ map.removeLayer(usvMarker); }}
+                    usvMarker = L.marker({position}, {{icon: usvIcon, rotationAngle: {heading - 45}}}).addTo(map);
+                ''')
+                ct.usv_marker_created = True
+                print(f"[MAP] USV marker created at {lat:.6f}, {lon:.6f}")
+            else:
+                mapwidget.page().runJavaScript(f"usvMarker.setLatLng({position});")
+                mapwidget.page().runJavaScript(f"usvMarker.setRotationAngle({heading - 45});")
+        except Exception as e:
+            print(f"[MAP] Error updating marker: {e}")
+    
+    def convert_telemetry_to_vrx_format(self, telemetry_data):
+        """Convert flat ArduPilot telemetry dict to nested VRX/MAVLink-style format."""
+        if not telemetry_data:
+            return {}
+
+        vrx_format = {}
+
+        try:
+            # GPS Position — convert decimal degrees to int32 (1e7 scale)
+            if 'latitude' in telemetry_data and 'longitude' in telemetry_data:
+                vrx_format['global_position_int'] = {
+                    'lat': int(telemetry_data['latitude'] * 1e7),
+                    'lon': int(telemetry_data['longitude'] * 1e7),
+                    'alt': int(telemetry_data.get('altitude', 0) * 1000),
+                    'relative_alt': int(telemetry_data.get('relative_alt', 0) * 1000)
+                }
+
+            # Attitude (values in degrees from ArdupilotConnection)
+            if 'roll' in telemetry_data or 'pitch' in telemetry_data or 'yaw' in telemetry_data:
+                vrx_format['attitude'] = {
+                    'roll': telemetry_data.get('roll', 0),
+                    'pitch': telemetry_data.get('pitch', 0),
+                    'yaw': telemetry_data.get('yaw', 0),
+                    'rollspeed': telemetry_data.get('rollspeed', 0),
+                    'pitchspeed': telemetry_data.get('pitchspeed', 0),
+                    'yawspeed': telemetry_data.get('yawspeed', 0)
+                }
+
+            # VFR HUD
+            if 'groundspeed' in telemetry_data or 'heading' in telemetry_data:
+                vrx_format['vfr_hud'] = {
+                    'airspeed': telemetry_data.get('airspeed', 0),
+                    'groundspeed': telemetry_data.get('groundspeed', 0),
+                    'heading': telemetry_data.get('heading', 0),
+                    'throttle': telemetry_data.get('throttle', 0),
+                    'alt': telemetry_data.get('altitude', 0),
+                    'climb': telemetry_data.get('climb_rate', 0)
+                }
+
+            # Heartbeat / mode
+            if 'armed' in telemetry_data or 'mode' in telemetry_data:
+                vrx_format['heartbeat'] = {
+                    'base_mode': 1 if telemetry_data.get('armed', False) else 0,
+                    'custom_mode': telemetry_data.get('mode', 'MANUAL'),
+                    'system_status': telemetry_data.get('system_status', 3)
+                }
+
+            # Battery
+            if 'battery_voltage' in telemetry_data or 'battery_current' in telemetry_data:
+                vrx_format['battery_status'] = {
+                    'voltages': [int(telemetry_data.get('battery_voltage', 0) * 1000)] + [0] * 9,
+                    'current_battery': int(telemetry_data.get('battery_current', 0) * 100),
+                    'current_consumed': telemetry_data.get('battery_consumed', -1),
+                    'energy_consumed': -1,
+                    'battery_remaining': telemetry_data.get('battery_remaining', -1)
+                }
+
+            return vrx_format
+
+        except Exception as e:
+            print(f'Error converting telemetry to VRX format: {e}')
+            return {}
+
+    def convert_telemetry_to_mavlink_format(self, telemetry_data):
+        """Convert telemetry data to MAVLink format expected by IndicatorsPage"""
+        mavlink_format = {}
+        
+        try:
+            # GPS Position
+            if 'latitude' in telemetry_data and 'longitude' in telemetry_data:
+                mavlink_format['global_position_int'] = {
+                    'lat': int(telemetry_data['latitude'] * 1e7),
+                    'lon': int(telemetry_data['longitude'] * 1e7),
+                    'alt': int(telemetry_data.get('altitude', 0) * 1000),
+                    'hdg': int(telemetry_data.get('heading', 0) * 100)
+                }
+            
+            # VFR HUD data
+            if 'groundspeed' in telemetry_data:
+                mavlink_format['vfr_hud'] = {
+                    'groundspeed': telemetry_data['groundspeed'],
+                    'heading': telemetry_data.get('heading', 0),
+                    'throttle': telemetry_data.get('throttle', 0),
+                    'alt': telemetry_data.get('altitude', 0),
+                    'climb': telemetry_data.get('climb_rate', 0)
+                }
+            
+            # Attitude
+            if 'roll' in telemetry_data:
+                mavlink_format['attitude'] = {
+                    'roll': telemetry_data['roll'] * 0.0174533,  # Convert deg to rad
+                    'pitch': telemetry_data.get('pitch', 0) * 0.0174533,
+                    'yaw': telemetry_data.get('yaw', 0) * 0.0174533,
+                    'rollspeed': 0,
+                    'pitchspeed': 0,
+                    'yawspeed': 0
+                }
+            
+            # System status
+            if 'voltage_battery' in telemetry_data:
+                mavlink_format['sys_status'] = {
+                    'voltage_battery': int(telemetry_data['voltage_battery'] * 1000),  # Convert to mV
+                    'current_battery': int(telemetry_data.get('current_battery', 0) * 100),  # Convert to cA
+                    'battery_remaining': telemetry_data.get('battery_remaining', 0)
+                }
+            
+            # Heartbeat
+            if 'mode' in telemetry_data:
+                mode_mapping = {
+                    'MANUAL': 0, 'ACRO': 1, 'STEERING': 3, 'HOLD': 4, 'LOITER': 5,
+                    'FOLLOW': 6, 'SIMPLE': 7, 'AUTO': 10, 'RTL': 11, 'SMART_RTL': 12, 'GUIDED': 15
+                }
+                mode_name = telemetry_data['mode'].replace('UNKNOWN(', '').replace(')', '')
+                custom_mode = mode_mapping.get(mode_name, 0)
+                
+                mavlink_format['heartbeat'] = {
+                    'type': 10,  # MAV_TYPE_GROUND_ROVER
+                    'autopilot': 3,  # MAV_AUTOPILOT_ARDUPILOTMEGA
+                    'base_mode': 1 if telemetry_data.get('armed', False) else 0,
+                    'custom_mode': custom_mode,
+                    'system_status': telemetry_data.get('system_status', 4)
+                }
+            
+        except Exception as e:
+            print(f"Error converting telemetry to MAVLink format: {e}")
+        
+        return mavlink_format
+
     def connectToVehicle(self):
-        self.connectionThread.setBaudRate(int(self.combobox_baudrate.currentText()))
-        self.connectionThread.setConnectionString(self.combobox_connectionstring.currentText())
-        self.connectionThread.start()
+        """Connect or disconnect from the vehicle."""
+        if hasattr(self.connectionThread, 'connection') and self.connectionThread.connection:
+            # Disconnect
+            self._set_all_widgets_connection_status(False)
+            self.connectionThread.stop()
+            self.connectionThread.wait(5000)
+            self.btn_connect.setText('Connect')
+            self.btn_connect.setIcon(QtGui.QIcon('uifolder/assets/icons/24x24/cil-link-broken.png'))
+        else:
+            # Connect
+            self.connectionThread.setBaudRate(int(self.combobox_baudrate.currentText()))
+            self.connectionThread.setConnectionString(self.combobox_connectionstring.currentText())
+            if not hasattr(self, '_signals_connected'):
+                self.setup_connection_signals()
+                self._signals_connected = True
+            # Widgets are set to connected via the connection_status signal on success
+            self.connectionThread.start()
+
+    def _set_all_widgets_connection_status(self, connected: bool) -> None:
+        """Update connection status on all telemetry widgets."""
+        if hasattr(self, 'homepage') and hasattr(self.homepage, 'telemetryWidget'):
+            widget = self.homepage.telemetryWidget
+            if hasattr(widget, 'setConnectionStatus'):
+                widget.setConnectionStatus(connected)
+        if hasattr(self, 'indicatorspage') and hasattr(self.indicatorspage, 'usv_telemetry'):
+            usv = self.indicatorspage.usv_telemetry
+            if hasattr(usv, 'setConnectionStatus'):
+                usv.setConnectionStatus(connected)
 
     def takeoff(self):
-        altitude, okPressed = QInputDialog.getText(self, "Enter Altitude", "Altitude:", text="10")
-        if okPressed:
-            self.connectionThread.takeoff(int(altitude))
+        """Arm the USV and prepare for mission (takeoff equivalent for USV)"""
+        try:
+            if self.connectionThread and self.connectionThread.connection:
+                print("🚤 ARM button pressed - Arming USV...")
+                result = self.connectionThread.arm_and_start()
+                if result:
+                    print("✅ USV armed successfully!")
+                else:
+                    print("❌ Failed to arm USV")
+            else:
+                print("❌ No connection to vehicle")
+        except Exception as e:
+            print(f"❌ Error during arm operation: {e}")
 
     # **MOVED: These methods are now available but might be called from TargetsPage**
     def run_antenna_tracker(self):

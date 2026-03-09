@@ -13,45 +13,65 @@ class USVTelemetryWidget(QWidget):
         # Ensure widget expands properly
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         
-        # VRX simulation state tracking
-        self.simulation_mode = True  # Assume VRX simulation by default
+        # Connection state tracking
+        self.is_connected = False
+        self.simulation_mode = False  # Start with real mode, no simulation
         self.last_update_time = 0
         
-        # Initialize with VRX-appropriate sample data
-        QTimer.singleShot(100, self.populateWithVRXData)
+        # **UPDATED: Initialize with zero values instead of mock data**
+        self.initializeZeroValues()
         
-        print("USVTelemetryWidget: VRX-compatible telemetry dashboard initialized")
+        print("USVTelemetryWidget: Initialized with zero values, ready for real telemetry")
     
-    def populateWithVRXData(self):
-        """Populate with VRX simulation appropriate data"""
+    def initializeZeroValues(self):
+        """Initialize all telemetry displays with zero/disconnected values"""
         try:
-            # VRX simulation typically starts at Sandisland Marina
-            self.updateStatus("AUTO" if self.simulation_mode else "MANUAL")
-            self.updateGPS(21.31924, -157.88916)  # VRX Sandisland coordinates
-            self.updateSpeed(2.5)  # m/s - typical USV speed
-            self.updateHeading(45)  # degrees - heading toward first waypoint
-            self.updateDepth(5.2)  # meters - shallow water depth
-            self.updateRoll(0.1)  # degrees - minimal roll in simulation
-            self.updatePitch(-0.2)  # degrees - slight bow down
-            self.updateBatteryLevel(95)  # percent - start with full battery
-            self.updateRudderAngle(5)  # degrees - slight starboard turn
+            # Set all values to zero/disconnected state
+            self.updateStatus("DISCONNECTED")
+            self.updateGPS(0.0, 0.0)  # Zero coordinates
+            self.updateSpeed(0.0)  # Zero speed
+            self.updateHeading(0)  # Zero heading
+            self.updateDepth(0.0)  # Zero depth
+            self.updateRoll(0.0)  # Zero roll
+            self.updatePitch(0.0)  # Zero pitch
+            self.updateBatteryLevel(0)  # Zero battery
+            self.updateRudderAngle(0.0)  # Zero rudder angle
+            self.updateConnectionStatus(False)  # Disconnected
             
-            print("USVTelemetryWidget: VRX simulation data populated")
+            print("USVTelemetryWidget: All values initialized to zero/disconnected")
             
         except Exception as e:
-            print(f"USVTelemetryWidget: Error populating VRX data: {e}")
-    
-    def setSimulationMode(self, is_simulation=True):
-        """Set whether we're running in VRX simulation mode"""
+            print(f"USVTelemetryWidget: Error initializing zero values: {e}")
+
+    def setSimulationMode(self, is_simulation=False):
+        """Set whether we're running in simulation mode - DEFAULT TO FALSE"""
         self.simulation_mode = is_simulation
-        if is_simulation:
-            self.updateStatus("SIM_AUTO")
+        if not is_simulation and not self.is_connected:
+            # If not in simulation and not connected, show zero values
+            self.initializeZeroValues()
         print(f"USVTelemetryWidget: Simulation mode: {'ON' if is_simulation else 'OFF'}")
-    
+        
+    def setConnectionStatus(self, connected=False, connection_type="USV"):
+        """Set connection status and update display accordingly"""
+        self.is_connected = connected
+        self.updateConnectionStatus(connected, connection_type)
+        
+        if not connected:
+            # When disconnected, reset to zero values
+            self.initializeZeroValues()
+            print("USVTelemetryWidget: Connection lost, reset to zero values")
+        else:
+            # When connected, stop showing zero values and wait for real data
+            print("USVTelemetryWidget: Connected, ready for live telemetry data")
+
     def updateFromVRXData(self, vrx_telemetry):
-        """Update telemetry from VRX simulation data structure"""
+        """Update telemetry from real ArduPilot data structure"""
+        if not self.is_connected:
+            print("USVTelemetryWidget: Ignoring data - not connected")
+            return
+            
         try:
-            # Expected VRX telemetry structure from ArduPilot connection
+            # Expected ArduPilot telemetry structure
             if 'global_position_int' in vrx_telemetry:
                 gps_data = vrx_telemetry['global_position_int']
                 self.updateGPS(gps_data.get('lat', 0) / 1e7, gps_data.get('lon', 0) / 1e7)
@@ -89,32 +109,32 @@ class USVTelemetryWidget(QWidget):
                              5: 'FOLLOW', 6: 'SIMPLE', 10: 'AUTO', 11: 'RTL', 12: 'SMARTRTL', 
                              15: 'GUIDED'}
                 mode_name = mode_names.get(mode, f'MODE_{mode}')
-                if self.simulation_mode:
-                    mode_name = f"SIM_{mode_name}"
-                self.updateStatus(mode_name)
+                # Add LIVE prefix for real data
+                self.updateStatus(f"LIVE_{mode_name}")
                 
             self.last_update_time = QTimer().remainingTime()
-            print("USVTelemetryWidget: Updated from VRX telemetry data")
+            print("USVTelemetryWidget: Updated from live ArduPilot data")
             
         except Exception as e:
-            print(f"USVTelemetryWidget: Error updating from VRX data: {e}")
+            print(f"USVTelemetryWidget: Error updating from ArduPilot data: {e}")
     
     # **NAVIGATION & POSITIONING UPDATES**
     
     def updateStatus(self, status):
-        """Update operational status with VRX simulation awareness"""
+        """Update operational status"""
         try:
             if hasattr(self, 'statusValueLabel'):
                 display_status = status.upper()
                 self.statusValueLabel.setText(display_status)
                 
-                # Color coding for different statuses including simulation modes
+                # Color coding for different statuses
                 colors = {
+                    'DISCONNECTED': '#6c757d',  # Gray for disconnected
                     'MANUAL': '#ff6b35',
                     'AUTO': '#2e7d32', 
                     'AUTONOMOUS': '#2e7d32',
-                    'SIM_AUTO': '#4caf50',  # Brighter green for simulation
-                    'SIM_MANUAL': '#ff8a65',  # Lighter orange for simulation
+                    'LIVE_AUTO': '#4caf50',  # Brighter green for live data
+                    'LIVE_MANUAL': '#ff8a65',  # Lighter orange for live data
                     'STATION_KEEPING': '#1976d2',
                     'LOITER': '#1976d2',
                     'HOLD': '#1976d2',
@@ -124,7 +144,7 @@ class USVTelemetryWidget(QWidget):
                     'EMERGENCY': '#d32f2f'
                 }
                 
-                color = colors.get(display_status, '#ff6b35')
+                color = colors.get(display_status, '#6c757d')
                 self.statusValueLabel.setStyleSheet(f"color: {color}; font-weight: bold;")
                 
             print(f"Status updated: {status}")
@@ -132,33 +152,39 @@ class USVTelemetryWidget(QWidget):
             print(f"Error updating status: {e}")
     
     def updateGPS(self, lat, lon):
-        """Update GPS coordinates with VRX location awareness"""
+        """Update GPS coordinates"""
         try:
             if hasattr(self, 'gpsValueLabel'):
-                # Check if we're in VRX simulation area (Hawaii)
-                if 21.0 <= lat <= 22.0 and -158.0 <= lon <= -157.0:
-                    location_note = " (VRX)"
+                if lat == 0.0 and lon == 0.0 and not self.is_connected:
+                    # Show disconnected state
+                    self.gpsValueLabel.setText("0.000000, 0.000000 (NO GPS)")
+                    self.gpsValueLabel.setStyleSheet("color: #6c757d; font-weight: normal;")
                 else:
-                    location_note = ""
+                    # Show real data
+                    location_note = " (LIVE)" if self.is_connected else ""
+                    self.gpsValueLabel.setText(f"{lat:.6f}, {lon:.6f}{location_note}")
+                    self.gpsValueLabel.setStyleSheet("color: #0277bd; font-weight: bold;")
                     
-                self.gpsValueLabel.setText(f"{lat:.6f}, {lon:.6f}{location_note}")
             print(f"GPS updated: {lat:.6f}, {lon:.6f}")
         except Exception as e:
             print(f"Error updating GPS: {e}")
     
     def updateSpeed(self, speed_ms):
-        """Update speed in m/s with VRX simulation context"""
+        """Update speed in m/s"""
         try:
             if hasattr(self, 'speedValueLabel'):
                 speed_knots = speed_ms * 1.943844  # Convert m/s to knots
                 
-                # Add context for simulation vs real-world speeds
-                if self.simulation_mode and speed_ms > 10:  # Very high speed for USV
-                    speed_note = " (SIM)"
+                if speed_ms == 0.0 and not self.is_connected:
+                    # Show disconnected state
+                    self.speedValueLabel.setText("0.0 m/s (0.0 kt) - NO DATA")
+                    self.speedValueLabel.setStyleSheet("color: #6c757d; font-weight: normal;")
                 else:
-                    speed_note = ""
+                    # Show real data
+                    data_note = " (LIVE)" if self.is_connected else ""
+                    self.speedValueLabel.setText(f"{speed_ms:.1f} m/s ({speed_knots:.1f} kt{data_note})")
+                    self.speedValueLabel.setStyleSheet("color: #0277bd; font-weight: bold;")
                     
-                self.speedValueLabel.setText(f"{speed_ms:.1f} m/s ({speed_knots:.1f} kt{speed_note})")
             print(f"Speed updated: {speed_ms:.1f} m/s")
         except Exception as e:
             print(f"Error updating speed: {e}")
@@ -176,24 +202,35 @@ class USVTelemetryWidget(QWidget):
                 direction_index = int((heading_degrees + 11.25) / 22.5) % 16
                 direction = directions[direction_index]
                 
-                self.headingValueLabel.setText(f"{heading_degrees:03.0f}° ({direction})")
+                if heading_degrees == 0 and not self.is_connected:
+                    # Show disconnected state
+                    self.headingValueLabel.setText("000° (N) - NO DATA")
+                    self.headingValueLabel.setStyleSheet("color: #6c757d; font-weight: normal;")
+                else:
+                    # Show real data
+                    data_note = " (LIVE)" if self.is_connected else ""
+                    self.headingValueLabel.setText(f"{heading_degrees:03.0f}° ({direction}){data_note}")
+                    self.headingValueLabel.setStyleSheet("color: #0277bd; font-weight: bold;")
+                    
             print(f"Heading updated: {heading_degrees:.0f}°")
         except Exception as e:
             print(f"Error updating heading: {e}")
     
     def updateDepth(self, depth_meters):
-        """Update water depth with VRX simulation context"""
+        """Update water depth"""
         try:
             if hasattr(self, 'depthValueLabel'):
-                # VRX simulation typically has shallow water areas
-                if self.simulation_mode and depth_meters < 1.0:
-                    depth_note = " (shallow)"
-                elif depth_meters > 50.0:
-                    depth_note = " (deep)"
+                if depth_meters == 0.0 and not self.is_connected:
+                    # Show disconnected state
+                    self.depthValueLabel.setText("0.0 m - NO DATA")
+                    self.depthValueLabel.setStyleSheet("color: #6c757d; font-weight: normal;")
                 else:
-                    depth_note = ""
+                    # Show real data
+                    data_note = " (LIVE)" if self.is_connected else ""
+                    depth_note = " (shallow)" if depth_meters < 1.0 else " (deep)" if depth_meters > 50.0 else ""
+                    self.depthValueLabel.setText(f"{depth_meters:.1f} m{depth_note}{data_note}")
+                    self.depthValueLabel.setStyleSheet("color: #0277bd; font-weight: bold;")
                     
-                self.depthValueLabel.setText(f"{depth_meters:.1f} m{depth_note}")
             print(f"Depth updated: {depth_meters:.1f} m")
         except Exception as e:
             print(f"Error updating depth: {e}")
@@ -201,31 +238,35 @@ class USVTelemetryWidget(QWidget):
     # **ATTITUDE UPDATES**
     
     def updateRoll(self, roll_degrees):
-        """Update roll angle with simulation stability context"""
+        """Update roll angle"""
         try:
             if hasattr(self, 'rollValueLabel'):
-                # VRX simulation typically has very stable roll
-                if self.simulation_mode and abs(roll_degrees) < 0.1:
-                    self.rollValueLabel.setStyleSheet("color: #4caf50; font-weight: bold;")
+                if roll_degrees == 0.0 and not self.is_connected:
+                    # Show disconnected state
+                    self.rollValueLabel.setText("+0.00° - NO DATA")
+                    self.rollValueLabel.setStyleSheet("color: #6c757d; font-weight: normal;")
                 else:
+                    # Show real data
+                    self.rollValueLabel.setText(f"{roll_degrees:+.2f}°")
                     self.rollValueLabel.setStyleSheet("color: #2e7d32; font-weight: bold;")
                     
-                self.rollValueLabel.setText(f"{roll_degrees:+.2f}°")
             print(f"Roll updated: {roll_degrees:+.2f}°")
         except Exception as e:
             print(f"Error updating roll: {e}")
     
     def updatePitch(self, pitch_degrees):
-        """Update pitch angle with simulation stability context"""
+        """Update pitch angle"""
         try:
             if hasattr(self, 'pitchValueLabel'):
-                # VRX simulation typically has very stable pitch
-                if self.simulation_mode and abs(pitch_degrees) < 0.1:
-                    self.pitchValueLabel.setStyleSheet("color: #4caf50; font-weight: bold;")
+                if pitch_degrees == 0.0 and not self.is_connected:
+                    # Show disconnected state
+                    self.pitchValueLabel.setText("+0.00° - NO DATA")
+                    self.pitchValueLabel.setStyleSheet("color: #6c757d; font-weight: normal;")
                 else:
+                    # Show real data
+                    self.pitchValueLabel.setText(f"{pitch_degrees:+.2f}°")
                     self.pitchValueLabel.setStyleSheet("color: #2e7d32; font-weight: bold;")
                     
-                self.pitchValueLabel.setText(f"{pitch_degrees:+.2f}°")
             print(f"Pitch updated: {pitch_degrees:+.2f}°")
         except Exception as e:
             print(f"Error updating pitch: {e}")
@@ -240,27 +281,28 @@ class USVTelemetryWidget(QWidget):
     # **SYSTEMS UPDATES**
     
     def updateBatteryLevel(self, percentage):
-        """Update battery level with VRX simulation context"""
+        """Update battery level"""
         try:
             if hasattr(self, 'batteryProgressBar'):
                 self.batteryProgressBar.setValue(int(percentage))
                 
-                # In VRX simulation, battery doesn't typically drain
-                if self.simulation_mode:
-                    display_text = f"{percentage:.0f}% (SIM)"
+                if percentage == 0 and not self.is_connected:
+                    # Show disconnected state
+                    display_text = "0% - NO DATA"
+                    color_start, color_end = "#6c757d", "#6c757d"  # Gray
                 else:
-                    display_text = f"{percentage:.0f}%"
+                    # Show real data
+                    display_text = f"{percentage:.0f}%" + (" (LIVE)" if self.is_connected else "")
                     
+                    # Update color based on battery level
+                    if percentage > 60:
+                        color_start, color_end = "#4caf50", "#8bc34a"  # Green
+                    elif percentage > 30:
+                        color_start, color_end = "#ff9800", "#ffb74d"  # Orange  
+                    else:
+                        color_start, color_end = "#f44336", "#ef5350"  # Red
+                        
                 self.batteryProgressBar.setFormat(display_text)
-                
-                # Update color based on battery level
-                if percentage > 60:
-                    color_start, color_end = "#4caf50", "#8bc34a"  # Green
-                elif percentage > 30:
-                    color_start, color_end = "#ff9800", "#ffb74d"  # Orange  
-                else:
-                    color_start, color_end = "#f44336", "#ef5350"  # Red
-                    
                 self.batteryProgressBar.setStyleSheet(f"""
                     QProgressBar::chunk {{
                         background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0,
@@ -275,24 +317,28 @@ class USVTelemetryWidget(QWidget):
             print(f"Error updating battery: {e}")
     
     def updateRudderAngle(self, angle_degrees):
-        """Update rudder angle with VRX simulation context"""
+        """Update rudder angle"""
         try:
             if hasattr(self, 'rudderProgressBar'):
                 # Clamp angle to valid range
                 clamped_angle = max(-30, min(30, angle_degrees))
                 self.rudderProgressBar.setValue(int(clamped_angle))
                 
-                # Format display text
-                if abs(clamped_angle) < 0.5:
-                    display_text = "0° (Center)"
-                elif clamped_angle > 0:
-                    display_text = f"{clamped_angle:.1f}° R"
+                if clamped_angle == 0.0 and not self.is_connected:
+                    # Show disconnected state
+                    display_text = "0° - NO DATA"
                 else:
-                    display_text = f"{abs(clamped_angle):.1f}° L"
+                    # Format display text for real data
+                    if abs(clamped_angle) < 0.5:
+                        display_text = "0° (Center)"
+                    elif clamped_angle > 0:
+                        display_text = f"{clamped_angle:.1f}° R"
+                    else:
+                        display_text = f"{abs(clamped_angle):.1f}° L"
                     
-                # Add simulation context
-                if self.simulation_mode:
-                    display_text += " (SIM)"
+                    # Add live data context
+                    if self.is_connected:
+                        display_text += " (LIVE)"
                     
                 self.rudderProgressBar.setFormat(display_text)
                 
@@ -300,37 +346,56 @@ class USVTelemetryWidget(QWidget):
         except Exception as e:
             print(f"Error updating rudder: {e}")
     
-    # **VRX-SPECIFIC METHODS**
+    # **CONNECTION STATUS METHODS**
     
-    def updateVRXMissionStatus(self, task_name, progress=None):
-        """Update current VRX task status"""
+    def updateConnectionStatus(self, connected=False, connection_type="USV"):
+        """Update connection status display"""
         try:
-            current_status = getattr(self, '_current_status', 'AUTO')
-            if task_name:
-                new_status = f"VRX_{task_name.upper()}"
-                if progress is not None:
-                    new_status += f"_{progress}%"
-                self.updateStatus(new_status)
-            print(f"VRX Mission Status: {task_name} ({progress}%)" if progress else f"VRX Mission Status: {task_name}")
-        except Exception as e:
-            print(f"Error updating VRX mission status: {e}")
-    
-    def updateWaypointProgress(self, current_wp, total_wp, distance_to_wp=None):
-        """Update waypoint navigation progress for VRX"""
-        try:
-            if hasattr(self, 'statusValueLabel'):
-                if distance_to_wp is not None:
-                    status_text = f"WP {current_wp}/{total_wp} ({distance_to_wp:.1f}m)"
+            if hasattr(self, 'connectionStatusLabel'):
+                if connected:
+                    status_text = f"● CONNECTED ({connection_type})"
+                    color = "#28a745"
+                    bg_color = "#d4edda"
+                    border_color = "#c3e6cb"
                 else:
-                    status_text = f"WAYPOINT {current_wp}/{total_wp}"
+                    status_text = "● DISCONNECTED"
+                    color = "#dc3545"
+                    bg_color = "#f8d7da"
+                    border_color = "#f5c6cb"
                     
-                if self.simulation_mode:
-                    status_text = f"SIM_{status_text}"
-                    
-                self.updateStatus(status_text)
-            print(f"Waypoint progress: {current_wp}/{total_wp}")
+                self.connectionStatusLabel.setText(status_text)
+                self.connectionStatusLabel.setStyleSheet(f"""
+                    QLabel {{
+                        color: {color};
+                        font-size: 14px;
+                        font-weight: bold;
+                        background-color: {bg_color};
+                        border: 1px solid {border_color};
+                        border-radius: 8px;
+                        padding: 12px;
+                    }}
+                """)
         except Exception as e:
-            print(f"Error updating waypoint progress: {e}")
+            print(f"Error updating connection status: {e}")
+    
+    # **UTILITY METHODS**
+    
+    def resetDisplay(self):
+        """Reset all displays to zero values"""
+        self.initializeZeroValues()
+        print("USV Telemetry display reset to zero values")
+    
+    def setEmergencyMode(self, emergency=True):
+        """Set emergency visual state"""
+        try:
+            if emergency:
+                self.updateStatus("EMERGENCY")
+            else:
+                status = "DISCONNECTED" if not self.is_connected else "MANUAL"
+                self.updateStatus(status)
+            print(f"Emergency mode: {'ON' if emergency else 'OFF'}")
+        except Exception as e:
+            print(f"Error setting emergency mode: {e}")
     
     # **CONVENIENCE METHODS**
     
@@ -342,84 +407,15 @@ class USVTelemetryWidget(QWidget):
     
     def updateAllTelemetry(self, lat, lon, speed_ms, heading, depth, roll, pitch, battery, rudder):
         """Update all telemetry parameters at once"""
-        self.updateGPS(lat, lon)
-        self.updateSpeed(speed_ms)
-        self.updateHeading(heading)
-        self.updateDepth(depth)
-        self.updateRoll(roll)
-        self.updatePitch(pitch)
-        self.updateBatteryLevel(battery)
-        self.updateRudderAngle(rudder)
-    
-    # **UTILITY METHODS**
-    
-    def resetDisplay(self):
-        """Reset all displays to VRX simulation defaults"""
-        try:
-            if self.simulation_mode:
-                self.populateWithVRXData()
-            else:
-                self.updateStatus("DISCONNECTED")
-                self.updateGPS(0.0, 0.0)
-                self.updateSpeed(0.0)
-                self.updateHeading(0)
-                self.updateDepth(0.0)
-                self.updateRoll(0.0)
-                self.updatePitch(0.0)
-                self.updateBatteryLevel(0)
-                self.updateRudderAngle(0)
-            print("USV Telemetry display reset")
-        except Exception as e:
-            print(f"Error resetting display: {e}")
-    
-    def setEmergencyMode(self, emergency=True):
-        """Set emergency visual state"""
-        try:
-            if emergency:
-                self.updateStatus("EMERGENCY")
-                # Could add red background or flashing effects here
-            else:
-                status = "SIM_AUTO" if self.simulation_mode else "MANUAL"
-                self.updateStatus(status)
-                # Reset to normal appearance
-            print(f"Emergency mode: {'ON' if emergency else 'OFF'}")
-        except Exception as e:
-            print(f"Error setting emergency mode: {e}")
-    
-    # **CONNECTION STATUS METHODS**
-    
-    def updateConnectionStatus(self, connected=True, connection_type="VRX"):
-        """Update connection status with simulation context"""
-        try:
-            if hasattr(self, 'connectionStatusLabel'):
-                if connected:
-                    if self.simulation_mode:
-                        status_text = f"● CONNECTED ({connection_type} SIM)"
-                        color = "#4caf50"  # Bright green for simulation
-                        bg_color = "#e8f5e9"
-                    else:
-                        status_text = f"● CONNECTED ({connection_type})"
-                        color = "#28a745"
-                        bg_color = "#d4edda"
-                else:
-                    status_text = "● DISCONNECTED"
-                    color = "#dc3545"
-                    bg_color = "#f8d7da"
-                    
-                self.connectionStatusLabel.setText(status_text)
-                self.connectionStatusLabel.setStyleSheet(f"""
-                    QLabel {{
-                        color: {color};
-                        font-size: 12px;
-                        font-weight: bold;
-                        background-color: {bg_color};
-                        border: 1px solid {color};
-                        border-radius: 6px;
-                        padding: 8px;
-                    }}
-                """)
-        except Exception as e:
-            print(f"Error updating connection status: {e}")
+        if self.is_connected:  # Only update if connected
+            self.updateGPS(lat, lon)
+            self.updateSpeed(speed_ms)
+            self.updateHeading(heading)
+            self.updateDepth(depth)
+            self.updateRoll(roll)
+            self.updatePitch(pitch)
+            self.updateBatteryLevel(battery)
+            self.updateRudderAngle(rudder)
     
     # **LEGACY COMPATIBILITY**
     
@@ -438,3 +434,66 @@ class USVTelemetryWidget(QWidget):
     def updatePosition(self, lat, lon):
         """Legacy compatibility - updates GPS position"""
         self.updateGPS(lat, lon)
+    
+    def updateFromArduPilotData(self, telemetry_data):
+        """New method to handle ArduPilot telemetry data directly"""
+        try:
+            print(f"[USV_TELEMETRY] USVTelemetryWidget received ArduPilot data: {list(telemetry_data.keys())}")
+            
+            # Extract and update GPS position
+            if 'latitude' in telemetry_data and 'longitude' in telemetry_data:
+                self.updateGPS(telemetry_data['latitude'], telemetry_data['longitude'])
+                print(f"[USV_TELEMETRY] Updated GPS: {telemetry_data['latitude']:.6f}, {telemetry_data['longitude']:.6f}")
+            
+            # Extract and update speed
+            if 'groundspeed' in telemetry_data:
+                # USVTelemetryWidget expects speed in m/s
+                self.updateSpeed(telemetry_data['groundspeed'])
+                print(f"[USV_TELEMETRY] Updated speed: {telemetry_data['groundspeed']:.1f} m/s")
+            
+            # Extract and update heading
+            if 'heading' in telemetry_data:
+                self.updateHeading(telemetry_data['heading'])
+                print(f"[USV_TELEMETRY] Updated heading: {telemetry_data['heading']:.1f}°")
+            
+            # Extract and update depth (for USV, use altitude if available)
+            if 'altitude' in telemetry_data:
+                # For surface vessels, depth is usually 0, but we can show relative altitude
+                depth = max(0, -telemetry_data['altitude'])  # Convert altitude to depth
+                self.updateDepth(depth)
+                print(f"[USV_TELEMETRY] Updated depth: {depth:.1f} m (from altitude)")
+            
+            # Extract and update attitude
+            if 'roll' in telemetry_data and 'pitch' in telemetry_data:
+                yaw = telemetry_data.get('yaw', telemetry_data.get('heading', 0))
+                self.updateAttitude(telemetry_data['roll'], telemetry_data['pitch'], yaw)
+                print(f"[USV_TELEMETRY] Updated attitude: Roll={telemetry_data['roll']:.1f}°, Pitch={telemetry_data['pitch']:.1f}°")
+            elif 'roll' in telemetry_data:
+                self.updateRoll(telemetry_data['roll'])
+                print(f"[USV_TELEMETRY] Updated roll: {telemetry_data['roll']:.1f}°")
+            elif 'pitch' in telemetry_data:
+                self.updatePitch(telemetry_data['pitch'])
+                print(f"[USV_TELEMETRY] Updated pitch: {telemetry_data['pitch']:.1f}°")
+            
+            # Extract and update battery
+            if 'battery_voltage' in telemetry_data or 'battery_remaining' in telemetry_data:
+                if 'battery_remaining' in telemetry_data:
+                    percentage = telemetry_data['battery_remaining']
+                else:
+                    # Estimate percentage from voltage (rough approximation for 12V system)
+                    voltage = telemetry_data['battery_voltage']
+                    percentage = max(0, min(100, ((voltage - 11.0) / 1.6) * 100))
+                
+                self.updateBatteryLevel(percentage)
+                print(f"[USV_TELEMETRY] Updated battery: {percentage:.0f}%")
+            
+            # Extract and update rudder angle (if available in servo outputs)
+            # This would come from servo_output_raw or similar messages
+            # For now, we'll skip this as it requires more complex parsing
+            
+            print(f"[USV_TELEMETRY] USVTelemetryWidget update complete")
+            
+        except Exception as e:
+            print(f"[USV_TELEMETRY] Error in USVTelemetryWidget updateFromArduPilotData: {e}")
+            import traceback
+            traceback.print_exc()

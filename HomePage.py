@@ -1,10 +1,8 @@
-import os
 import sys
-import time
 
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QIcon, QPixmap, QColor
-from PySide6.QtWidgets import QApplication, QWidget, QMainWindow, QInputDialog, QGraphicsDropShadowEffect
+from PySide6.QtGui import QIcon, QColor
+from PySide6.QtWidgets import QApplication, QWidget, QMainWindow, QGraphicsDropShadowEffect
 
 from MapWidget import MapWidget
 from uifolder import Ui_HomePage

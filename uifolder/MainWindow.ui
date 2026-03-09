@@ -485,11 +485,6 @@ QStackedWidget {
                     <string>UDP</string>
                    </property>
                   </item>
-                  <item>
-                   <property name="text">
-                    <string>VRX Simulation</string>
-                   </property>
-                  </item>
                  </widget>
                 </item>
                 <item>

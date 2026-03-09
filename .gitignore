@@ -154,3 +154,19 @@ Thumbs.db
 # Project specific
 *.pyproject.user
 output.avi
+
+# ArduPilot logs and large binary telemetry files
+logs/*.BIN
+logs/LASTLOG.TXT
+eeprom.bin
+mav.tlog
+mav.tlog.raw
+mav.parm
+*.tlog
+*.tlog.raw
+
+# Backup files
+*.backup
+
+# Misc generated files
+serial.tools.list_ports

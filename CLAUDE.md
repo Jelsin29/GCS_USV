@@ -111,6 +111,28 @@ Use Pyright for:
 - Checking imports resolve correctly
 - Before /code-review on any Python file
 
+## TargetsPage — Key Buttons Reference
+
+| Button | Object name | Action |
+|--------|-------------|--------|
+| LOAD FILE | `btn_set_roi` | Opens QFileDialog → parses .json/.txt → shows on map → uploads to vehicle |
+| CLEAR MAP | `btn_cancel_roi` | Calls `clearAll()` JS to remove all map waypoints/shapes |
+| SET MISSION | `btn_setMission` | Reads waypoints drawn on map → uploads to vehicle |
+| START MISSION | `btn_startMission` | Arms vehicle and sends MAV_CMD_MISSION_START |
+| ABORT | `btn_abort` | Switches vehicle to HOLD mode |
+| RTL | `btn_rtl` / `btn_rtl_2` | Switches vehicle to RTL mode |
+
+### LOAD FILE — accepted file formats
+
+**.json** — three layouts recognised:
+- `[{"lat": 1.0, "lon": 2.0}, ...]`
+- `[[lat, lon], ...]` or `[[lat, lon, alt], ...]`
+- `{"waypoints": [...]}` (wrapper key may be waypoints/mission/points/coords)
+
+**.txt** — one waypoint per line, delimiter comma, tab, or space:
+- `lat,lon` or `lat,lon,alt`
+- Lines starting with `#` are comments and ignored
+
 ## What NOT to Do
 
 - Do not use time.sleep() — use asyncio.sleep()

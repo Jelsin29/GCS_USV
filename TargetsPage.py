@@ -1,7 +1,10 @@
+import json
+import os
+import re
 import time
 from PySide6.QtGui import QColor
 from PySide6.QtCore import QThread, Signal, QTimer
-from PySide6.QtWidgets import QWidget, QGraphicsDropShadowEffect
+from PySide6.QtWidgets import QWidget, QGraphicsDropShadowEffect, QFileDialog
 from pymavlink import mavutil
 
 from uifolder import Ui_TargetsPage
@@ -70,8 +73,8 @@ class TargetsPage(QWidget, Ui_TargetsPage):
             self.btn_track_all.clicked.connect(self.track_all)
             self.btn_land.clicked.connect(self.hold_position)
             self.btn_rtl_2.clicked.connect(self.rtl_2)
-            self.btn_set_roi.clicked.connect(self.set_roi)
-            self.btn_cancel_roi.clicked.connect(self.cancel_roi)
+            self.btn_set_roi.clicked.connect(self.load_mission_from_file)
+            self.btn_cancel_roi.clicked.connect(self.clear_map)
 
             print("TargetsPage: All mission and guided control buttons connected")
 
@@ -471,19 +474,139 @@ class TargetsPage(QWidget, Ui_TargetsPage):
     def rtl_2(self):
         self.rtl()
 
-    def set_roi(self):
-        if self.parent and hasattr(self.parent, 'connectionThread'):
-            self.parent.connectionThread.set_roi()
-            print("Set ROI command sent")
-        else:
-            print("Error: connectionThread not available")
+    def load_mission_from_file(self):
+        """Open a file dialog to load waypoints from a .json or .txt file.
 
-    def cancel_roi(self):
-        if self.parent and hasattr(self.parent, 'connectionThread'):
-            self.parent.connectionThread.cancel_roi_mode()
-            print("Cancel ROI command sent")
+        Waypoints are visualised on the map immediately.
+        If the vehicle is connected they are also uploaded via MAVLink.
+        """
+        if hasattr(self, '_upload_in_progress') and self._upload_in_progress:
+            self.show_mission_status("Upload already in progress...", success=False)
+            return
+
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Load Mission File",
+            "",
+            "Mission Files (*.json *.txt);;JSON Files (*.json);;Text Files (*.txt);;All Files (*)",
+        )
+        if not file_path:
+            return  # user cancelled
+
+        try:
+            mission_points = self._parse_mission_file(file_path)
+        except Exception as e:
+            self.show_mission_status(f"✗ Error reading file: {e}", success=False)
+            print(f"[MISSION FILE] Parse error: {e}")
+            return
+
+        if not mission_points:
+            self.show_mission_status("✗ No valid waypoints found in file.", success=False)
+            return
+
+        # Visualise on map regardless of connection state
+        if self.parent and hasattr(self.parent, 'homepage'):
+            mapwidget = self.parent.homepage.mapwidget
+            mapwidget.page().runJavaScript("clearAll();")
+            for lat, lon, _ in mission_points:
+                mapwidget.page().runJavaScript(f"putWaypoint({lat}, {lon});")
+
+        # Upload to vehicle only when connected
+        if not self.parent or not hasattr(self.parent, 'connectionThread'):
+            self.show_mission_status(
+                f"Loaded {len(mission_points)} waypoints to map. Connect to vehicle to upload.",
+                success=True,
+            )
+            return
+
+        self._upload_in_progress = True
+        self.show_mission_status(
+            f"Uploading {len(mission_points)} waypoints from file...", success=True
+        )
+        self._set_upload_buttons_enabled(False)
+        self._upload_worker = MissionUploadWorker(self.parent.connectionThread, mission_points)
+        self._upload_worker.upload_finished.connect(self._on_upload_finished)
+        self._upload_worker.finished.connect(self._cleanup_upload_worker)
+        self._upload_worker.start()
+
+    def _parse_mission_file(self, file_path: str) -> list:
+        """Parse a .json or .txt mission file into a list of [lat, lon, alt] triples.
+
+        JSON formats supported:
+          - Array of objects:  [{"lat": 1.0, "lon": 2.0}, ...]
+          - Array of arrays:   [[lat, lon], ...] or [[lat, lon, alt], ...]
+          - Wrapped object:    {"waypoints": [...], ...}  (key may be
+                               "waypoints", "mission", "points", or "coords")
+
+        TXT format (one waypoint per line, comma/tab/space-separated):
+          lat,lon
+          lat,lon,alt
+          Lines starting with # are treated as comments and ignored.
+        """
+        ext = os.path.splitext(file_path)[1].lower()
+        mission_points = []
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read().strip()
+
+        if ext == ".json":
+            data = json.loads(content)
+            if isinstance(data, dict):
+                for key in ("waypoints", "mission", "points", "coords"):
+                    if key in data:
+                        data = data[key]
+                        break
+                else:
+                    raise ValueError(
+                        "JSON object must have a 'waypoints', 'mission', 'points', or 'coords' key."
+                    )
+            for item in data:
+                if isinstance(item, (list, tuple)):
+                    lat, lon = float(item[0]), float(item[1])
+                    alt = float(item[2]) if len(item) > 2 else 0.0
+                elif isinstance(item, dict):
+                    lat = float(item.get("lat", item.get("latitude", item.get("Lat", 0))))
+                    lon = float(item.get("lon", item.get("longitude", item.get("lng", item.get("Lon", 0)))))
+                    alt = float(item.get("alt", item.get("altitude", 0)))
+                else:
+                    raise ValueError(f"Unsupported waypoint format: {item!r}")
+                if not (-90 <= lat <= 90 and -180 <= lon <= 180):
+                    print(f"[MISSION FILE] Skipping invalid coordinates: {lat}, {lon}")
+                    continue
+                mission_points.append([lat, lon, alt])
+
+        elif ext == ".txt":
+            for line_no, line in enumerate(content.splitlines(), 1):
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                parts = re.split(r"[,\t ]+", line)
+                if len(parts) < 2:
+                    print(f"[MISSION FILE] Line {line_no}: skipping (not enough fields): {line}")
+                    continue
+                try:
+                    lat, lon = float(parts[0]), float(parts[1])
+                    alt = float(parts[2]) if len(parts) > 2 else 0.0
+                except ValueError:
+                    print(f"[MISSION FILE] Line {line_no}: skipping (parse error): {line}")
+                    continue
+                if not (-90 <= lat <= 90 and -180 <= lon <= 180):
+                    print(f"[MISSION FILE] Line {line_no}: skipping invalid coordinates: {lat}, {lon}")
+                    continue
+                mission_points.append([lat, lon, alt])
+
         else:
-            print("Error: connectionThread not available")
+            raise ValueError(f"Unsupported file type: '{ext}'. Use .json or .txt.")
+
+        return mission_points
+
+    def clear_map(self):
+        """Clear all waypoints and shapes from the mission map."""
+        if self.parent and hasattr(self.parent, 'homepage'):
+            self.parent.homepage.mapwidget.page().runJavaScript("clearAll();")
+            self.show_mission_status("Map cleared.", success=True)
+        else:
+            self.show_mission_status("✗ Map not available.", success=False)
 
     def addShadowEffects(self):
         try:

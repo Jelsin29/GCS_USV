@@ -29,6 +29,14 @@ class TestTargetsPageInit:
         ]:
             assert hasattr(tp, btn_name), f"Missing guided button: {btn_name}"
 
+    def test_load_file_button_text(self, main_window):
+        tp = main_window.targetspage
+        assert tp.btn_set_roi.text() == "LOAD FILE"
+
+    def test_clear_map_button_text(self, main_window):
+        tp = main_window.targetspage
+        assert tp.btn_cancel_roi.text() == "CLEAR MAP"
+
     def test_modes_combobox_has_expected_modes(self, main_window):
         tp = main_window.targetspage
         assert hasattr(tp, "modes_comboBox")
@@ -37,6 +45,65 @@ class TestTargetsPageInit:
         # At minimum these three modes must be present
         assert "Waypoint Mode" in items
         assert "Area Selection Mode" in items
+
+
+class TestMissionFileParser:
+    """Unit tests for _parse_mission_file — no Qt, no connection needed."""
+
+    def _make_page(self, main_window):
+        return main_window.targetspage
+
+    def test_parse_json_array_of_dicts(self, main_window, tmp_path):
+        tp = self._make_page(main_window)
+        f = tmp_path / "mission.json"
+        f.write_text('[{"lat": 41.0, "lon": 29.0}, {"lat": 41.1, "lon": 29.1}]')
+        result = tp._parse_mission_file(str(f))
+        assert len(result) == 2
+        assert result[0] == [41.0, 29.0, 0.0]
+
+    def test_parse_json_array_of_arrays(self, main_window, tmp_path):
+        tp = self._make_page(main_window)
+        f = tmp_path / "mission.json"
+        f.write_text("[[41.0, 29.0], [41.1, 29.1, 10.0]]")
+        result = tp._parse_mission_file(str(f))
+        assert len(result) == 2
+        assert result[1][2] == 10.0
+
+    def test_parse_json_wrapped_object(self, main_window, tmp_path):
+        tp = self._make_page(main_window)
+        f = tmp_path / "mission.json"
+        f.write_text('{"waypoints": [{"lat": 41.0, "lon": 29.0}]}')
+        result = tp._parse_mission_file(str(f))
+        assert len(result) == 1
+
+    def test_parse_txt_comma_separated(self, main_window, tmp_path):
+        tp = self._make_page(main_window)
+        f = tmp_path / "mission.txt"
+        f.write_text("# comment\n41.0,29.0\n41.1,29.1,5.0\n")
+        result = tp._parse_mission_file(str(f))
+        assert len(result) == 2
+        assert result[1][2] == 5.0
+
+    def test_parse_txt_space_separated(self, main_window, tmp_path):
+        tp = self._make_page(main_window)
+        f = tmp_path / "mission.txt"
+        f.write_text("41.0 29.0\n41.1 29.1\n")
+        result = tp._parse_mission_file(str(f))
+        assert len(result) == 2
+
+    def test_invalid_coordinates_skipped(self, main_window, tmp_path):
+        tp = self._make_page(main_window)
+        f = tmp_path / "mission.txt"
+        f.write_text("999.0,999.0\n41.0,29.0\n")
+        result = tp._parse_mission_file(str(f))
+        assert len(result) == 1
+
+    def test_unsupported_extension_raises(self, main_window, tmp_path):
+        tp = self._make_page(main_window)
+        f = tmp_path / "mission.csv"
+        f.write_text("41.0,29.0\n")
+        with pytest.raises(ValueError, match="Unsupported file type"):
+            tp._parse_mission_file(str(f))
 
 
 class TestTargetsPageMissionGuards:

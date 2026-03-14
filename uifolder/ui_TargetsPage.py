@@ -804,8 +804,8 @@ class Ui_TargetsPage(object):
         self.btn_track_all.setText(QCoreApplication.translate("TargetsPage", u"TRACK ALL", None))
         self.btn_land.setText(QCoreApplication.translate("TargetsPage", u"LAND", None))
         self.btn_rtl_2.setText(QCoreApplication.translate("TargetsPage", u"RETURN HOME", None))
-        self.btn_set_roi.setText(QCoreApplication.translate("TargetsPage", u"SET ROI", None))
-        self.btn_cancel_roi.setText(QCoreApplication.translate("TargetsPage", u"CANCEL ROI", None))
+        self.btn_set_roi.setText(QCoreApplication.translate("TargetsPage", u"LOAD FILE", None))
+        self.btn_cancel_roi.setText(QCoreApplication.translate("TargetsPage", u"CLEAR MAP", None))
         self.consoleLabel.setText(QCoreApplication.translate("TargetsPage", u"CONSOLE", None))
     # retranslateUi
 

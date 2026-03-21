@@ -19,6 +19,7 @@ from uifolder import Ui_MainWindow
 from TargetsPage import TargetsPage
 from IndicatorsPage import IndicatorsPage
 from ConnectionManager import ConnectionManager
+from TelemetryLogger import TelemetryLogger
 from AntennaTracker import AntennaTracker, antenna_tracker
 from Vehicle.ArdupilotConnection import ArdupilotConnectionThread
 
@@ -99,6 +100,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             usv_connection_thread=self.connectionThread, parent=self
         )
         self._setup_drone_ui()
+
+        # Telemetry Logger (CSV recording for competition deliverables)
+        self.telemetry_logger = TelemetryLogger(output_dir="logs", parent=self)
 
         #  SET BUTTONS
         #  Main Window buttons
@@ -308,6 +312,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.connection_manager.relay_target_to_usv(color, lat, lon)
 
     def closeEvent(self, event):
+        if hasattr(self, "telemetry_logger"):
+            self.telemetry_logger.stop()
         if hasattr(self, "connection_manager"):
             self.connection_manager.shutdown()
         if hasattr(self, "connectionThread") and self.connectionThread.isRunning():
@@ -427,6 +433,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 )
             if hasattr(self.connectionThread, "telemetry_update"):
                 self.connectionThread.telemetry_update.connect(self.on_telemetry_update)
+                self.connectionThread.telemetry_update.connect(
+                    self.telemetry_logger.log
+                )
             if hasattr(self.connectionThread, "mission_status"):
                 self.connectionThread.mission_status.connect(
                     self.on_mission_status_changed
@@ -446,6 +455,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.indicatorspage, "switchToRealDataMode"
             ):
                 self.indicatorspage.switchToRealDataMode()
+            # Auto-start telemetry recording on connection
+            if (
+                hasattr(self, "telemetry_logger")
+                and not self.telemetry_logger.is_recording
+            ):
+                self.telemetry_logger.start()
         else:
             self.btn_connect.setText("Connect")
             self.btn_connect.setIcon(
@@ -456,6 +471,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.indicatorspage, "onConnectionLost"
             ):
                 self.indicatorspage.onConnectionLost()
+            # Auto-stop telemetry recording on disconnection
+            if hasattr(self, "telemetry_logger") and self.telemetry_logger.is_recording:
+                self.telemetry_logger.stop()
 
         if hasattr(self, "connection_status_label") and self.connection_status_label:
             self.connection_status_label.setText(message)

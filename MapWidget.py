@@ -1,4 +1,5 @@
-import io, sys
+import io
+import sys
 
 import folium
 from PySide6.QtCore import Qt
@@ -9,6 +10,7 @@ from PySide6.QtWebEngineCore import QWebEnginePage
 from PySide6.QtWidgets import QApplication, QPushButton
 
 import base64
+
 # Make Icon
 from PIL import Image
 
@@ -17,8 +19,8 @@ def image_to_base64(image_path, size=(100, 100)):
     try:
         with Image.open(image_path) as img:
             img = img.resize(size)
-            if img.mode == 'RGBA':
-                img = img.convert('RGB')
+            if img.mode == "RGBA":
+                img = img.convert("RGB")
             buffered = io.BytesIO()
             img.save(buffered, format="JPEG")
             return base64.b64encode(buffered.getvalue()).decode()
@@ -36,26 +38,29 @@ def icon_to_base64(image_path):
         return ""
 
 
-usv_icon_base64 = icon_to_base64('uifolder/assets/icons/usv.png')
-target_marker_base64 = icon_to_base64('uifolder/assets/icons/target.png')
-home_icon_base64 = icon_to_base64('uifolder/assets/icons/antenna.png')
+usv_icon_base64 = icon_to_base64("uifolder/assets/icons/usv.png")
+target_marker_base64 = icon_to_base64("uifolder/assets/icons/target.png")
+home_icon_base64 = icon_to_base64("uifolder/assets/icons/antenna.png")
 
 
 class MapWidget(QtWebEngineWidgets.QWebEngineView):
-    mission = []
-
     def __init__(self, center_coord, starting_zoom=13):
         super().__init__()
+        self.mission: list = []
         MapWidget.marker_coord = center_coord
-        self.fmap = folium.Map(location=center_coord,
-                               zoom_start=starting_zoom)
+        self.fmap = folium.Map(
+            location=center_coord,
+            zoom_start=starting_zoom,
+            tiles="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+            attr='&copy; <a href="https://carto.com/">CARTO</a>',
+        )
 
         # Show mouse position in bottom right
         MousePosition().add_to(self.fmap)
 
         # store the map to a file
         data = io.BytesIO()
-        self.fmap.save('map.html')
+        self.fmap.save("map.html")
         self.fmap.save(data, close_file=False)
 
         # reading the folium file
@@ -68,12 +73,12 @@ class MapWidget(QtWebEngineWidgets.QWebEngineView):
         endi = html.rfind("</script>")
 
         # inject code
-        html = html[:endi - 1] + self.custom_code(self.map_variable_name) + html[endi:]
+        html = html[: endi - 1] + self.custom_code(self.map_variable_name) + html[endi:]
         data.seek(0)
         data.write(html.encode())
 
         # To Get Java Script Console Messages
-        self.map_page = self.WebEnginePage()
+        self.map_page = self.WebEnginePage(map_widget=self)
         self.setPage(self.map_page)
 
         # To Display the Map
@@ -81,7 +86,9 @@ class MapWidget(QtWebEngineWidgets.QWebEngineView):
         self.setHtml(data.getvalue().decode())
 
         # Add buttons
-        self.btn_AllocateWidget = QPushButton(icon=QIcon("uifolder/assets/icons/16x16/cil-arrow-top.png"), parent=self)
+        self.btn_AllocateWidget = QPushButton(
+            icon=QIcon("uifolder/assets/icons/16x16/cil-arrow-top.png"), parent=self
+        )
         self.btn_AllocateWidget.setCursor(Qt.PointingHandCursor)
         self.btn_AllocateWidget.setStyleSheet("background-color: rgb(44, 49, 60);")
         self.btn_AllocateWidget.resize(25, 25)
@@ -96,19 +103,20 @@ class MapWidget(QtWebEngineWidgets.QWebEngineView):
         super().resizeEvent(event)
 
     class WebEnginePage(QWebEnginePage):
-        def __init__(self):
+        def __init__(self, map_widget=None):
             super().__init__()
             self.markers_pos = []
+            self._map_widget = map_widget
 
         def javaScriptConsoleMessage(self, level, msg, line, sourceID):
-            if msg and msg[0] == 'm':
-                MapWidget.mission = []
-                pairs = msg[1:].split('&')
+            if msg and msg[0] == "m" and self._map_widget is not None:
+                self._map_widget.mission = []
+                pairs = msg[1:].split("&")
                 for pair in pairs:
-                    MapWidget.mission.append(list(map(float, pair.split(','))))
-                print("mission: ", MapWidget.mission)
+                    self._map_widget.mission.append(list(map(float, pair.split(","))))
+                print("mission: ", self._map_widget.mission)
             else:
-                self.markers_pos = msg.split(',')
+                self.markers_pos = msg.split(",")
                 print(msg)
 
     def find_variable_name(self, html, name_start):
@@ -122,7 +130,7 @@ class MapWidget(QtWebEngineWidgets.QWebEngineView):
         return html[starting_index:ending_index]
 
     def custom_code(self, map_variable_name):
-        return '''
+        return """
             // custom code
             
             // Rotated Marker Function (unchanged)
@@ -248,14 +256,20 @@ class MapWidget(QtWebEngineWidgets.QWebEngineView):
             map.on('click', putWaypointEvent);
             
             // end custom code
-    ''' % (map_variable_name, usv_icon_base64, target_marker_base64, 
-       home_icon_base64, home_icon_base64, 
-       self.marker_coord[0], self.marker_coord[1])
+    """ % (
+            map_variable_name,
+            usv_icon_base64,
+            target_marker_base64,
+            home_icon_base64,
+            home_icon_base64,
+            self.marker_coord[0],
+            self.marker_coord[1],
+        )
 
 
 if __name__ == "__main__":
     # create variables
-    uskudar = [41.037083, 29.029528] 
+    uskudar = [41.037083, 29.029528]
 
     # Display the Window
     app = QApplication([])

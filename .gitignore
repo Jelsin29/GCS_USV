@@ -168,5 +168,14 @@ mav.parm
 # Backup files
 *.backup
 
+# Auto-generated map file
+map.html
+
+# Telemetry logs
+logs/*.csv
+
+# Firebase credentials (NEVER commit these)
+Database/*-firebase-adminsdk-*.json
+
 # Misc generated files
 serial.tools.list_ports

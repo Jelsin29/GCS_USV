@@ -18,6 +18,7 @@ from HomePage import HomePage
 from uifolder import Ui_MainWindow
 from TargetsPage import TargetsPage
 from IndicatorsPage import IndicatorsPage
+from ConnectionManager import ConnectionManager
 from AntennaTracker import AntennaTracker, antenna_tracker
 from Vehicle.ArdupilotConnection import ArdupilotConnectionThread
 
@@ -90,8 +91,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.stackedWidget.addWidget(self.indicatorswidget)
         self.stackedWidget.setCurrentWidget(self.homepage)
 
-        # Connection Thread
+        # Connection Thread (USV — existing, untouched)
         self.connectionThread = ArdupilotConnectionThread(self)
+
+        # Dual Connection Manager (adds drone connection alongside USV)
+        self.connection_manager = ConnectionManager(
+            usv_connection_thread=self.connectionThread, parent=self
+        )
+        self._setup_drone_ui()
 
         #  SET BUTTONS
         #  Main Window buttons
@@ -198,7 +205,111 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         button.setIcon(QtGui.QIcon(icon))
         button.clicked.connect(self.buttonFunctions)
 
+    def _setup_drone_ui(self):
+        """Set up drone connection UI elements if they exist in the .ui file.
+
+        If the UI doesn't have drone-specific widgets yet, this creates
+        programmatic fallbacks so drone connection still works via code.
+        """
+        # Wire drone signals from ConnectionManager
+        self.connection_manager.drone_connected.connect(self._on_drone_connected)
+        self.connection_manager.drone_disconnected.connect(self._on_drone_disconnected)
+        self.connection_manager.drone_position_updated.connect(
+            self._on_drone_position_updated
+        )
+        self.connection_manager.drone_target_detected.connect(
+            self._on_drone_target_detected
+        )
+        self.connection_manager.drone_error.connect(
+            lambda msg: print(f"[DRONE UI] Error: {msg}")
+        )
+
+        # Check if drone UI widgets exist (from .ui file)
+        # If not, drone can still be connected programmatically
+        self._drone_ui_available = hasattr(self, "btn_connect_drone")
+        if self._drone_ui_available:
+            self.btn_connect_drone.clicked.connect(self.connectToDrone)
+            if hasattr(self, "combobox_drone_port"):
+                # Populate drone serial port dropdown
+                ports = serial.tools.list_ports.comports()
+                for port in ports:
+                    if port.device:
+                        self.combobox_drone_port.addItem(port.device)
+
+    def connectToDrone(self):
+        """Connect or disconnect from the drone."""
+        if self.connection_manager.drone_connected_status:
+            self.connection_manager.disconnect_drone()
+            if self._drone_ui_available:
+                self.btn_connect_drone.setText("Connect Drone")
+        else:
+            port = ""
+            if hasattr(self, "combobox_drone_port"):
+                port = self.combobox_drone_port.currentText()
+            if not port:
+                from PySide6.QtWidgets import QInputDialog
+
+                port, ok = QInputDialog.getText(
+                    self,
+                    "Drone Connection",
+                    "Enter drone serial port (e.g. /dev/ttyUSB1):",
+                )
+                if not ok or not port:
+                    return
+            self.connection_manager.connect_drone(port)
+
+    def _on_drone_connected(self):
+        """Handle drone connection established."""
+        print("[DRONE UI] Drone connected")
+        if self._drone_ui_available:
+            self.btn_connect_drone.setText("Disconnect Drone")
+
+    def _on_drone_disconnected(self):
+        """Handle drone disconnection."""
+        print("[DRONE UI] Drone disconnected")
+        if self._drone_ui_available:
+            self.btn_connect_drone.setText("Connect Drone")
+
+    def _on_drone_position_updated(self, lat: float, lon: float, alt: float):
+        """Update drone marker on map."""
+        if hasattr(self, "homepage") and hasattr(self.homepage, "mapwidget"):
+            mapwidget = self.homepage.mapwidget
+            # Add or update drone marker on map
+            js = (
+                f"if (typeof droneMarker === 'undefined') {{"
+                f"  droneMarker = L.circleMarker([{lat}, {lon}], "
+                f"    {{radius: 8, color: '#FF4444', fillColor: '#FF4444', "
+                f"     fillOpacity: 0.8}}).addTo({mapwidget.map_variable_name});"
+                f"  droneMarker.bindTooltip('Drone', {{permanent: true, direction: 'top'}});"
+                f"}} else {{"
+                f"  droneMarker.setLatLng([{lat}, {lon}]);"
+                f"}}"
+            )
+            mapwidget.page().runJavaScript(js)
+
+    def _on_drone_target_detected(self, color: str, lat: float, lon: float):
+        """Handle target detection from drone — display on map and relay to USV."""
+        print(f"[DRONE UI] TARGET DETECTED: {color} at ({lat}, {lon})")
+        # Show target marker on map
+        if hasattr(self, "homepage") and hasattr(self.homepage, "mapwidget"):
+            color_hex = {"RED": "#FF0000", "GREEN": "#00FF00", "BLUE": "#0000FF"}.get(
+                color, "#FFFF00"
+            )
+            mapwidget = self.homepage.mapwidget
+            js = (
+                f"L.circleMarker([{lat}, {lon}], "
+                f"  {{radius: 12, color: '{color_hex}', fillColor: '{color_hex}', "
+                f"   fillOpacity: 0.9}}).addTo({mapwidget.map_variable_name})"
+                f"  .bindTooltip('Target: {color}', {{permanent: true}});"
+            )
+            mapwidget.page().runJavaScript(js)
+
+        # Relay to USV
+        self.connection_manager.relay_target_to_usv(color, lat, lon)
+
     def closeEvent(self, event):
+        if hasattr(self, "connection_manager"):
+            self.connection_manager.shutdown()
         if hasattr(self, "connectionThread") and self.connectionThread.isRunning():
             self.connectionThread.stop()
             self.connectionThread.wait(3000)

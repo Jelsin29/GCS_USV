@@ -20,6 +20,7 @@ from TargetsPage import TargetsPage
 from IndicatorsPage import IndicatorsPage
 from ConnectionManager import ConnectionManager
 from TelemetryLogger import TelemetryLogger
+from ParkourStateMachine import ParkourStateMachine, ParkourState
 from AntennaTracker import AntennaTracker, antenna_tracker
 from Vehicle.ArdupilotConnection import ArdupilotConnectionThread
 
@@ -103,6 +104,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Telemetry Logger (CSV recording for competition deliverables)
         self.telemetry_logger = TelemetryLogger(output_dir="logs", parent=self)
+
+        # Parkour State Machine (competition flow: P1→P2→P3)
+        self.parkour_sm = ParkourStateMachine(parent=self)
+        self.parkour_sm.state_changed.connect(self._on_parkour_state_changed)
+        self.parkour_sm.timer_tick.connect(self._on_parkour_timer_tick)
+        self.parkour_sm.timer_warning.connect(lambda msg: print(f"[COMPETITION] {msg}"))
+        self.parkour_sm.timer_expired.connect(
+            lambda: print("[COMPETITION] TIME EXPIRED")
+        )
+        self.parkour_sm.lock_ui.connect(self._lock_competition_ui)
+        self.parkour_sm.unlock_ui.connect(self._unlock_competition_ui)
 
         #  SET BUTTONS
         #  Main Window buttons
@@ -311,7 +323,61 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Relay to USV
         self.connection_manager.relay_target_to_usv(color, lat, lon)
 
+    # --- Parkour State Machine UI ---
+
+    def _on_parkour_state_changed(self, state):
+        """Update UI when parkour state changes."""
+        state_labels = {
+            ParkourState.IDLE: "IDLE",
+            ParkourState.PARKOUR_1: "PARKUR-1: Waypoint Following",
+            ParkourState.TRANSITION_1_2: "Transitioning P1→P2...",
+            ParkourState.PARKOUR_2: "PARKUR-2: Obstacle Avoidance",
+            ParkourState.TRANSITION_2_3: "Transitioning P2→P3...",
+            ParkourState.PARKOUR_3: "PARKUR-3: Kamikaze Engagement",
+            ParkourState.RETURNING: "Returning to start...",
+            ParkourState.COMPLETED: "COMPETITION COMPLETE",
+        }
+        label = state_labels.get(state, str(state))
+        if hasattr(self, "label_top_info_2"):
+            self.label_top_info_2.setText(label)
+        print(f"[COMPETITION] {label}")
+
+    def _on_parkour_timer_tick(self, remaining_seconds: int):
+        """Update timer display every second."""
+        minutes = remaining_seconds // 60
+        seconds = remaining_seconds % 60
+        time_str = f"{minutes:02d}:{seconds:02d}"
+        if hasattr(self, "label_top_info_2"):
+            current = self.label_top_info_2.text()
+            # Append timer to the state label
+            base = current.split(" | ")[0]  # Remove old timer
+            self.label_top_info_2.setText(f"{base} | {time_str}")
+
+    def _lock_competition_ui(self):
+        """Disable command buttons during autonomous operation (competition rule)."""
+        if hasattr(self, "targetspage"):
+            for btn_name in ["btn_setMission", "btn_takeoff", "btn_startMission"]:
+                btn = getattr(self.targetspage, btn_name, None)
+                if btn:
+                    btn.setEnabled(False)
+
+    def _unlock_competition_ui(self):
+        """Re-enable command buttons after competition ends or emergency stop."""
+        if hasattr(self, "targetspage"):
+            for btn_name in [
+                "btn_setMission",
+                "btn_takeoff",
+                "btn_startMission",
+                "btn_rtl",
+                "btn_rtl_2",
+            ]:
+                btn = getattr(self.targetspage, btn_name, None)
+                if btn:
+                    btn.setEnabled(True)
+
     def closeEvent(self, event):
+        if hasattr(self, "parkour_sm") and self.parkour_sm.is_running:
+            self.parkour_sm.emergency_stop()
         if hasattr(self, "telemetry_logger"):
             self.telemetry_logger.stop()
         if hasattr(self, "connection_manager"):

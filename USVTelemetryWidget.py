@@ -1,13 +1,40 @@
-from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QWidget, QSizePolicy
-from uifolder.ui_USVTelemetryWidget import Ui_USVTelemetryWidget
+from PySide6.QtCore import QFile, QTimer
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtWidgets import QVBoxLayout, QWidget, QSizePolicy
 
 
-class USVTelemetryWidget(QWidget, Ui_USVTelemetryWidget):
+class USVTelemetryWidget(QWidget):
     def __init__(self, parent=None):
-        super().__init__()
-        self.setupUi(self)
-        self.parent = parent
+        super().__init__(parent)
+
+        # Load .ui file at runtime (setupUi + multiple inheritance causes segfault)
+        loader = QUiLoader()
+        ui_file = QFile("uifolder/USVTelemetryWidget.ui")
+        ui_file.open(QFile.ReadOnly)
+        self._ui_widget = loader.load(ui_file, self)
+        ui_file.close()
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self._ui_widget)
+
+        # Expose .ui labels as direct attributes for compatibility
+        for attr in [
+            "statusValueLabel",
+            "gpsValueLabel",
+            "speedValueLabel",
+            "headingValueLabel",
+            "depthValueLabel",
+            "rollValueLabel",
+            "pitchValueLabel",
+            "batteryProgressBar",
+            "rudderProgressBar",
+            "connectionStatusLabel",
+            "headerLabel",
+        ]:
+            widget = self._ui_widget.findChild(QWidget, attr)
+            if widget:
+                setattr(self, attr, widget)
 
         # Ensure widget expands properly
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)

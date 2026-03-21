@@ -3,3 +3,7 @@ pymavlink
 folium
 Pillow
 firebase-admin
+opencv-python
+pyserial
+numpy
+msgpack

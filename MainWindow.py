@@ -4,7 +4,7 @@ import serial.tools.list_ports
 
 from PySide6 import QtGui
 from PySide6.QtGui import QIcon
-from PySide6.QtCore import Qt, QEvent, QSize, QPropertyAnimation, QEasingCurve
+from PySide6.QtCore import Qt, QEvent, QSize, QPropertyAnimation, QEasingCurve, Slot
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -274,18 +274,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     return
             self.connection_manager.connect_drone(port)
 
+    @Slot()
     def _on_drone_connected(self):
         """Handle drone connection established."""
         print("[DRONE UI] Drone connected")
         if self._drone_ui_available:
             self.btn_connect_drone.setText("Disconnect Drone")
 
+    @Slot()
     def _on_drone_disconnected(self):
         """Handle drone disconnection."""
         print("[DRONE UI] Drone disconnected")
         if self._drone_ui_available:
             self.btn_connect_drone.setText("Connect Drone")
 
+    @Slot(float, float, float)
     def _on_drone_position_updated(self, lat: float, lon: float, alt: float):
         """Update drone marker on map."""
         if hasattr(self, "homepage") and hasattr(self.homepage, "mapwidget"):
@@ -303,6 +306,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             )
             mapwidget.page().runJavaScript(js)
 
+    @Slot(str, float, float)
     def _on_drone_target_detected(self, color: str, lat: float, lon: float):
         """Handle target detection from drone — display on map and relay to USV."""
         print(f"[DRONE UI] TARGET DETECTED: {color} at ({lat}, {lon})")
@@ -353,14 +357,50 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             base = current.split(" | ")[0]  # Remove old timer
             self.label_top_info_2.setText(f"{base} | {time_str}")
 
+    @Slot(int)
+    def _on_mission_item_reached(self, seq: int):
+        """Handle waypoint reached — notify parkour state machine."""
+        if not hasattr(self, "parkour_sm") or not self.parkour_sm.is_running:
+            return
+        # Check if this is the last waypoint in the current mission
+        if (
+            hasattr(self, "connectionThread")
+            and hasattr(self.connectionThread, "connection")
+            and self.connectionThread.connection
+        ):
+            try:
+                # Get mission count to check if this is the last waypoint
+                count = self.connectionThread.connection.waypoint_count()
+                # seq is 0-based; last user waypoint is count-1 (seq=0 is HOME)
+                if seq >= count - 1:
+                    print(
+                        f"[COMPETITION] Last waypoint {seq} reached — mission complete"
+                    )
+                    self.parkour_sm.on_mission_complete()
+            except Exception:
+                # If we can't get count, trigger on any waypoint
+                self.parkour_sm.on_mission_complete()
+
+    @Slot()
     def _lock_competition_ui(self):
-        """Disable command buttons during autonomous operation (competition rule)."""
+        """Disable ALL command buttons during autonomous operation.
+
+        Competition rule: no commands after mission start (except emergency kill).
+        """
         if hasattr(self, "targetspage"):
-            for btn_name in ["btn_setMission", "btn_takeoff", "btn_startMission"]:
+            for btn_name in [
+                "btn_setMission",
+                "btn_takeoff",
+                "btn_startMission",
+                "btn_rtl",
+                "btn_rtl_2",
+                "btn_abort",
+            ]:
                 btn = getattr(self.targetspage, btn_name, None)
                 if btn:
                     btn.setEnabled(False)
 
+    @Slot()
     def _unlock_competition_ui(self):
         """Re-enable command buttons after competition ends or emergency stop."""
         if hasattr(self, "targetspage"):
@@ -370,6 +410,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 "btn_startMission",
                 "btn_rtl",
                 "btn_rtl_2",
+                "btn_abort",
             ]:
                 btn = getattr(self.targetspage, btn_name, None)
                 if btn:
@@ -505,6 +546,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if hasattr(self.connectionThread, "mission_status"):
                 self.connectionThread.mission_status.connect(
                     self.on_mission_status_changed
+                )
+            if hasattr(self.connectionThread, "mission_item_reached"):
+                self.connectionThread.mission_item_reached.connect(
+                    self._on_mission_item_reached
                 )
         except Exception as e:
             print(f"ERROR setting up connection signals: {e}")

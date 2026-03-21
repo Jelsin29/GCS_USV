@@ -15,6 +15,7 @@ from IndicatorsPage import IndicatorsPage
 # Some Definitions for testing purpose
 ALTITUDE = 15
 FOV = 110
+DEBUG_TELEMETRY = False  # Set True to enable verbose telemetry prints
 
 
 class MissionModes(Enum):
@@ -95,9 +96,10 @@ def updateData(thread, vehicle, mapwidget, indicators, camerawidget):
             indicators.setAltitude(altitude)
             indicators.setHeading(heading)
 
-            print(
-                f"[TELEMETRY] GPS: Lat={position[0]:.6f}, Lon={position[1]:.6f}, Alt={altitude:.1f}m"
-            )
+            if DEBUG_TELEMETRY:
+                print(
+                    f"[TELEMETRY] GPS: Lat={position[0]:.6f}, Lon={position[1]:.6f}, Alt={altitude:.1f}m"
+                )
         if msg.get_type() == "VFR_HUD":
             speed = msg.groundspeed
             indicators.setSpeed(speed * 1.943844)  # Convert m/s to knots
@@ -111,7 +113,8 @@ def updateData(thread, vehicle, mapwidget, indicators, camerawidget):
                 "climb": msg.climb,
             }
 
-            print(f"[TELEMETRY] Speed: {speed:.1f}m/s ({speed * 1.943844:.1f} kts)")
+            if DEBUG_TELEMETRY:
+                print(f"[TELEMETRY] Speed: {speed:.1f}m/s ({speed * 1.943844:.1f} kts)")
 
         if msg.get_type() == "ATTITUDE":
             pitch = msg.pitch
@@ -128,9 +131,10 @@ def updateData(thread, vehicle, mapwidget, indicators, camerawidget):
                 "yawspeed": msg.yawspeed,
             }
 
-            print(
-                f"[TELEMETRY] Attitude: Roll={roll * 57.3:.1f}°, Pitch={pitch * 57.3:.1f}°"
-            )
+            if DEBUG_TELEMETRY:
+                print(
+                    f"[TELEMETRY] Attitude: Roll={roll * 57.3:.1f}°, Pitch={pitch * 57.3:.1f}°"
+                )
 
         if msg.get_type() == "SYS_STATUS":
             # Remove missing battery_label reference
@@ -149,7 +153,10 @@ def updateData(thread, vehicle, mapwidget, indicators, camerawidget):
                 "battery_remaining": msg.battery_remaining,
             }
 
-            print(f"[TELEMETRY] Power: {battery_pct}%, {voltage:.1f}V, {current:.1f}A")
+            if DEBUG_TELEMETRY:
+                print(
+                    f"[TELEMETRY] Power: {battery_pct}%, {voltage:.1f}V, {current:.1f}A"
+                )
 
         if msg.get_type() == "BATTERY_STATUS":
             # Additional battery information
@@ -187,8 +194,8 @@ def updateData(thread, vehicle, mapwidget, indicators, camerawidget):
             thread.last_heartbeat = time.time()
             flight_mode = mavutil.mode_string_v10(msg)
 
-            # Remove missing flight_mode_label reference
-            print(f"[TELEMETRY] Mode: {flight_mode}")
+            if DEBUG_TELEMETRY:
+                print(f"[TELEMETRY] Mode: {flight_mode}")
 
             # Prepare telemetry data
             telemetry_data["heartbeat"] = {
@@ -248,10 +255,10 @@ def connectionLost(connectbutton, mapwidget):
     connectbutton.setIcon(QIcon("../uifolder/assets/icons/24x24/cil-link-broken.png"))
     connectbutton.setDisabled(False)
 
-    # Remove USV marker
-    mapwidget.page().runJavaScript("""
-                    map.removeLayer(usvMarker);
-                    """)
+    # Remove USV marker (guard against undefined if no GPS fix was received)
+    mapwidget.page().runJavaScript(
+        "if (typeof usvMarker !== 'undefined') { map.removeLayer(usvMarker); }"
+    )
 
     print("❌ Connection lost - Telemetry widgets reverted to simulation mode")
     print("🔄 Restart connection to resume live data")
@@ -267,6 +274,7 @@ class ArdupilotConnectionThread(QThread):
     telemetry_update = Signal(dict)
     connection_status = Signal(bool, str)
     mission_status = Signal(str, bool)
+    mission_item_reached = Signal(int)  # waypoint sequence number
 
     def __init__(self, parent=None):
         super().__init__()
@@ -462,7 +470,7 @@ class ArdupilotConnectionThread(QThread):
 
             # Brief pause to allow ArduPilot to process the param_set messages
             # without flooding the link.
-            time.sleep(0.1)
+            self.msleep(100)
 
             print("[CONFIG] Timeout parameters configured for production use")
             return True
@@ -598,6 +606,11 @@ class ArdupilotConnectionThread(QThread):
                     }
                 )
 
+            elif message.get_type() == "MISSION_ITEM_REACHED":
+                seq = message.seq
+                print(f"[MISSION] Waypoint {seq} reached")
+                self.mission_item_reached.emit(seq)
+
             # Emit telemetry update if we have data
             if telemetry_data:
                 self.telemetry_update.emit(telemetry_data)
@@ -685,7 +698,7 @@ class ArdupilotConnectionThread(QThread):
                         f"[UPLOAD] Clear returned type={ack.type}, continuing anyway..."
                     )
 
-            time.sleep(0.3)  # Brief settle after clear
+            self.msleep(300)  # Brief settle after clear
 
             # Step 4: Prepare mission items.
             # ArduPilot convention: seq=0 is always the HOME position.
@@ -876,7 +889,7 @@ class ArdupilotConnectionThread(QThread):
                 print("[UPLOAD] Set mission current to seq=1 (first user waypoint)")
 
                 # Extra cleanup for production
-                time.sleep(0.5)
+                self.msleep(500)
                 for _ in range(5):
                     msg = self.connection.recv_match(timeout=0.1)
                     if not msg:
@@ -949,7 +962,7 @@ class ArdupilotConnectionThread(QThread):
             print(f"[MODE DEBUG] Target component: {self.connection.target_component}")
 
             # Wait a moment and check if mode changed
-            time.sleep(0.5)
+            self.msleep(500)
 
             # Try to get current mode for confirmation
             heartbeat = self.connection.recv_match(
@@ -1003,7 +1016,7 @@ class ArdupilotConnectionThread(QThread):
         with self._stop_recv_lock:
             self._stop_recv_count += 1
             self._stop_recv.set()
-        time.sleep(0.3)  # Allow the in-flight 0.2 s recv_match to complete
+        self.msleep(300)  # Allow the in-flight 0.2 s recv_match to complete
 
     def _resume_recv_loop(self):
         """Resume the run() recv loop after a command method finishes.
@@ -1148,6 +1161,26 @@ class ArdupilotConnectionThread(QThread):
         try:
             print("[ARM] Arming USV...")
 
+            # Safety check: verify GPS fix before arming
+            gps_msg = self.connection.recv_match(
+                type="GPS_RAW_INT", blocking=True, timeout=3
+            )
+            if gps_msg:
+                if gps_msg.fix_type < 3:
+                    print(
+                        f"[ARM ERROR] GPS fix insufficient: fix_type={gps_msg.fix_type} "
+                        f"(need >= 3). Satellites: {gps_msg.satellites_visible}"
+                    )
+                    return False
+                if gps_msg.satellites_visible < 6:
+                    print(
+                        f"[ARM WARNING] Low satellite count: {gps_msg.satellites_visible}"
+                    )
+            else:
+                print(
+                    "[ARM WARNING] Could not verify GPS fix — proceeding with caution"
+                )
+
             # First ensure we're in a mode that allows arming (MANUAL or GUIDED)
             current_mode = self.get_current_mode()
             if current_mode not in ["MANUAL", "GUIDED"]:
@@ -1157,7 +1190,7 @@ class ArdupilotConnectionThread(QThread):
                 if not self.set_mode("GUIDED"):
                     print("[ARM ERROR] Failed to set GUIDED mode")
                     return False
-                time.sleep(1)  # Give time for mode change
+                self.msleep(1000)  # Give time for mode change
 
             # Check if already armed
             heartbeat = self.connection.recv_match(
@@ -1240,7 +1273,7 @@ class ArdupilotConnectionThread(QThread):
                 return False
 
             # Step 3: Wait a moment for everything to settle
-            time.sleep(1)
+            self.msleep(1000)
 
             print("[ARM_START SUCCESS] USV is armed and ready for guided operations!")
             return True

@@ -67,8 +67,9 @@ class ConnectionManager(QObject):
     def disconnect_drone(self) -> None:
         """Stop the drone connection."""
         if self._drone_thread is not None:
-            self._drone_thread.stop()
-            self._drone_thread = None
+            thread = self._drone_thread
+            thread.stop()  # Blocks up to 5s via wait()
+            self._drone_thread = None  # Clear ref AFTER stop returns
             print("[CONN_MGR] Drone disconnected")
 
     @property
@@ -84,22 +85,35 @@ class ConnectionManager(QObject):
         self.drone_target_detected.emit(color, lat, lon)
 
     def relay_target_to_usv(self, color: str, lat: float, lon: float) -> None:
-        """Forward target data to USV via MAVLink STATUSTEXT.
+        """Forward target data to USV via MAVLink DEBUG_VECT.
 
-        The USV's onboard Jetson Orin can parse this to adjust
-        its engagement target for Parkour-3.
+        Uses DEBUG_VECT because:
+        - STATUSTEXT is vehicle→GCS only (wrong direction)
+        - DEBUG_VECT carries 3 floats + a name string = perfect for target data
+        - ArduPilot forwards DEBUG_VECT to companion computers via serial
+        - The Jetson Orin listens for DEBUG_VECT with name "TARGET"
+
+        Encoding: name="TGT_{color}", x=lat, y=lon, z=color_id
+        Color IDs: RED=1, GREEN=2, BLUE=3
         """
         if self._usv_thread is None or self._usv_thread.connection is None:
             print("[CONN_MGR] Cannot relay target — USV not connected")
             return
 
+        color_ids = {"RED": 1.0, "GREEN": 2.0, "BLUE": 3.0}
+        color_id = color_ids.get(color.upper(), 0.0)
+
         try:
-            msg = f"TARGET:{color}:{lat:.6f}:{lon:.6f}"
-            self._usv_thread.connection.mav.statustext_send(
-                severity=6,  # MAV_SEVERITY_INFO
-                text=msg.encode("utf-8"),
+            import time
+
+            self._usv_thread.connection.mav.debug_vect_send(
+                name=b"TARGET",
+                time_usec=int(time.time() * 1e6),
+                x=lat,
+                y=lon,
+                z=color_id,
             )
-            print(f"[CONN_MGR] Relayed target to USV: {msg}")
+            print(f"[CONN_MGR] Relayed target to USV: {color} at ({lat}, {lon})")
         except Exception as e:
             print(f"[CONN_MGR] Failed to relay target: {e}")
 

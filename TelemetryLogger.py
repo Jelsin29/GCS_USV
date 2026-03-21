@@ -36,7 +36,7 @@ class TelemetryLogger(QObject):
         "heading_setpoint",
     ]
 
-    FLUSH_INTERVAL_S = 5.0
+    FLUSH_INTERVAL_S = 1.0  # Flush every second to minimize data loss on crash
 
     def __init__(self, output_dir: str = "logs", parent=None):
         super().__init__(parent)

@@ -295,6 +295,9 @@ class ArdupilotConnectionThread(QThread):
         self.home_position = [0, 0]
         self.camera_angle = 45
         self.is_running = True
+        self.last_mission_count = (
+            0  # Cached count after upload (includes HOME at seq=0)
+        )
         self.usv_marker_created = False
 
         # PRODUCTION TIMEOUT SETTINGS
@@ -887,6 +890,7 @@ class ArdupilotConnectionThread(QThread):
                     self.connection.target_system, self.connection.target_component, 1
                 )
                 print("[UPLOAD] Set mission current to seq=1 (first user waypoint)")
+                self.last_mission_count = total_items
 
                 # Extra cleanup for production
                 self.msleep(500)
@@ -1177,9 +1181,8 @@ class ArdupilotConnectionThread(QThread):
                         f"[ARM WARNING] Low satellite count: {gps_msg.satellites_visible}"
                     )
             else:
-                print(
-                    "[ARM WARNING] Could not verify GPS fix — proceeding with caution"
-                )
+                print("[ARM ERROR] Could not verify GPS fix — refusing to arm")
+                return False
 
             # First ensure we're in a mode that allows arming (MANUAL or GUIDED)
             current_mode = self.get_current_mode()

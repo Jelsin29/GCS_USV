@@ -115,6 +115,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         self.parkour_sm.lock_ui.connect(self._lock_competition_ui)
         self.parkour_sm.unlock_ui.connect(self._unlock_competition_ui)
+        self.parkour_sm.request_mission_upload.connect(self._on_parkour_upload_request)
+        self.parkour_sm.request_mission_start.connect(
+            lambda: self.connectionThread.start_mission()
+        )
 
         #  SET BUTTONS
         #  Main Window buttons
@@ -346,6 +350,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.label_top_info_2.setText(label)
         print(f"[COMPETITION] {label}")
 
+    @Slot(int)
     def _on_parkour_timer_tick(self, remaining_seconds: int):
         """Update timer display every second."""
         minutes = remaining_seconds // 60
@@ -359,27 +364,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     @Slot(int)
     def _on_mission_item_reached(self, seq: int):
-        """Handle waypoint reached — notify parkour state machine."""
+        """Handle waypoint reached — notify parkour state machine.
+
+        Uses cached last_mission_count from ArdupilotConnectionThread
+        instead of calling waypoint_count() which would block the main thread.
+        """
         if not hasattr(self, "parkour_sm") or not self.parkour_sm.is_running:
             return
-        # Check if this is the last waypoint in the current mission
-        if (
-            hasattr(self, "connectionThread")
-            and hasattr(self.connectionThread, "connection")
-            and self.connectionThread.connection
-        ):
-            try:
-                # Get mission count to check if this is the last waypoint
-                count = self.connectionThread.connection.waypoint_count()
-                # seq is 0-based; last user waypoint is count-1 (seq=0 is HOME)
-                if seq >= count - 1:
-                    print(
-                        f"[COMPETITION] Last waypoint {seq} reached — mission complete"
-                    )
-                    self.parkour_sm.on_mission_complete()
-            except Exception:
-                # If we can't get count, trigger on any waypoint
-                self.parkour_sm.on_mission_complete()
+        count = getattr(self.connectionThread, "last_mission_count", 0)
+        # seq is 0-based; last user waypoint is count-1 (seq=0 is HOME)
+        if count > 0 and seq >= count - 1:
+            print(f"[COMPETITION] Last waypoint {seq} reached — mission complete")
+            self.parkour_sm.on_mission_complete()
+
+    @Slot(int)
+    def _on_parkour_upload_request(self, parkour_number: int):
+        """Handle parkour state machine requesting next mission upload.
+
+        This is called during auto-transition (e.g., P1→P2).
+        The competition coordinate file should have been pre-loaded with
+        waypoints for all 3 parkours. For now, this logs the request —
+        full implementation requires the coordinate file loader.
+        """
+        print(f"[COMPETITION] Parkour {parkour_number} mission upload requested")
+        # TODO: Load waypoints for parkour_number from pre-loaded coordinate file
+        # and call self.connectionThread.upload_mission(waypoints)
+        # then call self.parkour_sm.on_mission_uploaded(parkour_number)
 
     @Slot()
     def _lock_competition_ui(self):

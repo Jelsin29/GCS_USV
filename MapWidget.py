@@ -48,7 +48,12 @@ class MapWidget(QtWebEngineWidgets.QWebEngineView):
         super().__init__()
         self.mission: list = []
         MapWidget.marker_coord = center_coord
-        self.fmap = folium.Map(location=center_coord, zoom_start=starting_zoom)
+        self.fmap = folium.Map(
+            location=center_coord,
+            zoom_start=starting_zoom,
+            tiles="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+            attr='&copy; <a href="https://carto.com/">CARTO</a>',
+        )
 
         # Show mouse position in bottom right
         MousePosition().add_to(self.fmap)

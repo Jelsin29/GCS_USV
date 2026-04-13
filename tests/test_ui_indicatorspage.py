@@ -1,5 +1,6 @@
 """
-Tests: IndicatorsPage — initial zero state, mode flags, telemetry update API.
+Tests: IndicatorsPage — initial zero state, mode flags, gauge-only instrument updates.
+No USV telemetry widget; drone info does NOT appear on Indicators.
 """
 
 import math
@@ -14,6 +15,7 @@ class TestIndicatorsPageInit:
 
     def test_allocate_button_exists(self, main_window):
         from PySide6.QtWidgets import QPushButton
+
         ip = main_window.indicatorspage
         assert hasattr(ip, "btn_AllocateWidget")
         assert isinstance(ip.btn_AllocateWidget, QPushButton)
@@ -23,6 +25,15 @@ class TestIndicatorsPageInit:
 
     def test_connection_thread_none_before_connect(self, main_window):
         assert main_window.indicatorspage.connection_thread is None
+
+    def test_no_usv_telemetry_attribute(self, main_window):
+        """Indicators no longer has a USV telemetry widget."""
+        assert not hasattr(main_window.indicatorspage, "usv_telemetry")
+
+    def test_no_telemetry_container_in_ui(self, main_window):
+        """The telemetryContainer widget should no longer exist in the UI."""
+        ip = main_window.indicatorspage
+        assert not hasattr(ip, "telemetryContainer")
 
 
 class TestIndicatorsPageSetters:
@@ -52,9 +63,22 @@ class TestIndicatorsPageSetters:
     def test_update_from_ardupilot_data_does_not_raise(self, main_window):
         ip = main_window.indicatorspage
         sample = {
-            "global_position_int": {"lat": -353632610, "lon": 1491652300, "hdg": 27000, "alt": 1000},
-            "vfr_hud": {"groundspeed": 1.5, "heading": 270, "throttle": 50, "alt": 1.0, "climb": 0.0},
-            "attitude": {"roll": 0.01, "pitch": -0.01, "yaw": 1.57,
-                         "rollspeed": 0.0, "pitchspeed": 0.0, "yawspeed": 0.0},
+            "vfr_hud": {
+                "groundspeed": 1.5,
+                "heading": 270,
+                "throttle": 50,
+                "alt": 1.0,
+                "climb": 0.0,
+            },
         }
+        ip.updateFromArduPilotData(sample)
+
+    def test_update_from_ardupilot_no_usv_telemetry(self, main_window):
+        """updateFromArduPilotData should NOT reference usv_telemetry."""
+        ip = main_window.indicatorspage
+        sample = {
+            "vfr_hud": {"groundspeed": 2.0, "heading": 90, "throttle": 30},
+            "global_position_int": {"lat": 413717139, "lon": 290295276, "alt": 500},
+        }
+        # Should succeed without usv_telemetry
         ip.updateFromArduPilotData(sample)

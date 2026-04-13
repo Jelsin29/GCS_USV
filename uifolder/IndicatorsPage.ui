@@ -64,288 +64,240 @@ QLabel {
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="minimumSize">
-      <size>
-       <width>800</width>
-       <height>500</height>
-      </size>
-     </property>
-     <layout class="QHBoxLayout" name="mainHorizontalLayout">
-      <property name="spacing">
-       <number>20</number>
+<property name="minimumSize">
+       <size>
+        <width>680</width>
+        <height>400</height>
+       </size>
       </property>
-      <item>
-       <widget class="QWidget" name="instrumentsContainer" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>320</width>
-          <height>600</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>350</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QWidget { background: transparent; border: none; }</string>
-        </property>
-        <layout class="QVBoxLayout" name="instrumentsLayout">
-         <property name="spacing">
-          <number>10</number>
+<layout class="QHBoxLayout" name="mainHorizontalLayout">
+       <property name="spacing">
+        <number>20</number>
+       </property>
+       <item>
+        <widget class="QWidget" name="instrumentsContainer" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <property name="leftMargin">
-          <number>0</number>
+         <property name="styleSheet">
+          <string notr="true">QWidget { background: transparent; border: none; }</string>
          </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="QFrame" name="Speedometer">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>300</width>
-             <height>280</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>320</width>
-             <height>300</height>
-            </size>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <widget class="QLabel" name="speed_label">
-            <property name="geometry">
-             <rect>
-              <x>22</x>
-              <y>12</y>
-              <width>256</width>
-              <height>256</height>
-             </rect>
-            </property>
+         <layout class="QHBoxLayout" name="instrumentsHorizontalLayout">
+          <property name="spacing">
+           <number>24</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QFrame" name="Speedometer">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-              <horstretch>1</horstretch>
-              <verstretch>1</verstretch>
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
              </sizepolicy>
             </property>
             <property name="minimumSize">
              <size>
-              <width>256</width>
-              <height>256</height>
+              <width>300</width>
+              <height>280</height>
              </size>
             </property>
-            <property name="text">
-             <string/>
+            <property name="maximumSize">
+             <size>
+              <width>320</width>
+              <height>300</height>
+             </size>
             </property>
-            <property name="pixmap">
-             <pixmap resource="indicators.qrc">:/meters/assets/Speedometer.png</pixmap>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
             </property>
-            <property name="scaledContents">
-             <bool>true</bool>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
             </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
+            <widget class="QLabel" name="speed_label">
+             <property name="geometry">
+              <rect>
+               <x>22</x>
+               <y>12</y>
+               <width>256</width>
+               <height>256</height>
+              </rect>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+               <horstretch>1</horstretch>
+               <verstretch>1</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>256</width>
+               <height>256</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="pixmap">
+              <pixmap resource="indicators.qrc">:/meters/assets/Speedometer.png</pixmap>
+             </property>
+             <property name="scaledContents">
+              <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+            <widget class="QLabel" name="speed_needle">
+             <property name="geometry">
+              <rect>
+               <x>22</x>
+               <y>12</y>
+               <width>256</width>
+               <height>256</height>
+              </rect>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: transparent</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="pixmap">
+              <pixmap resource="indicators.qrc">:/needles/assets/needle.png</pixmap>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+            <widget class="QLabel" name="speed_text">
+             <property name="geometry">
+              <rect>
+               <x>140</x>
+               <y>220</y>
+               <width>60</width>
+               <height>30</height>
+              </rect>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #ffffff; font-family: 'Lato',sans-serif; font-size: 18px; font-weight: bold; text-align: center;</string>
+             </property>
+             <property name="text">
+              <string>0.0</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
            </widget>
-           <widget class="QLabel" name="speed_needle">
-            <property name="geometry">
-             <rect>
-              <x>22</x>
-              <y>12</y>
-              <width>256</width>
-              <height>256</height>
-             </rect>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: transparent</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="pixmap">
-             <pixmap resource="indicators.qrc">:/needles/assets/needle.png</pixmap>
-            </property>
-            <property name="scaledContents">
-             <bool>false</bool>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-           <widget class="QLabel" name="speed_text">
-            <property name="geometry">
-             <rect>
-              <x>140</x>
-              <y>220</y>
-              <width>60</width>
-              <height>30</height>
-             </rect>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color: #ffffff; font-family: 'Lato',sans-serif; font-size: 18px; font-weight: bold; text-align: center;</string>
-            </property>
-            <property name="text">
-             <string>0.0</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </widget>
-         </item>
-         <item>
-          <widget class="QFrame" name="Direction">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>300</width>
-             <height>280</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>320</width>
-             <height>300</height>
-            </size>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <widget class="QLabel" name="direction_label">
-            <property name="geometry">
-             <rect>
-              <x>22</x>
-              <y>12</y>
-              <width>256</width>
-              <height>256</height>
-             </rect>
-            </property>
+          </item>
+          <item>
+           <widget class="QFrame" name="Direction">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-              <horstretch>1</horstretch>
-              <verstretch>1</verstretch>
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
              </sizepolicy>
             </property>
             <property name="minimumSize">
              <size>
-              <width>256</width>
-              <height>256</height>
+              <width>300</width>
+              <height>280</height>
              </size>
             </property>
-            <property name="text">
-             <string/>
+            <property name="maximumSize">
+             <size>
+              <width>320</width>
+              <height>300</height>
+             </size>
             </property>
-            <property name="pixmap">
-             <pixmap resource="indicators.qrc">:/meters/assets/Gyrometre.png</pixmap>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
             </property>
-            <property name="scaledContents">
-             <bool>true</bool>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
             </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
+            <widget class="QLabel" name="direction_label">
+             <property name="geometry">
+              <rect>
+               <x>22</x>
+               <y>12</y>
+               <width>256</width>
+               <height>256</height>
+              </rect>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+               <horstretch>1</horstretch>
+               <verstretch>1</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>256</width>
+               <height>256</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="pixmap">
+              <pixmap resource="indicators.qrc">:/meters/assets/Gyrometre.png</pixmap>
+             </property>
+             <property name="scaledContents">
+              <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+            <widget class="QLabel" name="direction_needle">
+             <property name="geometry">
+              <rect>
+               <x>22</x>
+               <y>12</y>
+               <width>252</width>
+               <height>252</height>
+              </rect>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: transparent</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="pixmap">
+              <pixmap resource="indicators.qrc">:/needles/assets/plane.png</pixmap>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
            </widget>
-           <widget class="QLabel" name="direction_needle">
-            <property name="geometry">
-             <rect>
-              <x>22</x>
-              <y>12</y>
-              <width>252</width>
-              <height>252</height>
-             </rect>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: transparent</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="pixmap">
-             <pixmap resource="indicators.qrc">:/needles/assets/plane.png</pixmap>
-            </property>
-            <property name="scaledContents">
-             <bool>false</bool>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QWidget" name="telemetryContainer" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>1</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>450</width>
-          <height>580</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QWidget { background: transparent; border: none; }</string>
-        </property>
-        <layout class="QVBoxLayout" name="telemetryLayout">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-        </layout>
-       </widget>
-      </item>
-     </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
     </widget>
    </item>
    <item>

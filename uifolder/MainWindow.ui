@@ -160,7 +160,7 @@ QComboBox {
     min-height: 20px;
 }
 
-QPushButton#btn_connect {
+QPushButton#btn_connect, QPushButton#btn_connect_drone {
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
                                stop:0 #0d6efd, stop:1 #0b5ed7);
     border: none;
@@ -172,13 +172,29 @@ QPushButton#btn_connect {
     min-height: 24px;
 }
 
-QPushButton#btn_connect:hover {
+QPushButton#btn_connect:hover, QPushButton#btn_connect_drone:hover {
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
                                stop:0 #0b5ed7, stop:1 #0a58ca);
 }
 
-QPushButton#btn_connect:pressed {
+QPushButton#btn_connect:pressed, QPushButton#btn_connect_drone:pressed {
     background: #0a58ca;
+}
+
+QWidget#header_connection_sections {
+    background: transparent;
+}
+
+QFrame#frame_usv_connection, QFrame#frame_drone_connection {
+    background: rgba(13, 110, 253, 0.05);
+    border: 1px solid #dbe7ff;
+    border-radius: 12px;
+}
+
+QLabel#label_usv_connection, QLabel#label_drone_connection {
+    color: #0b5ed7;
+    font-weight: 700;
+    padding: 0 4px;
 }
 
 /* MODERN SCROLLBARS - MINIMAL DESIGN */
@@ -447,104 +463,234 @@ QStackedWidget {
                   </property>
                  </widget>
                 </item>
-                <item>
-                 <widget class="QComboBox" name="combobox_connectionstring">
-                  <property name="minimumSize">
-                   <size>
-                    <width>150</width>
-                    <height>48</height>
-                   </size>
-                  </property>
-                  <item>
-                   <property name="text">
-                    <string>USB</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Telemetry</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>SITL (UDP)</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>SITL (TCP)</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>TCP</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>UDP</string>
-                   </property>
-                  </item>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QComboBox" name="combobox_baudrate">
-                  <property name="minimumSize">
-                   <size>
-                    <width>100</width>
-                    <height>48</height>
-                   </size>
-                  </property>
-                  <item>
-                   <property name="text">
-                    <string>128000</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>115200</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>57600</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>38400</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>19200</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>14400</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>9600</string>
-                   </property>
-                  </item>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="btn_connect">
-                  <property name="minimumSize">
-                   <size>
-                    <width>80</width>
-                    <height>56</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>Connect</string>
-                  </property>
-                 </widget>
-                </item>
+                 <item>
+                  <widget class="QWidget" name="header_connection_sections">
+                   <layout class="QHBoxLayout" name="horizontalLayout_header_connection_sections">
+                    <property name="spacing">
+                     <number>12</number>
+                    </property>
+                    <property name="leftMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QFrame" name="frame_usv_connection">
+                      <property name="frameShape">
+                       <enum>QFrame::StyledPanel</enum>
+                      </property>
+                      <property name="frameShadow">
+                       <enum>QFrame::Raised</enum>
+                      </property>
+                      <layout class="QHBoxLayout" name="horizontalLayout_usv_connection">
+                       <property name="spacing">
+                        <number>10</number>
+                       </property>
+                       <property name="leftMargin">
+                        <number>12</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>4</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>12</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>4</number>
+                       </property>
+                       <item>
+                        <widget class="QLabel" name="label_usv_connection">
+                         <property name="minimumSize">
+                          <size>
+                           <width>78</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>Boat / USV</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QComboBox" name="combobox_connectionstring">
+                         <property name="minimumSize">
+                          <size>
+                           <width>150</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                         <item>
+                          <property name="text">
+                           <string>USB</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>Telemetry</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>SITL (UDP)</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>SITL (TCP)</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>TCP</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>UDP</string>
+                          </property>
+                         </item>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QComboBox" name="combobox_baudrate">
+                         <property name="minimumSize">
+                          <size>
+                           <width>100</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                         <item>
+                          <property name="text">
+                           <string>128000</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>115200</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>57600</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>38400</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>19200</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>14400</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>9600</string>
+                          </property>
+                         </item>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="btn_connect">
+                         <property name="minimumSize">
+                          <size>
+                           <width>110</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>Connect</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QFrame" name="frame_drone_connection">
+                      <property name="frameShape">
+                       <enum>QFrame::StyledPanel</enum>
+                      </property>
+                      <property name="frameShadow">
+                       <enum>QFrame::Raised</enum>
+                      </property>
+                      <layout class="QHBoxLayout" name="horizontalLayout_drone_connection">
+                       <property name="spacing">
+                        <number>10</number>
+                       </property>
+                       <property name="leftMargin">
+                        <number>12</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>4</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>12</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>4</number>
+                       </property>
+                       <item>
+                        <widget class="QLabel" name="label_drone_connection">
+                         <property name="minimumSize">
+                          <size>
+                           <width>60</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>Drone</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QComboBox" name="combobox_drone_port">
+                         <property name="minimumSize">
+                          <size>
+                           <width>190</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                         <property name="editable">
+                          <bool>true</bool>
+                         </property>
+                         <property name="insertPolicy">
+                          <enum>QComboBox::NoInsert</enum>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="btn_connect_drone">
+                         <property name="minimumSize">
+                          <size>
+                           <width>130</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>Connect Drone</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
                 <item>
                  <widget class="QFrame" name="frame_btns_right">
                   <property name="maximumSize">

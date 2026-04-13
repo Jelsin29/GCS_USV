@@ -19,6 +19,7 @@ from uifolder import Ui_MainWindow
 from TargetsPage import TargetsPage
 from IndicatorsPage import IndicatorsPage
 from ConnectionManager import ConnectionManager
+from DroneStatusWidget import DroneStatusWidget
 from TelemetryLogger import TelemetryLogger
 from ParkourStateMachine import ParkourStateMachine, ParkourState
 from AntennaTracker import AntennaTracker, antenna_tracker
@@ -100,6 +101,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.connection_manager = ConnectionManager(
             usv_connection_thread=self.connectionThread, parent=self
         )
+        self.drone_status_widget = DroneStatusWidget(self.homepage)
+        self._attach_drone_status_widget()
         self._setup_drone_ui()
 
         # Telemetry Logger (CSV recording for competition deliverables)
@@ -146,6 +149,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_connect.setIcon(
             QtGui.QIcon("uifolder/assets/icons/24x24/cil-link-broken.png")
         )
+        self._update_usv_connect_button(False)
 
         # **UPDATED: Main Connection Button**
         self.btn_connect.clicked.connect(self.connectToVehicle)
@@ -226,53 +230,85 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         button.clicked.connect(self.buttonFunctions)
 
     def _setup_drone_ui(self):
-        """Set up drone connection UI elements if they exist in the .ui file.
-
-        If the UI doesn't have drone-specific widgets yet, this creates
-        programmatic fallbacks so drone connection still works via code.
-        """
-        # Wire drone signals from ConnectionManager
+        """Wire drone connection controls — connection status + position only."""
+        # Core drone signals: connection and position
         self.connection_manager.drone_connected.connect(self._on_drone_connected)
         self.connection_manager.drone_disconnected.connect(self._on_drone_disconnected)
         self.connection_manager.drone_position_updated.connect(
             self._on_drone_position_updated
         )
-        self.connection_manager.drone_target_detected.connect(
-            self._on_drone_target_detected
+        self.connection_manager.drone_position_updated.connect(
+            self.drone_status_widget.update_position
         )
+        # Startup state still flows to the top-bar status label
+        self.connection_manager.startup_state_changed.connect(self.ui_status_update)
         self.connection_manager.drone_error.connect(
             lambda msg: print(f"[DRONE UI] Error: {msg}")
         )
 
-        # Check if drone UI widgets exist (from .ui file)
-        # If not, drone can still be connected programmatically
         self._drone_ui_available = hasattr(self, "btn_connect_drone")
         if self._drone_ui_available:
+            drone_line_edit = self.combobox_drone_port.lineEdit()
+            if drone_line_edit is not None:
+                drone_line_edit.setPlaceholderText(
+                    "udp:127.0.0.1:14550 or /dev/ttyUSB1"
+                )
             self.btn_connect_drone.clicked.connect(self.connectToDrone)
-            if hasattr(self, "combobox_drone_port"):
-                # Populate drone serial port dropdown
-                ports = serial.tools.list_ports.comports()
-                for port in ports:
-                    if port.device:
-                        self.combobox_drone_port.addItem(port.device)
+            self._populate_drone_connection_options()
+            self._update_drone_connect_button(False)
+
+    def _populate_drone_connection_options(self):
+        if not hasattr(self, "combobox_drone_port"):
+            return
+
+        current_text = self.combobox_drone_port.currentText().strip()
+        default_options = [
+            "udp:127.0.0.1:14550",
+            "tcp:127.0.0.1:5760",
+            "udpin:0.0.0.0:14550",
+        ]
+
+        self.combobox_drone_port.clear()
+        for option in default_options:
+            self.combobox_drone_port.addItem(option)
+
+        ports = serial.tools.list_ports.comports()
+        for port in ports:
+            if port.device and self.combobox_drone_port.findText(port.device) == -1:
+                self.combobox_drone_port.addItem(port.device)
+
+        if current_text:
+            if self.combobox_drone_port.findText(current_text) == -1:
+                self.combobox_drone_port.addItem(current_text)
+            self.combobox_drone_port.setCurrentText(current_text)
+        else:
+            self.combobox_drone_port.setCurrentText(default_options[0])
+
+    def _update_usv_connect_button(self, connected: bool):
+        self.btn_connect.setText("Disconnect Boat" if connected else "Connect Boat")
+
+    def _update_drone_connect_button(self, connected: bool):
+        if hasattr(self, "btn_connect_drone"):
+            self.btn_connect_drone.setText(
+                "Disconnect Drone" if connected else "Connect Drone"
+            )
 
     def connectToDrone(self):
         """Connect or disconnect from the drone."""
         if self.connection_manager.drone_connected_status:
             self.connection_manager.disconnect_drone()
-            if self._drone_ui_available:
-                self.btn_connect_drone.setText("Connect Drone")
+            self._update_drone_connect_button(False)
         else:
             port = ""
             if hasattr(self, "combobox_drone_port"):
-                port = self.combobox_drone_port.currentText()
+                port = self.combobox_drone_port.currentText().strip()
             if not port:
                 from PySide6.QtWidgets import QInputDialog
 
                 port, ok = QInputDialog.getText(
                     self,
                     "Drone Connection",
-                    "Enter drone serial port (e.g. /dev/ttyUSB1):",
+                    "Enter drone MAVLink connection string (e.g. udp:127.0.0.1:14550):",
                 )
                 if not ok or not port:
                     return
@@ -282,15 +318,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def _on_drone_connected(self):
         """Handle drone connection established."""
         print("[DRONE UI] Drone connected")
-        if self._drone_ui_available:
-            self.btn_connect_drone.setText("Disconnect Drone")
+        self.drone_status_widget.set_connected(True)
+        self._update_drone_connect_button(True)
 
     @Slot()
     def _on_drone_disconnected(self):
         """Handle drone disconnection."""
         print("[DRONE UI] Drone disconnected")
-        if self._drone_ui_available:
-            self.btn_connect_drone.setText("Connect Drone")
+        self.drone_status_widget.set_connected(False)
+        self._update_drone_connect_button(False)
 
     @Slot(float, float, float)
     def _on_drone_position_updated(self, lat: float, lon: float, alt: float):
@@ -310,26 +346,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             )
             mapwidget.page().runJavaScript(js)
 
-    @Slot(str, float, float)
-    def _on_drone_target_detected(self, color: str, lat: float, lon: float):
-        """Handle target detection from drone — display on map and relay to USV."""
-        print(f"[DRONE UI] TARGET DETECTED: {color} at ({lat}, {lon})")
-        # Show target marker on map
-        if hasattr(self, "homepage") and hasattr(self.homepage, "mapwidget"):
-            color_hex = {"RED": "#FF0000", "GREEN": "#00FF00", "BLUE": "#0000FF"}.get(
-                color, "#FFFF00"
-            )
-            mapwidget = self.homepage.mapwidget
-            js = (
-                f"L.circleMarker([{lat}, {lon}], "
-                f"  {{radius: 12, color: '{color_hex}', fillColor: '{color_hex}', "
-                f"   fillOpacity: 0.9}}).addTo({mapwidget.map_variable_name})"
-                f"  .bindTooltip('Target: {color}', {{permanent: true}});"
-            )
-            mapwidget.page().runJavaScript(js)
+    @Slot(str)
+    def ui_status_update(self, state: str):
+        status_text = f"Coordination: {state}"
+        print(f"[COORDINATOR] {status_text}")
+        if hasattr(self, "label_top_info_1"):
+            current = self.label_top_info_1.text()
+            base = current.split(" | ")[0] if current else "USV"
+            self.label_top_info_1.setText(f"{base} | {status_text}")
 
-        # Relay to USV
-        self.connection_manager.relay_target_to_usv(color, lat, lon)
+    def _attach_drone_status_widget(self) -> None:
+        if not hasattr(self.homepage, "droneFrame"):
+            return
+        layout = self.homepage.droneFrame.layout()
+        if layout is None:
+            return
+        layout.addWidget(self.drone_status_widget)
 
     # --- Parkour State Machine UI ---
 
@@ -368,11 +400,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         Uses cached last_mission_count from ArdupilotConnectionThread
         instead of calling waypoint_count() which would block the main thread.
+
+        Since the HOME item was removed, seq is 0-based among real waypoints.
+        last_mission_count reflects real waypoints only (no synthetic HOME padding).
         """
         if not hasattr(self, "parkour_sm") or not self.parkour_sm.is_running:
             return
         count = getattr(self.connectionThread, "last_mission_count", 0)
-        # seq is 0-based; last user waypoint is count-1 (seq=0 is HOME)
+        # seq is 0-based; last waypoint is at seq = count-1
         if count > 0 and seq >= count - 1:
             print(f"[COMPETITION] Last waypoint {seq} reached — mission complete")
             self.parkour_sm.on_mission_complete()
@@ -541,6 +576,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             # Default to SITL if no serial ports found
             self.combobox_connectionstring.setCurrentText("SITL (UDP)")
 
+        self._populate_drone_connection_options()
+
     def setup_connection_signals(self):
         """Connect signals from the connection thread to UI handlers."""
         try:
@@ -567,7 +604,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_connection_status_changed(self, connected, message):
         """Handle connection status changes from the connection thread signal."""
         if connected:
-            self.btn_connect.setText("Disconnect")
+            self._update_usv_connect_button(True)
             self.btn_connect.setIcon(
                 QtGui.QIcon("uifolder/assets/icons/24x24/cil-wifi.png")
             )
@@ -583,7 +620,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ):
                 self.telemetry_logger.start()
         else:
-            self.btn_connect.setText("Connect")
+            self._update_usv_connect_button(False)
             self.btn_connect.setIcon(
                 QtGui.QIcon("uifolder/assets/icons/24x24/cil-link-broken.png")
             )
@@ -645,19 +682,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 elif hasattr(telemetry_widget, "process_telemetry"):
                     telemetry_widget.process_telemetry(vrx_data)
 
-            # Forward to IndicatorsPage USV Telemetry Widget
-            if hasattr(self, "indicatorspage") and hasattr(
-                self.indicatorspage, "usv_telemetry"
-            ):
-                usv_widget = self.indicatorspage.usv_telemetry
-                if hasattr(usv_widget, "updateFromArduPilotData"):
-                    usv_widget.updateFromArduPilotData(telemetry_data)
-                elif hasattr(usv_widget, "updateFromVRXData"):
-                    usv_widget.updateFromVRXData(vrx_data)
-                elif hasattr(usv_widget, "process_telemetry"):
-                    usv_widget.process_telemetry(vrx_data)
-
-            # Also update IndicatorsPage main instruments
+            # Forward to IndicatorsPage main instruments (speedometer, compass)
             if hasattr(self, "indicatorspage") and hasattr(
                 self.indicatorspage, "updateFromArduPilotData"
             ):
@@ -859,7 +884,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self._set_all_widgets_connection_status(False)
             self.connectionThread.stop()
             self.connectionThread.wait(5000)
-            self.btn_connect.setText("Connect")
+            self._update_usv_connect_button(False)
             self.btn_connect.setIcon(
                 QtGui.QIcon("uifolder/assets/icons/24x24/cil-link-broken.png")
             )
@@ -881,12 +906,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             widget = self.homepage.telemetryWidget
             if hasattr(widget, "setConnectionStatus"):
                 widget.setConnectionStatus(connected)
-        if hasattr(self, "indicatorspage") and hasattr(
-            self.indicatorspage, "usv_telemetry"
-        ):
-            usv = self.indicatorspage.usv_telemetry
-            if hasattr(usv, "setConnectionStatus"):
-                usv.setConnectionStatus(connected)
 
     def takeoff(self):
         """Arm the USV and prepare for mission (takeoff equivalent for USV)"""

@@ -2,12 +2,13 @@
 DroneConnectionThread — MAVLink connection thread for the drone (IHA).
 
 Lighter than ArdupilotConnectionThread: only receives telemetry and
-target detection data. Does not upload missions (drone is RC-controlled).
+semantic sensing data. Does not upload missions (drone is RC-controlled).
 
 Communication: SiK Telemetry Radio (57600 baud default)
 """
 
 import time
+from uuid import uuid4
 
 from pymavlink import mavutil
 
@@ -24,6 +25,8 @@ class DroneConnectionThread(QThread):
 
     # Target detection signals
     target_detected = Signal(str, float, float)  # color, lat, lon
+    semantic_target_detected = Signal(dict)
+    semantic_event_detected = Signal(dict)
 
     # Connection signals
     connected = Signal()
@@ -159,11 +162,20 @@ class DroneConnectionThread(QThread):
 
         elif msg_type == "STATUSTEXT":
             text = msg.text.strip()
-            detection = self._parse_target_detection(text)
-            if detection is not None:
-                color, lat, lon = detection
-                print(f"[DRONE] Target detected: {color} at ({lat}, {lon})")
-                self.target_detected.emit(color, lat, lon)
+            event = self._parse_semantic_event(text)
+            if event is not None:
+                print(
+                    f"[DRONE] Semantic event: {event['event_type']} "
+                    f"at ({event['lat']}, {event['lon']})"
+                )
+                self.semantic_event_detected.emit(event)
+
+                if event["event_type"] == "MISSION_TARGET":
+                    color = event["color"]
+                    lat = event["lat"]
+                    lon = event["lon"]
+                    self.semantic_target_detected.emit(event)
+                    self.target_detected.emit(color, lat, lon)
 
     def _parse_target_detection(self, text: str) -> tuple[str, float, float] | None:
         """Parse target detection from STATUSTEXT message.
@@ -172,20 +184,102 @@ class DroneConnectionThread(QThread):
         Example: 'TARGET:RED:41.037083:29.029528'
         Returns (color, lat, lon) or None if not a target message.
         """
-        if not text.startswith("TARGET:"):
+        event = self._parse_semantic_event(text)
+        if event is None or event["event_type"] != "MISSION_TARGET":
             return None
-        parts = text.split(":")
-        if len(parts) != 4:
+        return (event["color"], event["lat"], event["lon"])
+
+    def _parse_semantic_event(self, text: str) -> dict | None:
+        """Parse normalized semantic events from drone STATUSTEXT.
+
+        Supported formats:
+        - TARGET:COLOR:LAT:LON
+        - MISSION_TARGET:COLOR:LAT:LON[:CONFIDENCE]
+        - OBSTACLE:TYPE:LAT:LON[:CONFIDENCE]
+        - OBSTACLE_REPORT:TYPE:LAT:LON[:CONFIDENCE]
+        """
+        if not text:
             return None
+
+        parts = [part.strip() for part in text.split(":")]
+        if len(parts) < 4:
+            return None
+
+        prefix = parts[0].upper()
+        if prefix in {"TARGET", "MISSION_TARGET"}:
+            return self._build_target_event(parts, text)
+        if prefix in {"OBSTACLE", "OBSTACLE_REPORT"}:
+            return self._build_obstacle_event(parts, text)
+        return None
+
+    def _build_target_event(self, parts: list[str], raw_text: str) -> dict | None:
         try:
-            color = parts[1].upper()
+            color = self._normalize_target_color(parts[1])
             lat = float(parts[2])
             lon = float(parts[3])
-            if -90 <= lat <= 90 and -180 <= lon <= 180:
-                return (color, lat, lon)
+            confidence = self._parse_confidence(parts[4] if len(parts) > 4 else None)
         except (ValueError, IndexError):
-            pass
-        return None
+            return None
+
+        if not self._valid_coordinates(lat, lon):
+            return None
+
+        return {
+            "id": f"mission-target-{uuid4().hex[:8]}",
+            "event_type": "MISSION_TARGET",
+            "color": color,
+            "lat": lat,
+            "lon": lon,
+            "source": "drone",
+            "confidence": confidence,
+            "timestamp": time.time(),
+            "raw_text": raw_text,
+            "raw_color": parts[1].upper(),
+        }
+
+    def _build_obstacle_event(self, parts: list[str], raw_text: str) -> dict | None:
+        try:
+            obstacle_type = parts[1].upper()
+            lat = float(parts[2])
+            lon = float(parts[3])
+            confidence = self._parse_confidence(parts[4] if len(parts) > 4 else None)
+        except (ValueError, IndexError):
+            return None
+
+        if not self._valid_coordinates(lat, lon):
+            return None
+
+        return {
+            "id": f"obstacle-{uuid4().hex[:8]}",
+            "event_type": "OBSTACLE_REPORT",
+            "obstacle_type": obstacle_type,
+            "lat": lat,
+            "lon": lon,
+            "source": "drone",
+            "confidence": confidence,
+            "timestamp": time.time(),
+            "raw_text": raw_text,
+        }
+
+    def _normalize_target_color(self, color: str) -> str:
+        normalized = color.strip().upper()
+        aliases = {
+            "BLUE": "BLACK",
+            "SIYAH": "BLACK",
+            "BLACK": "BLACK",
+            "RED": "RED",
+            "GREEN": "GREEN",
+        }
+        return aliases.get(normalized, normalized)
+
+    def _parse_confidence(self, value: str | None) -> float:
+        if value is None or value == "":
+            return 1.0
+        confidence = float(value)
+        return max(0.0, min(confidence, 1.0))
+
+    def _valid_coordinates(self, lat: float, lon: float) -> bool:
+        return -90 <= lat <= 90 and -180 <= lon <= 180
 
     def _cleanup(self) -> None:
         """Close connection and reset state."""

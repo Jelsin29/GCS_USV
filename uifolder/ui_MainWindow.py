@@ -169,7 +169,7 @@ class Ui_MainWindow(object):
 "    min-height: 20px;\n"
 "}\n"
 "\n"
-"QPushButton#btn_connect {\n"
+"QPushButton#btn_connect, QPushButton#btn_connect_drone {\n"
 "    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
 "                               stop:0 #0d6efd, stop:1 #0b5ed7);\n"
 "    border: none;\n"
@@ -181,18 +181,34 @@ class Ui_MainWindow(object):
 "    min-height: 24px;\n"
 "}\n"
 "\n"
-"QPushButton#btn_connect:hover {\n"
+"QPushButton#btn_connect:hover, QPushButton#btn_connect_drone:hover {\n"
 "    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, \n"
 "                               stop:0 #0b5ed7, stop:1 #0a58ca);\n"
 "}\n"
 "\n"
-"QPushButton#btn_connect:pressed {\n"
+"QPushButton#btn_connect:pressed, QPushButton#btn_connec"
+                        "t_drone:pressed {\n"
 "    background: #0a58ca;\n"
 "}\n"
 "\n"
+"QWidget#header_connection_sections {\n"
+"    background: transparent;\n"
+"}\n"
+"\n"
+"QFrame#frame_usv_connection, QFrame#frame_drone_connection {\n"
+"    background: rgba(13, 110, 253, 0.05);\n"
+"    border: 1px solid #dbe7ff;\n"
+"    border-radius: 12px;\n"
+"}\n"
+"\n"
+"QLabel#label_usv_connection, QLabel#label_drone_connection {\n"
+"    color: #0b5ed7;\n"
+"    font-weight: 700;\n"
+"    padding: 0 4px;\n"
+"}\n"
+"\n"
 "/* MODERN SCROLLBARS - MINIMAL DESIGN */\n"
-""
-                        "QScrollBar:vertical {\n"
+"QScrollBar:vertical {\n"
 "    background: transparent;\n"
 "    width: 8px;\n"
 "    border-radius: 4px;\n"
@@ -212,7 +228,8 @@ class Ui_MainWindow(object):
 "\n"
 "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {\n"
 "    border: none;\n"
-"    background: none;\n"
+"    ba"
+                        "ckground: none;\n"
 "    height: 0px;\n"
 "}\n"
 "\n"
@@ -234,8 +251,7 @@ class Ui_MainWindow(object):
 "    border: none;\n"
 "}\n"
 "\n"
-"/* LABELS - TESLA ST"
-                        "YLE */\n"
+"/* LABELS - TESLA STYLE */\n"
 "QLabel {\n"
 "    color: #495057;\n"
 "    font-weight: 500;\n"
@@ -257,7 +273,8 @@ class Ui_MainWindow(object):
 "\n"
 "QPushButton:hover {\n"
 "    background: #e9ecef;\n"
-"    border-color: #ced4da;\n"
+"    border-co"
+                        "lor: #ced4da;\n"
 "    color: #212529;\n"
 "}\n"
 "\n"
@@ -341,7 +358,27 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_4.addWidget(self.label_title_bar_top)
 
-        self.combobox_connectionstring = QComboBox(self.frame_top_btns)
+        self.header_connection_sections = QWidget(self.frame_top_btns)
+        self.header_connection_sections.setObjectName(u"header_connection_sections")
+        self.horizontalLayout_header_connection_sections = QHBoxLayout(self.header_connection_sections)
+        self.horizontalLayout_header_connection_sections.setSpacing(12)
+        self.horizontalLayout_header_connection_sections.setObjectName(u"horizontalLayout_header_connection_sections")
+        self.horizontalLayout_header_connection_sections.setContentsMargins(0, 0, 0, 0)
+        self.frame_usv_connection = QFrame(self.header_connection_sections)
+        self.frame_usv_connection.setObjectName(u"frame_usv_connection")
+        self.frame_usv_connection.setFrameShape(QFrame.StyledPanel)
+        self.frame_usv_connection.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_usv_connection = QHBoxLayout(self.frame_usv_connection)
+        self.horizontalLayout_usv_connection.setSpacing(10)
+        self.horizontalLayout_usv_connection.setObjectName(u"horizontalLayout_usv_connection")
+        self.horizontalLayout_usv_connection.setContentsMargins(12, 4, 12, 4)
+        self.label_usv_connection = QLabel(self.frame_usv_connection)
+        self.label_usv_connection.setObjectName(u"label_usv_connection")
+        self.label_usv_connection.setMinimumSize(QSize(78, 0))
+
+        self.horizontalLayout_usv_connection.addWidget(self.label_usv_connection)
+
+        self.combobox_connectionstring = QComboBox(self.frame_usv_connection)
         self.combobox_connectionstring.addItem("")
         self.combobox_connectionstring.addItem("")
         self.combobox_connectionstring.addItem("")
@@ -349,11 +386,11 @@ class Ui_MainWindow(object):
         self.combobox_connectionstring.addItem("")
         self.combobox_connectionstring.addItem("")
         self.combobox_connectionstring.setObjectName(u"combobox_connectionstring")
-        self.combobox_connectionstring.setMinimumSize(QSize(150, 48))
+        self.combobox_connectionstring.setMinimumSize(QSize(150, 40))
 
-        self.horizontalLayout_4.addWidget(self.combobox_connectionstring)
+        self.horizontalLayout_usv_connection.addWidget(self.combobox_connectionstring)
 
-        self.combobox_baudrate = QComboBox(self.frame_top_btns)
+        self.combobox_baudrate = QComboBox(self.frame_usv_connection)
         self.combobox_baudrate.addItem("")
         self.combobox_baudrate.addItem("")
         self.combobox_baudrate.addItem("")
@@ -362,15 +399,52 @@ class Ui_MainWindow(object):
         self.combobox_baudrate.addItem("")
         self.combobox_baudrate.addItem("")
         self.combobox_baudrate.setObjectName(u"combobox_baudrate")
-        self.combobox_baudrate.setMinimumSize(QSize(100, 48))
+        self.combobox_baudrate.setMinimumSize(QSize(100, 40))
 
-        self.horizontalLayout_4.addWidget(self.combobox_baudrate)
+        self.horizontalLayout_usv_connection.addWidget(self.combobox_baudrate)
 
-        self.btn_connect = QPushButton(self.frame_top_btns)
+        self.btn_connect = QPushButton(self.frame_usv_connection)
         self.btn_connect.setObjectName(u"btn_connect")
-        self.btn_connect.setMinimumSize(QSize(80, 56))
+        self.btn_connect.setMinimumSize(QSize(110, 40))
 
-        self.horizontalLayout_4.addWidget(self.btn_connect)
+        self.horizontalLayout_usv_connection.addWidget(self.btn_connect)
+
+
+        self.horizontalLayout_header_connection_sections.addWidget(self.frame_usv_connection)
+
+        self.frame_drone_connection = QFrame(self.header_connection_sections)
+        self.frame_drone_connection.setObjectName(u"frame_drone_connection")
+        self.frame_drone_connection.setFrameShape(QFrame.StyledPanel)
+        self.frame_drone_connection.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_drone_connection = QHBoxLayout(self.frame_drone_connection)
+        self.horizontalLayout_drone_connection.setSpacing(10)
+        self.horizontalLayout_drone_connection.setObjectName(u"horizontalLayout_drone_connection")
+        self.horizontalLayout_drone_connection.setContentsMargins(12, 4, 12, 4)
+        self.label_drone_connection = QLabel(self.frame_drone_connection)
+        self.label_drone_connection.setObjectName(u"label_drone_connection")
+        self.label_drone_connection.setMinimumSize(QSize(60, 0))
+
+        self.horizontalLayout_drone_connection.addWidget(self.label_drone_connection)
+
+        self.combobox_drone_port = QComboBox(self.frame_drone_connection)
+        self.combobox_drone_port.setObjectName(u"combobox_drone_port")
+        self.combobox_drone_port.setMinimumSize(QSize(190, 40))
+        self.combobox_drone_port.setEditable(True)
+        self.combobox_drone_port.setInsertPolicy(QComboBox.NoInsert)
+
+        self.horizontalLayout_drone_connection.addWidget(self.combobox_drone_port)
+
+        self.btn_connect_drone = QPushButton(self.frame_drone_connection)
+        self.btn_connect_drone.setObjectName(u"btn_connect_drone")
+        self.btn_connect_drone.setMinimumSize(QSize(130, 40))
+
+        self.horizontalLayout_drone_connection.addWidget(self.btn_connect_drone)
+
+
+        self.horizontalLayout_header_connection_sections.addWidget(self.frame_drone_connection)
+
+
+        self.horizontalLayout_4.addWidget(self.header_connection_sections)
 
         self.frame_btns_right = QFrame(self.frame_top_btns)
         self.frame_btns_right.setObjectName(u"frame_btns_right")
@@ -533,6 +607,7 @@ class Ui_MainWindow(object):
         self.btn_toggle_menu.setText("")
         self.label_title_bar_top.setStyleSheet(QCoreApplication.translate("MainWindow", u"color: #495057;", None))
         self.label_title_bar_top.setText(QCoreApplication.translate("MainWindow", u"Ground Control Station - USV", None))
+        self.label_usv_connection.setText(QCoreApplication.translate("MainWindow", u"Boat / USV", None))
         self.combobox_connectionstring.setItemText(0, QCoreApplication.translate("MainWindow", u"USB", None))
         self.combobox_connectionstring.setItemText(1, QCoreApplication.translate("MainWindow", u"Telemetry", None))
         self.combobox_connectionstring.setItemText(2, QCoreApplication.translate("MainWindow", u"SITL (UDP)", None))
@@ -549,6 +624,8 @@ class Ui_MainWindow(object):
         self.combobox_baudrate.setItemText(6, QCoreApplication.translate("MainWindow", u"9600", None))
 
         self.btn_connect.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
+        self.label_drone_connection.setText(QCoreApplication.translate("MainWindow", u"Drone", None))
+        self.btn_connect_drone.setText(QCoreApplication.translate("MainWindow", u"Connect Drone", None))
         self.btn_minimize.setText("")
         self.btn_maximize_restore.setText("")
         self.btn_close.setText("")

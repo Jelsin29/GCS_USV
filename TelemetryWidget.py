@@ -623,17 +623,10 @@ class TelemetryWidget(QWidget, Ui_TelemetryWidget):
     def updateFromArduPilotData(self, telemetry_data):
         """New method to handle ArduPilot telemetry data directly"""
         try:
-            print(
-                f"[TELEMETRY] TelemetryWidget received ArduPilot data: {list(telemetry_data.keys())}"
-            )
-
             # Extract and update GPS position
             if "latitude" in telemetry_data and "longitude" in telemetry_data:
                 self.updatePosition(
                     telemetry_data["latitude"], telemetry_data["longitude"]
-                )
-                print(
-                    f"[TELEMETRY] Updated position: {telemetry_data['latitude']:.6f}, {telemetry_data['longitude']:.6f}"
                 )
 
             # Extract and update speed
@@ -641,23 +634,17 @@ class TelemetryWidget(QWidget, Ui_TelemetryWidget):
                 # Convert m/s to knots for display
                 speed_knots = telemetry_data["groundspeed"] * 1.944
                 self.updateSpeed(speed_knots)
-                print(
-                    f"[TELEMETRY] Updated speed: {telemetry_data['groundspeed']:.1f}m/s ({speed_knots:.1f} kts)"
-                )
 
             # Extract and update attitude
             if "roll" in telemetry_data:
                 self.updateRoll(telemetry_data["roll"])
-                print(f"[TELEMETRY] Updated roll: {telemetry_data['roll']:.1f}°")
 
             if "pitch" in telemetry_data:
                 self.updatePitch(telemetry_data["pitch"])
-                print(f"[TELEMETRY] Updated pitch: {telemetry_data['pitch']:.1f}°")
 
             # Extract and update heading
             if "heading" in telemetry_data:
                 self.updateHeading(telemetry_data["heading"])
-                print(f"[TELEMETRY] Updated heading: {telemetry_data['heading']:.1f}°")
 
             # Extract and update battery
             if "battery_voltage" in telemetry_data:
@@ -665,11 +652,6 @@ class TelemetryWidget(QWidget, Ui_TelemetryWidget):
                 voltage = telemetry_data["battery_voltage"]
                 percentage = max(0, min(100, ((voltage - 11.0) / 1.6) * 100))
                 self.updateBatteryLevel(percentage, voltage)
-                print(
-                    f"[TELEMETRY] Updated battery: {percentage:.0f}% ({voltage:.1f}V)"
-                )
-
-            print("[TELEMETRY] TelemetryWidget update complete")
 
         except Exception as e:
             print(f"[TELEMETRY] Error in TelemetryWidget updateFromArduPilotData: {e}")

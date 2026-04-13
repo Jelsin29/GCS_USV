@@ -54,7 +54,7 @@ venv\Scripts\activate
 ### **4. Install Python Dependencies**
 Install the required Python packages using pip:
 ```bash
-pip install python-vlc pyside6 opencv-python folium firebase-admin pymavlink serial
+pip install -r requirements.txt
 ```
 *Note: If you encounter any issues, ensure your pip is up-to-date by running `pip install --upgrade pip`.*
 

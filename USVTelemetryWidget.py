@@ -600,13 +600,10 @@ class USVTelemetryWidget(QWidget):
                     percentage = max(0, min(100, ((voltage - 11.0) / 1.6) * 100))
 
                 self.updateBatteryLevel(percentage)
-                print(f"[USV_TELEMETRY] Updated battery: {percentage:.0f}%")
 
             # Extract and update rudder angle (if available in servo outputs)
             # This would come from servo_output_raw or similar messages
             # For now, we'll skip this as it requires more complex parsing
-
-            print("[USV_TELEMETRY] USVTelemetryWidget update complete")
 
         except Exception as e:
             print(

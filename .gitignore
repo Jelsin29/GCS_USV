@@ -179,3 +179,6 @@ Database/*-firebase-adminsdk-*.json
 
 # Misc generated files
 serial.tools.list_ports
+
+# SDD / Skill Registry
+.atl/

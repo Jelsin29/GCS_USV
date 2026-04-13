@@ -100,9 +100,9 @@ class Ui_HomePage(object):
         self.futureContentFrame = QFrame(self.leftFrame)
         self.futureContentFrame.setObjectName(u"futureContentFrame")
         self.futureContentFrame.setStyleSheet(u"QFrame{\n"
-"    background: transparent;\n"
-"    border: none;\n"
-"}")
+"     background: transparent;\n"
+"     border: none;\n"
+" }")
         self.futureContentFrame.setFrameShape(QFrame.StyledPanel)
         self.futureContentFrame.setFrameShadow(QFrame.Raised)
         self.futureContentLayout = QVBoxLayout(self.futureContentFrame)
@@ -117,6 +117,23 @@ class Ui_HomePage(object):
 
 
         self.leftVerticalLayout.addWidget(self.futureContentFrame)
+
+        self.droneFrame = QFrame(self.leftFrame)
+        self.droneFrame.setObjectName(u"droneFrame")
+        self.droneFrame.setMinimumSize(QSize(0, 80))
+        self.droneFrame.setStyleSheet(u"QFrame {\n"
+"     background: transparent;\n"
+"     border: none;\n"
+"     margin: 0px;\n"
+" }")
+        self.droneFrame.setFrameShape(QFrame.StyledPanel)
+        self.droneFrame.setFrameShadow(QFrame.Raised)
+        self.droneFrameLayout = QVBoxLayout(self.droneFrame)
+        self.droneFrameLayout.setSpacing(0)
+        self.droneFrameLayout.setObjectName(u"droneFrameLayout")
+        self.droneFrameLayout.setContentsMargins(0, 0, 0, 0)
+
+        self.leftVerticalLayout.addWidget(self.droneFrame)
 
 
         self.mainHorizontalLayout.addWidget(self.leftFrame)
@@ -144,12 +161,12 @@ class Ui_HomePage(object):
     def retranslateUi(self, HomePage):
         HomePage.setWindowTitle(QCoreApplication.translate("HomePage", u"Form", None))
         self.futureContentLabel.setStyleSheet(QCoreApplication.translate("HomePage", u"QLabel { \n"
-"    color: #6c757d; \n"
-"    font-size: 14px; \n"
-"    font-style: italic;\n"
-"    border: none;\n"
-"    background: transparent;\n"
-"}", None))
+"     color: #6c757d; \n"
+"     font-size: 14px; \n"
+"     font-style: italic;\n"
+"     border: none;\n"
+"     background: transparent;\n"
+" }", None))
         self.futureContentLabel.setText("")
     # retranslateUi
 

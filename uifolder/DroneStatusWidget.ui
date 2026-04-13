@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DroneStatusWidget</class>
+ <widget class="QWidget" name="DroneStatusWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>100</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>380</width>
+    <height>80</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Drone Status</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">
+/* DRONE STATUS CARD - LIGHT THEME */
+QWidget#DroneStatusWidget {
+    background-color: transparent;
+}
+
+QFrame#droneCard {
+    background-color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+}
+
+QLabel {
+    color: #2c3e50;
+    border: none;
+    background: transparent;
+}
+
+/* HEADER LABEL */
+QLabel#headerLabel {
+    color: #2c3e50;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+/* CONNECTION STATUS */
+QLabel#connectionStatusLabel {
+    font-weight: bold;
+    font-size: 12px;
+    color: #dc3545;
+}
+
+/* POSITION TITLE */
+QLabel#positionTitleLabel {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6c757d;
+}
+
+/* POSITION VALUE */
+QLabel#positionLabel {
+    font-size: 12px;
+    color: #0277bd;
+    font-family: 'Consolas', monospace;
+}
+   </string>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QFrame" name="droneCard">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" name="cardLayout">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <property name="leftMargin">
+       <number>10</number>
+      </property>
+      <property name="topMargin">
+       <number>10</number>
+      </property>
+      <property name="rightMargin">
+       <number>10</number>
+      </property>
+      <property name="bottomMargin">
+       <number>10</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="headerRow">
+        <property name="spacing">
+         <number>8</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="headerLabel">
+          <property name="text">
+           <string>DRONE (IHA)</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="connectionStatusLabel">
+          <property name="text">
+           <string>Disconnected</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="headerSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="positionRow">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="positionTitleLabel">
+          <property name="text">
+           <string>Pos:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="positionLabel">
+          <property name="text">
+           <string>--</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="positionSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

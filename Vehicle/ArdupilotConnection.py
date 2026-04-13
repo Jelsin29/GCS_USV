@@ -142,9 +142,10 @@ def updateData(thread, vehicle, mapwidget, indicators, camerawidget):
             battery_pct = msg.battery_remaining
             current = msg.current_battery / 100.0
 
-            thread.parent.label_top_info_1.setText(
-                f"Battery: {battery_pct}% | {voltage:.1f}V | {current:.1f}A"
-            )
+            if hasattr(thread.parent, "label_top_info_1"):
+                thread.parent.label_top_info_1.setText(
+                    f"Battery: {battery_pct}% | {voltage:.1f}V | {current:.1f}A"
+                )
 
             # Prepare telemetry data
             telemetry_data["sys_status"] = {
@@ -275,6 +276,7 @@ class ArdupilotConnectionThread(QThread):
     connection_status = Signal(bool, str)
     mission_status = Signal(str, bool)
     mission_item_reached = Signal(int)  # waypoint sequence number
+    relay_target_result = Signal(dict)
 
     def __init__(self, parent=None):
         super().__init__()
@@ -953,45 +955,63 @@ class ArdupilotConnectionThread(QThread):
             mode_id = mode_mapping[mode_name]
             print(f"[MODE DEBUG] Mode {mode_name} maps to ID: {mode_id}")
 
-            # Send mode change command
             print("[MODE DEBUG] Sending mode change command...")
-            self.connection.mav.set_mode_send(
-                self.connection.target_system,
-                mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,
-                mode_id,
-            )
-
-            print(f"[MODE DEBUG] Mode change to {mode_name} (ID:{mode_id}) requested")
             print(f"[MODE DEBUG] Target system: {self.connection.target_system}")
             print(f"[MODE DEBUG] Target component: {self.connection.target_component}")
 
-            # Wait a moment and check if mode changed
-            self.msleep(500)
-
-            # Try to get current mode for confirmation
-            heartbeat = self.connection.recv_match(
-                type="HEARTBEAT", blocking=True, timeout=2
-            )
-            if heartbeat:
-                current_mode_id = heartbeat.custom_mode
-                current_mode_name = self.get_mode_string(
-                    current_mode_id, heartbeat.type
+            for attempt in range(3):
+                self.connection.mav.set_mode_send(
+                    self.connection.target_system,
+                    mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,
+                    mode_id,
                 )
+                # COMMAND_LONG backup improves compatibility with ArduPilot Rover/SITL
+                self.connection.mav.command_long_send(
+                    self.connection.target_system,
+                    self.connection.target_component,
+                    mavutil.mavlink.MAV_CMD_DO_SET_MODE,
+                    0,
+                    mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,
+                    mode_id,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                )
+
                 print(
-                    f"[MODE DEBUG] Current mode after request: {current_mode_name} (ID:{current_mode_id})"
+                    f"[MODE DEBUG] Mode change to {mode_name} (ID:{mode_id}) requested "
+                    f"(attempt {attempt + 1}/3)"
                 )
 
-                if current_mode_id == mode_id:
-                    print(f"[MODE DEBUG] ✓ Mode change to {mode_name} confirmed")
-                    return True
-                else:
-                    print(
-                        f"[MODE DEBUG] ⚠️ Mode change not yet confirmed (requested {mode_name}, current {current_mode_name})"
+                deadline = time.time() + 5
+                while time.time() < deadline:
+                    heartbeat = self.connection.recv_match(
+                        type="HEARTBEAT", blocking=True, timeout=0.5
                     )
-                    return True  # Still return True as command was sent
-            else:
-                print("[MODE DEBUG] ⚠️ No heartbeat received for mode confirmation")
-                return True  # Still return True as command was sent
+                    if not heartbeat:
+                        continue
+
+                    current_mode_id = heartbeat.custom_mode
+                    current_mode_name = self.get_mode_string(
+                        current_mode_id, heartbeat.type
+                    )
+                    print(
+                        f"[MODE DEBUG] Current mode after request: {current_mode_name} "
+                        f"(ID:{current_mode_id})"
+                    )
+
+                    if current_mode_id == mode_id:
+                        print(f"[MODE DEBUG] ✓ Mode change to {mode_name} confirmed")
+                        return True
+
+                print(
+                    f"[MODE DEBUG] ⚠️ Attempt {attempt + 1} did not confirm {mode_name}; retrying..."
+                )
+
+            print(f"[MODE DEBUG] ✗ Mode change to {mode_name} failed after 3 attempts")
+            return False
 
         except Exception as e:
             print(f"[MODE DEBUG] Error setting mode {mode_name}: {e}")
@@ -1087,6 +1107,79 @@ class ArdupilotConnectionThread(QThread):
                 self.connection_string = f"tcp:{text}:5760"
         else:
             self.connection_string = connectionstring
+
+    def send_semantic_event(self, event: dict) -> bool:
+        """Relay semantic target/obstacle data to the USV companion via DEBUG_VECT."""
+        event_type = event.get("event_type", "MISSION_TARGET")
+        message_name = b"TARGET" if event_type == "MISSION_TARGET" else b"OBSTACLE"
+        semantic_code = self._semantic_code_for_event(event)
+        return self._send_semantic_debug_vect(message_name, event, semantic_code)
+
+    def send_semantic_target(self, target_event: dict) -> bool:
+        """Backward-compatible target relay helper used by the coordinator."""
+        event = dict(target_event)
+        event["event_type"] = "MISSION_TARGET"
+        return self.send_semantic_event(event)
+
+    def _send_semantic_debug_vect(
+        self, message_name: bytes, event: dict, semantic_code: float
+    ) -> bool:
+        if not self.connection:
+            self.relay_target_result.emit(
+                {
+                    "target_id": event.get("id", "unknown"),
+                    "status": "failed",
+                    "error": "usv-not-connected",
+                    "event_type": event.get("event_type", "UNKNOWN"),
+                }
+            )
+            return False
+
+        try:
+            self.connection.mav.debug_vect_send(
+                name=message_name,
+                time_usec=int(time.time() * 1e6),
+                x=float(event["lat"]),
+                y=float(event["lon"]),
+                z=semantic_code,
+            )
+            self.relay_target_result.emit(
+                {
+                    "target_id": event.get("id", "unknown"),
+                    "status": "relayed",
+                    "error": None,
+                    "event_type": event.get("event_type", "UNKNOWN"),
+                }
+            )
+            return True
+        except Exception as e:
+            self.relay_target_result.emit(
+                {
+                    "target_id": event.get("id", "unknown"),
+                    "status": "failed",
+                    "error": str(e),
+                    "event_type": event.get("event_type", "UNKNOWN"),
+                }
+            )
+            print(f"[SEMANTIC RELAY] Failed to send {event.get('event_type')}: {e}")
+            return False
+
+    def _semantic_code_for_event(self, event: dict) -> float:
+        event_type = event.get("event_type", "MISSION_TARGET")
+        if event_type == "MISSION_TARGET":
+            color_ids = {"RED": 1.0, "GREEN": 2.0, "BLACK": 3.0, "BLUE": 3.0}
+            return color_ids.get(str(event.get("color", "UNKNOWN")).upper(), 0.0)
+
+        obstacle_ids = {
+            "UNKNOWN": 100.0,
+            "BUOY": 101.0,
+            "ROCK": 102.0,
+            "VESSEL": 103.0,
+            "DEBRIS": 104.0,
+        }
+        return obstacle_ids.get(
+            str(event.get("obstacle_type", "UNKNOWN")).upper(), 100.0
+        )
 
     def goto_markers_pos(self, lat, lon):
         """

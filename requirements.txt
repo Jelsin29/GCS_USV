@@ -7,3 +7,6 @@ opencv-python
 pyserial
 numpy
 msgpack
+python-vlc
+pytest
+pytest-qt

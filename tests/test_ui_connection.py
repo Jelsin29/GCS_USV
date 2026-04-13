@@ -4,6 +4,7 @@ No real MAVLink connection is made.
 """
 
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QComboBox
 
 
 class TestConnectionUI:
@@ -38,8 +39,43 @@ class TestConnectionUI:
         assert main_window.btn_connect.isEnabled()
 
     def test_connect_button_has_connect_text_or_icon(self, main_window):
-        # Button text may be empty (icon only) but the button must exist
         btn = main_window.btn_connect
         assert btn is not None
-        # Should not say "Connected" before any connection attempt
+        assert btn.text() == "Connect Boat"
         assert "Connected" not in btn.text()
+
+    def test_drone_connection_selector_exists_and_is_editable(self, main_window):
+        selector = main_window.combobox_drone_port
+        assert isinstance(selector, QComboBox)
+        assert selector.parent() is main_window.frame_drone_connection
+        assert selector.isEditable()
+        items = [selector.itemText(i) for i in range(selector.count())]
+        assert "udp:127.0.0.1:14550" in items
+        assert "tcp:127.0.0.1:5760" in items
+
+    def test_connect_to_drone_uses_header_selector_before_prompt(
+        self, main_window, monkeypatch
+    ):
+        selected_port = "udp:127.0.0.1:14550"
+        previous_text = main_window.combobox_drone_port.currentText()
+        main_window.combobox_drone_port.setCurrentText(selected_port)
+
+        captured = {}
+
+        def fake_connect_drone(port, baudrate=57600):
+            captured["port"] = port
+            captured["baudrate"] = baudrate
+
+        monkeypatch.setattr(
+            main_window.connection_manager, "connect_drone", fake_connect_drone
+        )
+
+        def fail_prompt(*_args, **_kwargs):
+            raise AssertionError("Prompt should not be used when selector has a value")
+
+        monkeypatch.setattr("PySide6.QtWidgets.QInputDialog.getText", fail_prompt)
+
+        main_window.connectToDrone()
+
+        assert captured == {"port": selected_port, "baudrate": 57600}
+        main_window.combobox_drone_port.setCurrentText(previous_text)

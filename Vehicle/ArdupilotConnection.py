@@ -297,9 +297,7 @@ class ArdupilotConnectionThread(QThread):
         self.home_position = [0, 0]
         self.camera_angle = 45
         self.is_running = True
-        self.last_mission_count = (
-            0  # Cached count after upload (includes HOME at seq=0)
-        )
+        self.last_mission_count = 0  # Cached count after upload (real waypoints only)
         self.usv_marker_created = False
 
         # PRODUCTION TIMEOUT SETTINGS
@@ -505,6 +503,7 @@ class ArdupilotConnectionThread(QThread):
                 message_rates = [
                     (mavutil.mavlink.MAVLINK_MSG_ID_GLOBAL_POSITION_INT, 2),
                     (mavutil.mavlink.MAVLINK_MSG_ID_GPS_RAW_INT, 2),
+                    (mavutil.mavlink.MAVLINK_MSG_ID_EKF_STATUS_REPORT, 2),
                     (mavutil.mavlink.MAVLINK_MSG_ID_ATTITUDE, 2),
                     (mavutil.mavlink.MAVLINK_MSG_ID_VFR_HUD, 1),
                     (mavutil.mavlink.MAVLINK_MSG_ID_HEARTBEAT, 1),
@@ -671,6 +670,34 @@ class ArdupilotConnectionThread(QThread):
                 f"[UPLOAD] Starting PRODUCTION mission upload with {len(waypoints)} waypoints"
             )
 
+            # If a previous mission is still active, replace it from a stable mode.
+            # Uploading a brand-new mission while the rover is still armed/in AUTO can
+            # leave mission execution state ambiguous across runs, especially when the
+            # user chains single-waypoint and multi-waypoint tests without disarming.
+            heartbeat = self.connection.recv_match(
+                type="HEARTBEAT", blocking=True, timeout=1
+            )
+            if heartbeat:
+                current_mode = self.get_mode_string(
+                    heartbeat.custom_mode, heartbeat.type
+                )
+                is_armed = bool(
+                    heartbeat.base_mode & mavutil.mavlink.MAV_MODE_FLAG_SAFETY_ARMED
+                )
+                print(
+                    f"[UPLOAD] Pre-upload vehicle state: mode={current_mode} armed={is_armed}"
+                )
+                if is_armed and current_mode == "AUTO":
+                    print(
+                        "[UPLOAD] Vehicle is in AUTO during upload — switching to HOLD first..."
+                    )
+                    if not self.set_mode("HOLD"):
+                        print(
+                            "[UPLOAD ERROR] Failed to switch to HOLD before mission replacement"
+                        )
+                        return False
+                    self.msleep(500)
+
             # Step 1: Configure ArduPilot timeouts first
             self.configure_ardupilot_timeouts()
 
@@ -706,10 +733,9 @@ class ArdupilotConnectionThread(QThread):
             self.msleep(300)  # Brief settle after clear
 
             # Step 4: Prepare mission items.
-            # ArduPilot convention: seq=0 is always the HOME position.
-            # It is not navigated — ArduPilot uses it as the reference origin.
-            # lat/lon/alt = 0 tells ArduPilot to use the vehicle's current position.
-            # User waypoints start at seq=1.
+            # ArduPilot AP_Mission reserves seq=0 for HOME. Upload a placeholder
+            # item 0 so the first real waypoint starts at seq=1, then explicitly
+            # set the current mission item to 1 after upload.
             mission_items = [
                 {
                     "seq": 0,
@@ -723,9 +749,10 @@ class ArdupilotConnectionThread(QThread):
                     "param4": 0.0,
                     "x": 0,
                     "y": 0,
-                    "z": 0.0,  # 0,0,0 = use current position as home
+                    "z": 0.0,
                 }
             ]
+            real_waypoint_count = len(waypoints)
 
             for i, wp in enumerate(waypoints):
                 if isinstance(wp, dict):
@@ -737,7 +764,8 @@ class ArdupilotConnectionThread(QThread):
 
                 mission_items.append(
                     {
-                        "seq": i + 1,  # seq 0 is home; user waypoints start at 1
+                        "seq": i
+                        + 1,  # seq 0 reserved for HOME; real waypoints start at 1
                         "frame": mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT,
                         "command": mavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
                         "current": 0,
@@ -887,12 +915,12 @@ class ArdupilotConnectionThread(QThread):
                     "[UPLOAD SUCCESS] Mission uploaded successfully for PRODUCTION use!"
                 )
 
-                # Set current waypoint to seq=1 (first user waypoint; seq=0 is home)
+                # Set current waypoint to seq=1 (first real waypoint; seq=0 is HOME)
                 self.connection.mav.mission_set_current_send(
                     self.connection.target_system, self.connection.target_component, 1
                 )
-                print("[UPLOAD] Set mission current to seq=1 (first user waypoint)")
-                self.last_mission_count = total_items
+                print("[UPLOAD] Set mission current to seq=1 (first real waypoint)")
+                self.last_mission_count = real_waypoint_count
 
                 # Extra cleanup for production
                 self.msleep(500)
@@ -932,6 +960,41 @@ class ArdupilotConnectionThread(QThread):
         try:
             print(f"[MODE DEBUG] Setting mode to: {mode_name}")
 
+            def _drain_mode_debug_messages(window_s=0.75):
+                """Drain immediate COMMAND_ACK/STATUSTEXT messages for mode diagnostics."""
+                end_time = time.time() + window_s
+                while time.time() < end_time:
+                    msg = self.connection.recv_match(
+                        type=["COMMAND_ACK", "STATUSTEXT", "HEARTBEAT"],
+                        blocking=True,
+                        timeout=0.25,
+                    )
+                    if not msg:
+                        continue
+
+                    msg_type = msg.get_type()
+                    if msg_type == "COMMAND_ACK":
+                        print(
+                            "[MODE DEBUG] COMMAND_ACK "
+                            f"command={msg.command} result={msg.result}"
+                        )
+                    elif msg_type == "STATUSTEXT":
+                        text = getattr(msg, "text", "")
+                        severity = getattr(msg, "severity", "?")
+                        print(f"[MODE DEBUG] STATUSTEXT severity={severity}: {text}")
+                    elif msg_type == "HEARTBEAT":
+                        current_mode_id = msg.custom_mode
+                        current_mode_name = self.get_mode_string(
+                            current_mode_id, msg.type
+                        )
+                        armed = bool(
+                            msg.base_mode & mavutil.mavlink.MAV_MODE_FLAG_SAFETY_ARMED
+                        )
+                        print(
+                            "[MODE DEBUG] HEARTBEAT "
+                            f"mode={current_mode_name} (ID:{current_mode_id}) armed={armed}"
+                        )
+
             # Mode mappings for Rover/Boat
             mode_mapping = {
                 "MANUAL": 0,
@@ -959,6 +1022,22 @@ class ArdupilotConnectionThread(QThread):
             print(f"[MODE DEBUG] Target system: {self.connection.target_system}")
             print(f"[MODE DEBUG] Target component: {self.connection.target_component}")
 
+            initial_hb = self.connection.recv_match(
+                type="HEARTBEAT", blocking=True, timeout=1
+            )
+            if initial_hb:
+                initial_mode_id = initial_hb.custom_mode
+                initial_mode_name = self.get_mode_string(
+                    initial_mode_id, initial_hb.type
+                )
+                initial_armed = bool(
+                    initial_hb.base_mode & mavutil.mavlink.MAV_MODE_FLAG_SAFETY_ARMED
+                )
+                print(
+                    "[MODE DEBUG] Initial vehicle state: "
+                    f"mode={initial_mode_name} (ID:{initial_mode_id}) armed={initial_armed}"
+                )
+
             for attempt in range(3):
                 self.connection.mav.set_mode_send(
                     self.connection.target_system,
@@ -984,6 +1063,8 @@ class ArdupilotConnectionThread(QThread):
                     f"[MODE DEBUG] Mode change to {mode_name} (ID:{mode_id}) requested "
                     f"(attempt {attempt + 1}/3)"
                 )
+
+                _drain_mode_debug_messages(window_s=1.0)
 
                 deadline = time.time() + 5
                 while time.time() < deadline:
@@ -1011,6 +1092,7 @@ class ArdupilotConnectionThread(QThread):
                 )
 
             print(f"[MODE DEBUG] ✗ Mode change to {mode_name} failed after 3 attempts")
+            _drain_mode_debug_messages(window_s=1.5)
             return False
 
         except Exception as e:
@@ -1481,7 +1563,103 @@ class ArdupilotConnectionThread(QThread):
             print("[START_MISSION] Starting mission sequence...")
             self.mission_status.emit("Starting mission...", True)
 
-            # Step 1: Arm if needed
+            EKF_REQUIRED_FLAGS = (
+                mavutil.mavlink.EKF_ATTITUDE
+                | mavutil.mavlink.EKF_VELOCITY_HORIZ
+                | mavutil.mavlink.EKF_POS_HORIZ_ABS
+            )
+
+            def _drain_start_debug_messages(window_s=1.0):
+                """Drain COMMAND_ACK/STATUSTEXT/HEARTBEAT for mission-start diagnostics."""
+                end_time = time.time() + window_s
+                while time.time() < end_time:
+                    msg = self.connection.recv_match(
+                        type=["COMMAND_ACK", "STATUSTEXT", "HEARTBEAT"],
+                        blocking=True,
+                        timeout=0.25,
+                    )
+                    if not msg:
+                        continue
+
+                    msg_type = msg.get_type()
+                    if msg_type == "COMMAND_ACK":
+                        print(
+                            "[START_MISSION] COMMAND_ACK "
+                            f"command={msg.command} result={msg.result}"
+                        )
+                    elif msg_type == "STATUSTEXT":
+                        text = getattr(msg, "text", "")
+                        severity = getattr(msg, "severity", "?")
+                        print(f"[START_MISSION] STATUSTEXT severity={severity}: {text}")
+                    elif msg_type == "HEARTBEAT":
+                        mode = self.get_mode_string(msg.custom_mode, msg.type)
+                        armed = bool(
+                            msg.base_mode & mavutil.mavlink.MAV_MODE_FLAG_SAFETY_ARMED
+                        )
+                        print(
+                            "[START_MISSION] HEARTBEAT "
+                            f"mode={mode} (ID:{msg.custom_mode}) armed={armed}"
+                        )
+
+            def _wait_autonomous_ready(timeout_s=15.0):
+                """Wait until GPS + EKF are ready for Rover AUTO mode."""
+                deadline = time.time() + timeout_s
+                last_fix = None
+                last_sats = None
+                last_flags = None
+
+                while time.time() < deadline:
+                    msg = self.connection.recv_match(
+                        type=[
+                            "GPS_RAW_INT",
+                            "EKF_STATUS_REPORT",
+                            "HEARTBEAT",
+                            "STATUSTEXT",
+                        ],
+                        blocking=True,
+                        timeout=0.5,
+                    )
+                    if not msg:
+                        continue
+
+                    msg_type = msg.get_type()
+                    if msg_type == "GPS_RAW_INT":
+                        last_fix = msg.fix_type
+                        last_sats = msg.satellites_visible
+                        print(
+                            f"[START_MISSION] GPS fix_type={last_fix} sats={last_sats}"
+                        )
+                    elif msg_type == "EKF_STATUS_REPORT":
+                        last_flags = msg.flags
+                        print(
+                            "[START_MISSION] EKF_STATUS_REPORT "
+                            f"flags={last_flags} "
+                            f"att={bool(last_flags & mavutil.mavlink.EKF_ATTITUDE)} "
+                            f"vel_h={bool(last_flags & mavutil.mavlink.EKF_VELOCITY_HORIZ)} "
+                            f"pos_h_abs={bool(last_flags & mavutil.mavlink.EKF_POS_HORIZ_ABS)}"
+                        )
+                    elif msg_type == "STATUSTEXT":
+                        print(
+                            f"[START_MISSION] STATUSTEXT severity={getattr(msg, 'severity', '?')}: {getattr(msg, 'text', '')}"
+                        )
+
+                    gps_ready = last_fix is not None and last_fix >= 3
+                    ekf_ready = (
+                        last_flags is not None
+                        and (last_flags & EKF_REQUIRED_FLAGS) == EKF_REQUIRED_FLAGS
+                    )
+
+                    if gps_ready and ekf_ready:
+                        print("[START_MISSION] GPS/EKF ready for AUTO mode")
+                        return True
+
+                print(
+                    "[START_MISSION] GPS/EKF not ready for AUTO mode within timeout "
+                    f"(last_fix={last_fix}, last_sats={last_sats}, last_flags={last_flags})"
+                )
+                return False
+
+            # Step 1: Capture initial armed state
             heartbeat = self.connection.recv_match(
                 type="HEARTBEAT", blocking=True, timeout=3
             )
@@ -1489,19 +1667,49 @@ class ArdupilotConnectionThread(QThread):
                 self.mission_status.emit("No heartbeat from vehicle", False)
                 return False
 
-            is_armed = bool(
+            initially_armed = bool(
                 heartbeat.base_mode & mavutil.mavlink.MAV_MODE_FLAG_SAFETY_ARMED
             )
-            if not is_armed:
-                print("[START_MISSION] Vehicle not armed — arming first...")
-                self.mission_status.emit("Arming vehicle...", True)
-                if not self.arm_vehicle():
-                    self.mission_status.emit("Failed to arm vehicle", False)
+            print(f"[START_MISSION] Initial armed state: {initially_armed}")
+
+            # IMPORTANT WORKAROUND FOR ARDUPILOT ROVER / BOAT:
+            # Rover becomes stricter about EKF position validity once the vehicle is
+            # armed. In our VRX/SITL path this can leave EKF in const_pos_mode after
+            # arming, which makes AUTO entry fail with "Flight mode change failed"
+            # even though the mission upload succeeded.
+            #
+            # To preserve the previously working behavior, when the vehicle starts
+            # disarmed we try to enter mission/AUTO BEFORE arming. If the vehicle is
+            # already armed, we keep the stricter GPS/EKF gate before attempting AUTO.
+            # Leave this comment in place until the underlying EKF/SITL cause is fixed.
+            if initially_armed:
+                print(
+                    "[START_MISSION] Vehicle already armed — waiting for GPS/EKF readiness..."
+                )
+                self.mission_status.emit("Waiting for GPS/EKF readiness...", True)
+                if not _wait_autonomous_ready(timeout_s=15.0):
+                    self.mission_status.emit("GPS/EKF not ready for AUTO mode", False)
                     return False
+            else:
+                print(
+                    "[START_MISSION] Vehicle disarmed — trying mission/AUTO before arming "
+                    "(Rover EKF workaround)..."
+                )
 
             # Step 2: Send MAV_CMD_MISSION_START (proper protocol per ArduPilot docs)
             # param1 = first_item (0 = start from beginning)
             # param2 = last_item  (0 = run to end)
+            # Re-assert the first real mission item before starting. This protects
+            # against stale mission state when replacing one mission with another
+            # while the vehicle remains armed between tests.
+            print("[START_MISSION] Re-applying mission current seq=1 before start...")
+            self.connection.mav.mission_set_current_send(
+                self.connection.target_system,
+                self.connection.target_component,
+                1,
+            )
+            self.msleep(200)
+
             print("[START_MISSION] Sending MAV_CMD_MISSION_START...")
             self.mission_status.emit("Sending mission start command...", True)
             self.connection.mav.command_long_send(
@@ -1518,20 +1726,35 @@ class ArdupilotConnectionThread(QThread):
                 0,
             )
 
+            _drain_start_debug_messages(window_s=1.0)
+
             # Step 3: Wait for COMMAND_ACK
             ack = self.connection.recv_match(
                 type="COMMAND_ACK", blocking=True, timeout=5
             )
+            auto_entered = False
+
             if ack and ack.command == mavutil.mavlink.MAV_CMD_MISSION_START:
+                print(f"[START_MISSION] MISSION_START ACK result={ack.result}")
                 if ack.result != 0:
                     print(
                         f"[START_MISSION] MAV_CMD_MISSION_START rejected (result={ack.result}), "
                         "falling back to AUTO mode switch..."
                     )
+                    _drain_start_debug_messages(window_s=1.5)
                     # Fallback: set AUTO mode directly
                     if not self.set_mode("AUTO"):
                         self.mission_status.emit("Failed to set AUTO mode", False)
                         return False
+                    auto_entered = True
+            elif ack:
+                print(
+                    "[START_MISSION] Received unrelated COMMAND_ACK "
+                    f"command={ack.command} result={ack.result}"
+                )
+            else:
+                print("[START_MISSION] No COMMAND_ACK received for MISSION_START")
+                _drain_start_debug_messages(window_s=1.5)
 
             # Step 4: Confirm vehicle is in AUTO mode via HEARTBEAT
             deadline = time.time() + 10
@@ -1542,26 +1765,37 @@ class ArdupilotConnectionThread(QThread):
                 if hb:
                     mode = self.get_mode_string(hb.custom_mode, hb.type)
                     if mode == "AUTO":
+                        auto_entered = True
                         print(
                             "[START_MISSION SUCCESS] Vehicle is in AUTO mode — mission running!"
                         )
-                        self.mission_status.emit(
-                            "Mission started — USV in AUTO mode", True
-                        )
-                        return True
+                        break
 
             # If we couldn't confirm AUTO mode, try forcing it
-            print(
-                "[START_MISSION] AUTO mode not confirmed — trying direct mode switch..."
-            )
-            if self.set_mode("AUTO"):
-                self.mission_status.emit("Mission started — AUTO mode set", True)
-                return True
+            if not auto_entered:
+                print(
+                    "[START_MISSION] AUTO mode not confirmed — trying direct mode switch..."
+                )
+                if self.set_mode("AUTO"):
+                    auto_entered = True
+                else:
+                    self.mission_status.emit(
+                        "Mission start: could not confirm AUTO mode", False
+                    )
+                    return False
 
-            self.mission_status.emit(
-                "Mission start: could not confirm AUTO mode", False
-            )
-            return False
+            # Step 5: If AUTO/mission entry succeeded while disarmed, arm afterward.
+            if not initially_armed:
+                print("[START_MISSION] AUTO entered while disarmed — arming now...")
+                self.mission_status.emit("Arming vehicle after AUTO entry...", True)
+                if not self.arm_vehicle():
+                    self.mission_status.emit(
+                        "Failed to arm vehicle after AUTO entry", False
+                    )
+                    return False
+
+            self.mission_status.emit("Mission started — USV in AUTO mode", True)
+            return True
 
         except Exception as e:
             error_msg = f"Exception during mission start: {e}"

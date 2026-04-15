@@ -185,7 +185,7 @@ class MapWidget(QtWebEngineWidgets.QWebEngineView):
             var waypoints = [];
             var lines = [];
             function putWaypointEvent(e) {
-                putWaypoint(e.latlng.lat.toFixed(4), e.latlng.lng.toFixed(4));
+                putWaypoint(e.latlng.lat, e.latlng.lng);
             }
             
             function putWaypoint(lat, lng) {
@@ -219,7 +219,7 @@ class MapWidget(QtWebEngineWidgets.QWebEngineView):
                 var msg = "";
                 if (mission_type == 1){ // waypoints
                     for(let i = 0; i < waypoints.length; i++){
-                        msg += waypoints[i].getLatLng().lat.toFixed(4) + "," + waypoints[i].getLatLng().lng.toFixed(4);
+                        msg += waypoints[i].getLatLng().lat + "," + waypoints[i].getLatLng().lng;
                         if (i < waypoints.length - 1) {
                             msg += "&";
                         }
@@ -227,7 +227,7 @@ class MapWidget(QtWebEngineWidgets.QWebEngineView):
                 } else { // exploration
                     if (corners.length == 2) {
                         for(let i = 0; i < 2; i++){
-                            msg += corners[i].lat.toFixed(4) + "," + corners[i].lng.toFixed(4);
+                            msg += corners[i].lat + "," + corners[i].lng;
                             if (i < corners.length - 1) {
                                 msg += "&";
                             }

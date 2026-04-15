@@ -74,3 +74,6 @@ SR0_RAW_SENS,5         # Raw sensors
 SIM_ENABLE,1           # Enable SITL simulation
 SIM_GPS_DISABLE,0      # Use simulated GPS
 SIM_BARO_DISABLE,0     # Use simulated baro
+SIM_OPOS_LAT,40.978861 # Simulation origin latitude
+SIM_OPOS_LNG,29.024639 # Simulation origin longitude
+SIM_OPOS_ALT,0         # Simulation origin altitude (meters)
